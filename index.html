@@ -1,0 +1,1149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>NexaVault — AI-Powered Investment Banking</title>
+<meta name="description" content="NexaVault is an AI-powered investment banking platform that helps you invest smarter with automated AI agents, high-yield assets, and bank-grade security." />
+
+<!-- GSAP -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+<!-- Font -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/inter@5.0.0/index.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/space-grotesk@5.0.0/index.css" />
+
+<style>
+  /* ============ RESET & BASE ============ */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background: #05060a;
+    color: #e7e9ee;
+    overflow-x: hidden;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3, h4 { font-family: 'Space Grotesk', 'Inter', sans-serif; letter-spacing: -0.02em; }
+  a { color: inherit; text-decoration: none; }
+  img { max-width: 100%; display: block; }
+  button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; }
+
+  :root {
+    --bg: #05060a;
+    --bg-2: #0b0d14;
+    --bg-3: #11141d;
+    --line: rgba(255,255,255,0.08);
+    --text: #e7e9ee;
+    --muted: #8a8f9c;
+    --accent: #7c5cff;
+    --accent-2: #00d4ff;
+    --gold: #f5c451;
+    --green: #22c55e;
+    --red: #ef4444;
+    --grad: linear-gradient(135deg, #7c5cff 0%, #00d4ff 50%, #f5c451 100%);
+    --grad-2: linear-gradient(135deg, #7c5cff 0%, #00d4ff 100%);
+    --grad-gold: linear-gradient(135deg, #f5c451 0%, #d4a017 100%);
+  }
+
+  /* ============ BOOT / INTRO OVERLAY ============ */
+  #introOverlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: radial-gradient(ellipse at center, #0a0c14 0%, #05060a 70%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  #introOverlay::before {
+    content: '';
+    position: absolute;
+    inset: -20%;
+    background:
+      radial-gradient(circle at 20% 30%, rgba(124,92,255,0.18), transparent 50%),
+      radial-gradient(circle at 80% 70%, rgba(0,212,255,0.15), transparent 50%),
+      radial-gradient(circle at 50% 50%, rgba(245,196,81,0.08), transparent 60%);
+      filter: blur(40px);
+      animation: drift 12s ease-in-out infinite alternate;
+  }
+  @keyframes drift {
+    0% { transform: translate(0,0) scale(1); }
+    100% { transform: translate(3%, -3%) scale(1.1); }
+  }
+
+  .intro-letter {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: clamp(160px, 22vw, 280px);
+    font-weight: 800;
+    line-height: 0.85;
+    background: var(--grad);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    position: relative;
+    z-index: 2;
+    opacity: 0;
+    transform: scale(0.6) translateY(40px);
+    filter: blur(20px);
+    text-shadow: 0 0 80px rgba(124,92,255,0.3);
+  }
+  .intro-wordmark {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: clamp(32px, 5vw, 64px);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-top: 16px;
+    opacity: 0;
+    transform: translateY(20px);
+    z-index: 2;
+    position: relative;
+  }
+  .intro-wordmark .grad {
+    background: var(--grad);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .intro-tagline {
+    font-size: clamp(13px, 1.4vw, 18px);
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 14px;
+    opacity: 0;
+    transform: translateY(10px);
+    z-index: 2;
+    position: relative;
+  }
+  .intro-tagline span {
+    color: var(--accent-2);
+  }
+
+  /* ============ NAV ============ */
+  .nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    padding: 18px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    backdrop-filter: blur(14px);
+    background: rgba(5,6,10,0.55);
+    border-bottom: 1px solid var(--line);
+    transition: padding 0.3s ease;
+  }
+  .nav.scrolled { padding: 12px 40px; background: rgba(5,6,10,0.85); }
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 20px;
+    letter-spacing: -0.02em;
+  }
+  .logo-mark {
+    width: 34px; height: 34px;
+    border-radius: 9px;
+    background: var(--grad);
+    display: grid;
+    place-items: center;
+    color: #05060a;
+    font-weight: 800;
+    font-size: 18px;
+    font-family: 'Space Grotesk', sans-serif;
+  }
+  .nav-links {
+    display: flex;
+    gap: 32px;
+    align-items: center;
+  }
+  .nav-links a {
+    font-size: 14px;
+    color: var(--muted);
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--text); }
+  .nav-cta {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 11px 22px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.25s ease;
+    white-space: nowrap;
+  }
+  .btn-ghost { color: var(--text); border: 1px solid var(--line); }
+  .btn-ghost:hover { border-color: rgba(255,255,255,0.25); background: rgba(255,255,255,0.03); }
+  .btn-primary {
+    background: var(--grad-2);
+    color: #fff;
+    box-shadow: 0 8px 30px rgba(124,92,255,0.35);
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(124,92,255,0.5); }
+  .btn-lg { padding: 16px 32px; font-size: 15px; border-radius: 12px; }
+  
+  /* Admin button */
+  .btn-admin {
+    padding: 9px 16px;
+    font-size: 12px;
+    border: 1px solid rgba(245,196,81,0.3);
+    background: rgba(245,196,81,0.08);
+    color: var(--gold);
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.25s ease;
+  }
+  .btn-admin:hover {
+    background: rgba(245,196,81,0.15);
+    border-color: rgba(245,196,81,0.5);
+    transform: translateY(-1px);
+  }
+  .btn-admin::before {
+    content: '⚙';
+    font-size: 14px;
+  }
+
+  /* ============ HERO ============ */
+  .hero {
+    min-height: 100vh;
+    padding: 140px 40px 80px;
+    display: grid;
+    grid-template-columns: 1.1fr 1fr;
+    gap: 60px;
+    align-items: center;
+    max-width: 1400px;
+    margin: 0 auto;
+    position: relative;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: 20%; left: -10%;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(124,92,255,0.15), transparent 60%);
+    filter: blur(60px);
+    pointer-events: none;
+  }
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    border-radius: 100px;
+    border: 1px solid var(--line);
+    background: rgba(255,255,255,0.02);
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 24px;
+  }
+  .hero-badge .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 10px var(--green);
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%,100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+  .hero h1 {
+    font-size: clamp(40px, 5.5vw, 76px);
+    line-height: 1.02;
+    font-weight: 700;
+    margin-bottom: 24px;
+  }
+  .hero h1 .grad {
+    background: var(--grad);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .hero p.lead {
+    font-size: 18px;
+    color: var(--muted);
+    max-width: 560px;
+    margin-bottom: 36px;
+  }
+  .hero-actions { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 48px; }
+  .hero-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    max-width: 520px;
+    padding-top: 32px;
+    border-top: 1px solid var(--line);
+  }
+  .hero-stats .stat-val {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 28px;
+    font-weight: 700;
+    background: var(--grad-2);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .hero-stats .stat-lbl {
+    font-size: 12px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-top: 4px;
+  }
+
+  /* ============ CHART CARD ============ */
+  .chart-card {
+    position: relative;
+    background: linear-gradient(180deg, rgba(20,23,35,0.9), rgba(11,13,20,0.9));
+    border: 1px solid var(--line);
+    border-radius: 24px;
+    padding: 28px;
+    backdrop-filter: blur(20px);
+    box-shadow: 0 30px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(124,92,255,0.1);
+  }
+  .chart-card::before {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    border-radius: 24px;
+    padding: 1px;
+    background: linear-gradient(135deg, rgba(124,92,255,0.4), transparent 40%, rgba(0,212,255,0.3));
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+
+  /* Asset switcher tabs */
+  .asset-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    padding: 4px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    width: fit-content;
+  }
+  .asset-tab {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+  }
+  .asset-tab .tab-icon {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    font-size: 11px;
+    font-weight: 800;
+    color: #05060a;
+  }
+  .asset-tab[data-asset="btc"] .tab-icon { background: linear-gradient(135deg, #f7931a, #ffb84d); }
+  .asset-tab[data-asset="xau"] .tab-icon { background: linear-gradient(135deg, #f5c451, #d4a017); }
+  .asset-tab.active {
+    background: rgba(255,255,255,0.06);
+    color: var(--text);
+  }
+  .asset-tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 20px;
+    height: 2px;
+    border-radius: 2px;
+    background: var(--accent-2);
+    box-shadow: 0 0 8px var(--accent-2);
+  }
+
+  .chart-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 20px;
+  }
+  .chart-title {
+    font-size: 13px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+  }
+  .chart-symbol {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    margin-top: 4px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .chart-symbol .asset-badge {
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 100px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+  }
+  .chart-symbol .asset-badge.btc {
+    background: rgba(247,147,26,0.15);
+    color: #f7931a;
+    border: 1px solid rgba(247,147,26,0.3);
+  }
+  .chart-symbol .asset-badge.xau {
+    background: rgba(245,196,81,0.15);
+    color: #f5c451;
+    border: 1px solid rgba(245,196,81,0.3);
+  }
+  .chart-price {
+    text-align: right;
+    transition: opacity 0.3s ease;
+  }
+  .chart-price .val {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 26px;
+    font-weight: 700;
+  }
+  .chart-price .chg {
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .chart-svg {
+    width: 100%;
+    height: 220px;
+    display: block;
+    transition: opacity 0.3s ease;
+  }
+  .chart-meta {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--line);
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .chart-meta .ai-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--accent-2);
+  }
+  .chart-meta .ai-tag::before {
+    content: '';
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--accent-2);
+    box-shadow: 0 0 8px var(--accent-2);
+    animation: pulse 1.5s infinite;
+  }
+  .chart-meta .cycle-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--muted);
+  }
+  .chart-meta .cycle-indicator .cycle-dot {
+    width: 5px; height: 5px; border-radius: 50%;
+    background: var(--muted);
+    transition: all 0.3s ease;
+  }
+  .chart-meta .cycle-indicator .cycle-dot.active {
+    background: var(--accent-2);
+    box-shadow: 0 0 6px var(--accent-2);
+    transform: scale(1.3);
+  }
+
+  /* ============ SECTION BASE ============ */
+  section { padding: 120px 40px; position: relative; }
+  .container { max-width: 1400px; margin: 0 auto; }
+  .section-head { text-align: center; margin-bottom: 72px; }
+  .section-eyebrow {
+    display: inline-block;
+    font-size: 12px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--accent-2);
+    margin-bottom: 16px;
+    padding: 6px 14px;
+    border: 1px solid rgba(0,212,255,0.2);
+    border-radius: 100px;
+    background: rgba(0,212,255,0.05);
+  }
+  .section-title {
+    font-size: clamp(32px, 4vw, 52px);
+    font-weight: 700;
+    line-height: 1.1;
+    margin-bottom: 16px;
+  }
+  .section-sub {
+    font-size: 17px;
+    color: var(--muted);
+    max-width: 640px;
+    margin: 0 auto;
+  }
+
+  /* ============ FEATURES / ABOUT ============ */
+  .features {
+    background: linear-gradient(180deg, transparent, rgba(11,13,20,0.5), transparent);
+  }
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+  .feature {
+    position: relative;
+    padding: 36px 32px;
+    border-radius: 20px;
+    background: linear-gradient(180deg, rgba(20,23,35,0.6), rgba(11,13,20,0.4));
+    border: 1px solid var(--line);
+    transition: all 0.35s ease;
+    overflow: hidden;
+  }
+  .feature::before {
+    content: '';
+    position: absolute;
+    top: -50%; left: -50%;
+    width: 200%; height: 200%;
+    background: radial-gradient(circle, rgba(124,92,255,0.1), transparent 40%);
+    opacity: 0;
+    transition: opacity 0.4s;
+    pointer-events: none;
+  }
+  .feature:hover { transform: translateY(-6px); border-color: rgba(124,92,255,0.3); }
+  .feature:hover::before { opacity: 1; }
+  .feature-icon {
+    width: 56px; height: 56px;
+    border-radius: 14px;
+    display: grid;
+    place-items: center;
+    margin-bottom: 22px;
+    font-size: 24px;
+    background: linear-gradient(135deg, rgba(124,92,255,0.15), rgba(0,212,255,0.1));
+    border: 1px solid rgba(124,92,255,0.25);
+  }
+  .feature h3 {
+    font-size: 22px;
+    font-weight: 600;
+    margin-bottom: 12px;
+  }
+  .feature p {
+    color: var(--muted);
+    font-size: 15px;
+    line-height: 1.7;
+    margin-bottom: 20px;
+  }
+  .feature ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .feature ul li {
+    font-size: 13px;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .feature ul li::before {
+    content: '';
+    width: 5px; height: 5px; border-radius: 50%;
+    background: var(--accent-2);
+  }
+
+  /* ============ CTA ============ */
+  .cta-section {
+    padding: 120px 40px;
+  }
+  .cta-box {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 80px 60px;
+    border-radius: 28px;
+    background:
+      radial-gradient(circle at 20% 20%, rgba(124,92,255,0.25), transparent 50%),
+      radial-gradient(circle at 80% 80%, rgba(0,212,255,0.2), transparent 50%),
+      linear-gradient(135deg, #0d1020, #080a14);
+    border: 1px solid var(--line);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .cta-box::before {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    border-radius: 28px;
+    padding: 1px;
+    background: linear-gradient(135deg, rgba(124,92,255,0.5), transparent 50%, rgba(0,212,255,0.4));
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+  .cta-box h2 {
+    font-size: clamp(30px, 4vw, 48px);
+    font-weight: 700;
+    margin-bottom: 16px;
+    line-height: 1.15;
+  }
+  .cta-box p {
+    color: var(--muted);
+    font-size: 17px;
+    max-width: 560px;
+    margin: 0 auto 36px;
+  }
+
+  /* ============ FOOTER ============ */
+  footer {
+    padding: 60px 40px 40px;
+    border-top: 1px solid var(--line);
+    background: #03040a;
+  }
+  .footer-inner {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+  .footer-inner .copy {
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .footer-links { display: flex; gap: 24px; }
+  .footer-links a { font-size: 13px; color: var(--muted); transition: color 0.2s; }
+  .footer-links a:hover { color: var(--text); }
+
+  /* ============ RESPONSIVE ============ */
+  @media (max-width: 960px) {
+    .nav { padding: 14px 20px; }
+    .nav-links { display: none; }
+    .hero { grid-template-columns: 1fr; padding: 120px 20px 60px; gap: 40px; }
+    .hero-stats { grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    section { padding: 80px 20px; }
+    .features-grid { grid-template-columns: 1fr; }
+    .cta-box { padding: 50px 28px; }
+    .footer-inner { flex-direction: column; text-align: center; }
+    .asset-tabs { width: 100%; }
+    .asset-tab { flex: 1; justify-content: center; }
+    .btn-admin { font-size: 11px; padding: 7px 12px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ INTRO OVERLAY ============ -->
+<div id="introOverlay">
+  <div class="intro-letter" id="introLetter">N</div>
+  <div class="intro-wordmark" id="introWordmark"><span class="grad">NexaVault</span></div>
+  <div class="intro-tagline" id="introTagline">AI-Powered <span>Investment Banking</span></div>
+</div>
+
+<!-- ============ NAV ============ -->
+<nav class="nav" id="nav">
+  <a href="#" class="logo">
+    <span class="logo-mark">N</span>
+    <span>NexaVault</span>
+  </a>
+  <div class="nav-links">
+    <a href="#features">Platform</a>
+    <a href="#about">About</a>
+    <a href="#cta">Pricing</a>
+    <a href="#">Docs</a>
+  </div>
+  <div class="nav-cta">
+    <a href="admin.html" class="btn-admin">Admin</a>
+    <a href="login.html" class="btn btn-ghost">Log in</a>
+    <a href="signup.html" class="btn btn-primary">Get Started</a>
+  </div>
+</nav>
+
+<!-- ============ HERO ============ -->
+<section class="hero">
+  <div class="hero-left">
+    <div class="hero-badge">
+      <span class="dot"></span>
+      <span>Live AI Markets · 24/7 Automated Trading</span>
+    </div>
+    <h1>
+      Invest Smarter<br />
+      with <span class="grad">AI</span>.
+    </h1>
+    <p class="lead">
+      NexaVault is the next-generation investment banking platform powered by autonomous AI agents.
+      Deploy capital into high-yield crypto and stock markets with bank-grade security — all managed
+      for you, in real time.
+    </p>
+    <div class="hero-actions">
+      <a href="signup.html" class="btn btn-primary btn-lg">Create Your Account →</a>
+      <a href="#features" class="btn btn-ghost btn-lg">Explore Platform</a>
+    </div>
+    <div class="hero-stats">
+      <div>
+        <div class="stat-val">$2.4B+</div>
+        <div class="stat-lbl">Assets Managed</div>
+      </div>
+      <div>
+        <div class="stat-val">184K</div>
+        <div class="stat-lbl">Active Investors</div>
+      </div>
+      <div>
+        <div class="stat-val">99.99%</div>
+        <div class="stat-lbl">Uptime SLA</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero-right">
+    <div class="chart-card" id="chartCard">
+      <!-- Asset Tabs -->
+      <div class="asset-tabs">
+        <div class="asset-tab active" data-asset="btc">
+          <span class="tab-icon">₿</span>
+          <span>Bitcoin</span>
+        </div>
+        <div class="asset-tab" data-asset="xau">
+          <span class="tab-icon">Au</span>
+          <span>Gold</span>
+        </div>
+      </div>
+
+      <div class="chart-head">
+        <div>
+          <div class="chart-title">AI Market Analysis</div>
+          <div class="chart-symbol">
+            <span id="chartSymbolText">BTC / USD</span>
+            <span class="asset-badge btc" id="chartBadge">CRYPTO</span>
+          </div>
+        </div>
+        <div class="chart-price">
+          <div class="val" id="chartPrice">$67,842.10</div>
+          <div class="chg" id="chartChg">+3.24% today</div>
+        </div>
+      </div>
+
+      <svg class="chart-svg" viewBox="0 0 600 220" preserveAspectRatio="none" id="chartSvg">
+        <defs>
+          <linearGradient id="lineGrad" x1="0" x2="1" y1="0" y2="0">
+            <stop offset="0%" stop-color="#7c5cff" />
+            <stop offset="50%" stop-color="#00d4ff" />
+            <stop offset="100%" stop-color="#f5c451" />
+          </linearGradient>
+          <linearGradient id="lineGradGold" x1="0" x2="1" y1="0" y2="0">
+            <stop offset="0%" stop-color="#d4a017" />
+            <stop offset="50%" stop-color="#f5c451" />
+            <stop offset="100%" stop-color="#fff4c2" />
+          </linearGradient>
+          <linearGradient id="areaGrad" x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0%" stop-color="#7c5cff" stop-opacity="0.35" />
+            <stop offset="100%" stop-color="#7c5cff" stop-opacity="0" />
+          </linearGradient>
+          <linearGradient id="areaGradGold" x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0%" stop-color="#f5c451" stop-opacity="0.35" />
+            <stop offset="100%" stop-color="#f5c451" stop-opacity="0" />
+          </linearGradient>
+        </defs>
+        <!-- grid lines -->
+        <g stroke="rgba(255,255,255,0.05)" stroke-width="1">
+          <line x1="0" y1="55" x2="600" y2="55" />
+          <line x1="0" y1="110" x2="600" y2="110" />
+          <line x1="0" y1="165" x2="600" y2="165" />
+        </g>
+        <path id="chartArea" fill="url(#areaGrad)" d="" />
+        <path id="chartLine" fill="none" stroke="url(#lineGrad)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" d="" />
+        <circle id="chartDot" r="5" fill="#00d4ff" cx="0" cy="0">
+          <animate attributeName="r" values="5;8;5" dur="1.6s" repeatCount="indefinite" />
+        </circle>
+      </svg>
+
+      <div class="chart-meta">
+        <div class="ai-tag" id="aiSignal">AI Agent Active · Analyzing 2,400 signals/sec</div>
+        <div class="cycle-indicator">
+          <span class="cycle-dot active" data-dot="btc"></span>
+          <span class="cycle-dot" data-dot="xau"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FEATURES ============ -->
+<section class="features" id="features">
+  <div class="container">
+    <div class="section-head">
+      <span class="section-eyebrow">Why NexaVault</span>
+      <h2 class="section-title">Built for the modern investor.</h2>
+      <p class="section-sub">
+        Three pillars power every decision on the platform — autonomous intelligence,
+        curated high-yield assets, and uncompromising security.
+      </p>
+    </div>
+
+    <div class="features-grid" id="about">
+      <div class="feature">
+        <div class="feature-icon">🤖</div>
+        <h3>Automated AI Agent</h3>
+        <p>
+          Your personal AI mini-worker runs 24/7, scanning global markets, executing
+          trades, and rebalancing your portfolio — all without you lifting a finger.
+        </p>
+        <ul>
+          <li>Real-time signal processing</li>
+          <li>Adaptive risk management</li>
+          <li>Multi-asset strategy execution</li>
+        </ul>
+      </div>
+
+      <div class="feature">
+        <div class="feature-icon">📈</div>
+        <h3>High-Yield Assets</h3>
+        <p>
+          Access a curated universe of 20+ premium assets — from blue-chip equities
+          to top-tier cryptocurrencies and exclusive bonus instruments.
+        </p>
+        <ul>
+          <li>10 cryptocurrencies (BTC, ETH, SOL...)</li>
+          <li>9 major stocks (TSLA, NVDA, AAPL...)</li>
+          <li>Exclusive Tesla Roadster Bonus asset</li>
+        </ul>
+      </div>
+
+      <div class="feature">
+        <div class="feature-icon">🔐</div>
+        <h3>Bank-Grade Security</h3>
+        <p>
+          Your capital is protected by institutional-grade encryption, cold-storage
+          custody, and continuous monitoring — the same standards used by top-tier banks.
+        </p>
+        <ul>
+          <li>256-bit AES encryption</li>
+          <li>Multi-signature cold wallets</li>
+          <li>24/7 fraud detection</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CTA ============ -->
+<section class="cta-section" id="cta">
+  <div class="cta-box">
+    <h2>Start building your portfolio <span style="background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;">in minutes.</span></h2>
+    <p>
+      Join thousands of investors already using NexaVault's AI to grow their wealth.
+      Create your account, fund it, and let your AI agent get to work.
+    </p>
+    <a href="signup.html" class="btn btn-primary btn-lg">Create Your Account →</a>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer>
+  <div class="footer-inner">
+    <div class="copy">© 2026 NexaVault. All rights reserved.</div>
+    <div class="footer-links">
+      <a href="#">Terms</a>
+      <a href="#">Privacy</a>
+      <a href="#">Security</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  /* ============ GSAP INTRO TIMELINE ============ */
+  window.addEventListener('load', () => {
+    const tl = gsap.timeline({
+      onComplete: () => {
+        gsap.to('#introOverlay', {
+          opacity: 0,
+          duration: 0.8,
+          ease: 'power2.inOut',
+          onComplete: () => {
+            document.getElementById('introOverlay').style.display = 'none';
+            animateHero();
+          }
+        });
+      }
+    });
+
+    tl.to('#introLetter', {
+      opacity: 1,
+      scale: 1,
+      filter: 'blur(0px)',
+      y: 0,
+      duration: 1.4,
+      ease: 'power3.out'
+    })
+    .to('#introLetter', {
+      scale: 1.05,
+      duration: 0.8,
+      ease: 'sine.inOut',
+      yoyo: true,
+      repeat: 1
+    }, '+=0.2')
+    .to('#introWordmark', {
+      opacity: 1,
+      y: 0,
+      duration: 0.8,
+      ease: 'power2.out'
+    }, '-=0.6')
+    .to('#introTagline', {
+      opacity: 1,
+      y: 0,
+      duration: 0.7,
+      ease: 'power2.out'
+    }, '-=0.4')
+    .to({}, { duration: 1.2 });
+  });
+
+  /* ============ HERO ENTRANCE ============ */
+  function animateHero() {
+    gsap.from('.hero-badge', { opacity: 0, y: 20, duration: 0.7, ease: 'power2.out' });
+    gsap.from('.hero h1', { opacity: 0, y: 30, duration: 0.9, delay: 0.1, ease: 'power3.out' });
+    gsap.from('.hero p.lead', { opacity: 0, y: 20, duration: 0.8, delay: 0.25, ease: 'power2.out' });
+    gsap.from('.hero-actions', { opacity: 0, y: 20, duration: 0.8, delay: 0.4, ease: 'power2.out' });
+    gsap.from('.hero-stats > div', { opacity: 0, y: 20, duration: 0.7, stagger: 0.1, delay: 0.55, ease: 'power2.out' });
+    gsap.from('#chartCard', { opacity: 0, x: 40, duration: 1, delay: 0.3, ease: 'power3.out' });
+  }
+
+  /* ============ NAV SCROLL ============ */
+  const nav = document.getElementById('nav');
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', window.scrollY > 30);
+  });
+
+  /* ============ ANIMATED SVG CHART WITH ASSET SWITCHING ============ */
+  (function() {
+    const linePath = document.getElementById('chartLine');
+    const areaPath = document.getElementById('chartArea');
+    const dot = document.getElementById('chartDot');
+    const priceEl = document.getElementById('chartPrice');
+    const chgEl = document.getElementById('chartChg');
+    const symbolEl = document.getElementById('chartSymbolText');
+    const badgeEl = document.getElementById('chartBadge');
+    const aiSignalEl = document.getElementById('aiSignal');
+    const tabs = document.querySelectorAll('.asset-tab');
+    const cycleDots = document.querySelectorAll('.cycle-dot');
+
+    const W = 600, H = 220;
+    const POINTS = 40;
+
+    // Asset configurations
+    const ASSETS = {
+      btc: {
+        symbol: 'BTC / USD',
+        badge: 'CRYPTO',
+        badgeClass: 'btc',
+        basePrice: 67842.10,
+        volatility: 120,
+        lineGrad: 'url(#lineGrad)',
+        areaGrad: 'url(#areaGrad)',
+        dotColor: '#00d4ff',
+        signalText: 'AI Agent Active · Analyzing 2,400 signals/sec',
+        trend: 1.2,
+        decimals: 2
+      },
+      xau: {
+        symbol: 'XAU / USD',
+        badge: 'GOLD',
+        badgeClass: 'xau',
+        basePrice: 2684.50,
+        volatility: 8,
+        lineGrad: 'url(#lineGradGold)',
+        areaGrad: 'url(#areaGradGold)',
+        dotColor: '#f5c451',
+        signalText: 'AI Agent Active · Monitoring safe-haven flows',
+        trend: 0.3,
+        decimals: 2
+      }
+    };
+
+    let currentAsset = 'btc';
+    let data = [];
+    let isTransitioning = false;
+
+    // Seed data for an asset
+    function seedData(assetKey) {
+      const asset = ASSETS[assetKey];
+      const arr = [];
+      for (let i = 0; i < POINTS; i++) {
+        const noise = Math.sin(i * 0.4) * 15 + Math.cos(i * 0.15) * 10 + (Math.random() - 0.5) * 8;
+        arr.push(110 + noise + i * asset.trend);
+      }
+      return arr;
+    }
+
+    function buildPath(values) {
+      const min = Math.min(...values);
+      const max = Math.max(...values);
+      const range = max - min || 1;
+      const step = W / (values.length - 1);
+      let d = '';
+      values.forEach((v, i) => {
+        const x = i * step;
+        const y = H - 20 - ((v - min) / range) * (H - 40);
+        d += (i === 0 ? 'M' : 'L') + x.toFixed(2) + ',' + y.toFixed(2) + ' ';
+      });
+      return {
+        d,
+        lastX: (values.length - 1) * step,
+        lastY: H - 20 - ((values[values.length - 1] - min) / range) * (H - 40)
+      };
+    }
+
+    function render() {
+      const { d, lastX, lastY } = buildPath(data);
+      linePath.setAttribute('d', d);
+      areaPath.setAttribute('d', d + ` L ${W},${H} L 0,${H} Z`);
+      dot.setAttribute('cx', lastX);
+      dot.setAttribute('cy', lastY);
+    }
+
+    function updateUI() {
+      const asset = ASSETS[currentAsset];
+      symbolEl.textContent = asset.symbol;
+      badgeEl.textContent = asset.badge;
+      badgeEl.className = 'asset-badge ' + asset.badgeClass;
+      aiSignalEl.textContent = asset.signalText;
+      linePath.setAttribute('stroke', asset.lineGrad);
+      areaPath.setAttribute('fill', asset.areaGrad);
+      dot.setAttribute('fill', asset.dotColor);
+
+      // Update tabs
+      tabs.forEach(t => t.classList.toggle('active', t.dataset.asset === currentAsset));
+      // Update cycle dots
+      cycleDots.forEach(d => d.classList.toggle('active', d.dataset.dot === currentAsset));
+    }
+
+    function tick() {
+      if (isTransitioning) return;
+      const asset = ASSETS[currentAsset];
+      data.shift();
+      const last = data[data.length - 1];
+      const next = last + (Math.random() - 0.48) * (asset.volatility / 10);
+      data.push(Math.max(40, Math.min(H - 30, next)));
+
+      const delta = (Math.random() - 0.45) * asset.volatility;
+      asset.basePrice += delta;
+      const pct = ((delta / asset.basePrice) * 100);
+      priceEl.textContent = '$' + asset.basePrice.toLocaleString(undefined, {
+        minimumFractionDigits: asset.decimals,
+        maximumFractionDigits: asset.decimals
+      });
+      chgEl.textContent = (pct >= 0 ? '+' : '') + pct.toFixed(2) + '% today';
+      chgEl.style.color = pct >= 0 ? 'var(--green)' : 'var(--red)';
+
+      render();
+    }
+
+    function switchAsset(newAsset) {
+      if (newAsset === currentAsset || isTransitioning) return;
+      isTransitioning = true;
+
+      // Fade out
+      gsap.to([linePath, areaPath, dot, priceEl], {
+        opacity: 0,
+        duration: 0.3,
+        ease: 'power2.in',
+        onComplete: () => {
+          currentAsset = newAsset;
+          data = seedData(currentAsset);
+          updateUI();
+          render();
+
+          // Fade in with line redraw animation
+          gsap.set([linePath, areaPath, dot, priceEl], { opacity: 1 });
+          const totalLen = linePath.getTotalLength ? linePath.getTotalLength() : 2000;
+          linePath.style.strokeDasharray = totalLen;
+          linePath.style.strokeDashoffset = totalLen;
+          areaPath.style.opacity = '0';
+          dot.style.opacity = '0';
+
+          gsap.to(linePath, { strokeDashoffset: 0, duration: 1.2, ease: 'power2.inOut' });
+          gsap.to(areaPath, { opacity: 1, duration: 0.8, delay: 0.6, ease: 'power2.out' });
+          gsap.to(dot, { opacity: 1, duration: 0.4, delay: 1 });
+
+          setTimeout(() => { isTransitioning = false; }, 1400);
+        }
+      });
+    }
+
+    // Tab click handlers
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        switchAsset(tab.dataset.asset);
+      });
+    });
+
+    // Auto-cycle every 10 seconds
+    let cycleInterval = setInterval(() => {
+      const nextAsset = currentAsset === 'btc' ? 'xau' : 'btc';
+      switchAsset(nextAsset);
+    }, 10000);
+
+    // Initial setup
+    data = seedData(currentAsset);
+    updateUI();
+    render();
+
+    // Initial draw animation
+    const totalLen = linePath.getTotalLength ? linePath.getTotalLength() : 2000;
+    linePath.style.strokeDasharray = totalLen;
+    linePath.style.strokeDashoffset = totalLen;
+    areaPath.style.opacity = '0';
+    dot.style.opacity = '0';
+
+    setTimeout(() => {
+      gsap.to(linePath, { strokeDashoffset: 0, duration: 2.2, ease: 'power2.inOut' });
+      gsap.to(areaPath, { opacity: 1, duration: 1.2, delay: 1.2, ease: 'power2.out' });
+      gsap.to(dot, { opacity: 1, duration: 0.5, delay: 2 });
+    }, 1800);
+
+    setInterval(tick, 1400);
+  })();
+
+  /* ============ SCROLL REVEAL ============ */
+  gsap.registerPlugin(ScrollTrigger);
+  gsap.utils.toArray('.feature').forEach((el, i) => {
+    gsap.from(el, {
+      scrollTrigger: { trigger: el, start: 'top 85%' },
+      opacity: 0, y: 40, duration: 0.8, delay: i * 0.1, ease: 'power3.out'
+    });
+  });
+  gsap.from('.cta-box', {
+    scrollTrigger: { trigger: '.cta-box', start: 'top 85%' },
+    opacity: 0, y: 50, scale: 0.97, duration: 1, ease: 'power3.out'
+  });
+</script>
+
+</body>
+</html>

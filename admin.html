@@ -1,0 +1,2026 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Admin Panel — NexaVault</title>
+<meta name="robots" content="noindex, nofollow" />
+
+<!-- GSAP -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+
+<!-- Fonts -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/inter@5.0.0/index.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/space-grotesk@5.0.0/index.css" />
+
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background: #05060a;
+    color: #e7e9ee;
+    min-height: 100vh;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.6;
+  }
+  h1, h2, h3, h4 { font-family: 'Space Grotesk', sans-serif; letter-spacing: -0.02em; }
+  a { color: inherit; text-decoration: none; }
+  button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; }
+
+  :root {
+    --bg: #05060a;
+    --bg-2: #0b0d14;
+    --bg-3: #11141d;
+    --bg-4: #1a1d28;
+    --line: rgba(255,255,255,0.08);
+    --line-2: rgba(255,255,255,0.12);
+    --text: #e7e9ee;
+    --muted: #8a8f9c;
+    --accent: #7c5cff;
+    --accent-2: #00d4ff;
+    --gold: #f5c451;
+    --gold-2: #d4a017;
+    --green: #22c55e;
+    --red: #ef4444;
+    --tesla-red: #e82127;
+    --grad: linear-gradient(135deg, #7c5cff 0%, #00d4ff 50%, #f5c451 100%);
+    --grad-2: linear-gradient(135deg, #7c5cff 0%, #00d4ff 100%);
+    --grad-gold: linear-gradient(135deg, #f5c451 0%, #d4a017 100%);
+    --grad-tesla: linear-gradient(135deg, #e82127 0%, #ff4444 100%);
+    --grad-bonus: linear-gradient(135deg, #f5c451 0%, #e82127 100%);
+  }
+
+  /* ============ LOGIN SCREEN ============ */
+  .login-screen {
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
+    padding: 40px 20px;
+    background:
+      radial-gradient(circle at 30% 20%, rgba(245,196,81,0.08), transparent 50%),
+      radial-gradient(circle at 70% 80%, rgba(124,92,255,0.1), transparent 50%),
+      #05060a;
+  }
+  .login-card {
+    width: 100%;
+    max-width: 420px;
+    background: linear-gradient(180deg, rgba(20,23,35,0.9), rgba(11,13,20,0.9));
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    padding: 40px 36px;
+    position: relative;
+    backdrop-filter: blur(20px);
+    box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+  }
+  .login-card::before {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    border-radius: 20px;
+    padding: 1px;
+    background: linear-gradient(135deg, rgba(245,196,81,0.4), transparent 40%, rgba(124,92,255,0.3));
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+  .login-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    margin-bottom: 28px;
+  }
+  .login-logo-mark {
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    background: var(--grad-gold);
+    display: grid;
+    place-items: center;
+    color: #05060a;
+    font-weight: 800;
+    font-size: 18px;
+  }
+  .login-eyebrow {
+    display: inline-block;
+    font-size: 11px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 12px;
+    padding: 4px 10px;
+    border: 1px solid rgba(245,196,81,0.25);
+    border-radius: 100px;
+    background: rgba(245,196,81,0.05);
+  }
+  .login-card h1 { font-size: 26px; font-weight: 700; margin-bottom: 8px; }
+  .login-card .sub { color: var(--muted); font-size: 14px; margin-bottom: 28px; }
+  .login-field { margin-bottom: 16px; }
+  .login-field label {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .login-field input {
+    width: 100%;
+    padding: 12px 14px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    color: var(--text);
+    font-size: 14px;
+    font-family: inherit;
+    transition: all 0.2s ease;
+  }
+  .login-field input:focus {
+    outline: none;
+    border-color: var(--gold);
+    background: rgba(245,196,81,0.04);
+    box-shadow: 0 0 0 3px rgba(245,196,81,0.12);
+  }
+  .login-error {
+    display: none;
+    padding: 10px 14px;
+    background: rgba(239,68,68,0.08);
+    border: 1px solid rgba(239,68,68,0.25);
+    border-radius: 8px;
+    color: var(--red);
+    font-size: 13px;
+    margin-bottom: 16px;
+  }
+  .login-error.show { display: block; }
+  .login-btn {
+    width: 100%;
+    padding: 13px;
+    background: var(--grad-gold);
+    color: #05060a;
+    font-size: 14px;
+    font-weight: 700;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    margin-top: 8px;
+  }
+  .login-btn:hover { transform: translateY(-1px); box-shadow: 0 10px 30px rgba(245,196,81,0.3); }
+  .login-back {
+    display: block;
+    text-align: center;
+    margin-top: 20px;
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  /* ============ ADMIN DASHBOARD LAYOUT ============ */
+  .admin-wrap {
+    display: none;
+    min-height: 100vh;
+    grid-template-columns: 260px 1fr;
+  }
+  .admin-wrap.active { display: grid; }
+
+  .sidebar {
+    background: linear-gradient(180deg, #0a0c14, #05060a);
+    border-right: 1px solid var(--line);
+    padding: 24px 0;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+  }
+  .sidebar-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 24px 24px;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 20px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 17px;
+  }
+  .sidebar-logo-mark {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    background: var(--grad-gold);
+    display: grid;
+    place-items: center;
+    color: #05060a;
+    font-weight: 800;
+    font-size: 16px;
+  }
+  .sidebar-logo .admin-badge {
+    margin-left: auto;
+    font-size: 9px;
+    padding: 3px 8px;
+    border-radius: 100px;
+    background: rgba(245,196,81,0.12);
+    color: var(--gold);
+    border: 1px solid rgba(245,196,81,0.3);
+    letter-spacing: 0.15em;
+    font-weight: 700;
+  }
+  .sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 0 12px;
+    flex: 1;
+  }
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 14px;
+    border-radius: 9px;
+    font-size: 14px;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+  }
+  .nav-item:hover { background: rgba(255,255,255,0.03); color: var(--text); }
+  .nav-item.active {
+    background: rgba(245,196,81,0.08);
+    color: var(--gold);
+  }
+  .nav-item.active::before {
+    content: '';
+    position: absolute;
+    left: -12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 3px;
+    height: 20px;
+    background: var(--gold);
+    border-radius: 0 3px 3px 0;
+  }
+  .nav-item .icon { font-size: 16px; width: 20px; text-align: center; }
+  .nav-item .badge {
+    margin-left: auto;
+    font-size: 10px;
+    padding: 2px 7px;
+    border-radius: 100px;
+    background: rgba(239,68,68,0.15);
+    color: var(--red);
+    font-weight: 700;
+  }
+  .nav-section-label {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(138,143,156,0.5);
+    padding: 16px 14px 8px;
+    font-weight: 600;
+  }
+  .sidebar-footer {
+    padding: 16px 12px;
+    border-top: 1px solid var(--line);
+    margin-top: auto;
+  }
+  .sidebar-user {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 9px;
+    background: rgba(255,255,255,0.02);
+    margin-bottom: 8px;
+  }
+  .sidebar-user .avatar {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: var(--grad-gold);
+    display: grid;
+    place-items: center;
+    color: #05060a;
+    font-weight: 700;
+    font-size: 13px;
+  }
+  .sidebar-user .info { flex: 1; min-width: 0; }
+  .sidebar-user .name { font-size: 13px; font-weight: 600; }
+  .sidebar-user .role { font-size: 11px; color: var(--muted); }
+  .logout-btn {
+    width: 100%;
+    padding: 9px;
+    background: rgba(239,68,68,0.06);
+    border: 1px solid rgba(239,68,68,0.2);
+    color: var(--red);
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+  .logout-btn:hover { background: rgba(239,68,68,0.12); }
+
+  .main {
+    padding: 32px 40px;
+    overflow-y: auto;
+    min-width: 0;
+  }
+  .main-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 32px;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  .main-header h1 { font-size: 26px; font-weight: 700; }
+  .main-header .sub { font-size: 13px; color: var(--muted); margin-top: 4px; }
+  .header-actions { display: flex; gap: 10px; }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 9px 16px;
+    border-radius: 9px;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .btn-gold { background: var(--grad-gold); color: #05060a; }
+  .btn-gold:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(245,196,81,0.3); }
+  .btn-ghost { background: rgba(255,255,255,0.03); border: 1px solid var(--line); color: var(--text); }
+  .btn-ghost:hover { background: rgba(255,255,255,0.06); border-color: var(--line-2); }
+  .btn-danger { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.25); color: var(--red); }
+  .btn-danger:hover { background: rgba(239,68,68,0.15); }
+  .btn-success { background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.25); color: var(--green); }
+  .btn-success:hover { background: rgba(34,197,94,0.15); }
+  .btn-bonus { background: var(--grad-bonus); color: #05060a; font-weight: 700; }
+  .btn-bonus:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(245,196,81,0.3); }
+
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+  .stat-card {
+    background: linear-gradient(180deg, rgba(20,23,35,0.7), rgba(11,13,20,0.5));
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 22px;
+    position: relative;
+    overflow: hidden;
+  }
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--grad-2);
+    opacity: 0.5;
+  }
+  .stat-card.gold::before { background: var(--grad-gold); }
+  .stat-card.green::before { background: linear-gradient(90deg, #22c55e, #16a34a); }
+  .stat-card.red::before { background: linear-gradient(90deg, #ef4444, #dc2626); }
+  .stat-card.bonus::before { background: var(--grad-bonus); }
+  .stat-card .label {
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+    font-weight: 600;
+  }
+  .stat-card .value {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .stat-card .delta { font-size: 12px; color: var(--muted); }
+
+  .data-card {
+    background: linear-gradient(180deg, rgba(20,23,35,0.7), rgba(11,13,20,0.5));
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+  .data-card-head {
+    padding: 18px 22px;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .data-card-head h3 { font-size: 16px; font-weight: 600; }
+  .data-card-head .count {
+    font-size: 11px;
+    padding: 3px 9px;
+    border-radius: 100px;
+    background: rgba(124,92,255,0.12);
+    color: var(--accent);
+    font-weight: 700;
+    margin-left: 8px;
+  }
+  .data-table { width: 100%; border-collapse: collapse; }
+  .data-table th {
+    text-align: left;
+    padding: 12px 22px;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 600;
+    background: rgba(255,255,255,0.02);
+    border-bottom: 1px solid var(--line);
+  }
+  .data-table td {
+    padding: 14px 22px;
+    font-size: 13px;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    vertical-align: middle;
+  }
+  .data-table tr:last-child td { border-bottom: none; }
+  .data-table tr:hover td { background: rgba(255,255,255,0.02); }
+  .user-cell { display: flex; align-items: center; gap: 10px; }
+  .user-avatar {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: var(--grad-2);
+    display: grid;
+    place-items: center;
+    color: #fff;
+    font-weight: 700;
+    font-size: 12px;
+    flex-shrink: 0;
+  }
+  .user-name { font-weight: 600; }
+  .user-email { font-size: 11px; color: var(--muted); }
+  .status-pill {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 100px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+  }
+  .status-pill.pending { background: rgba(245,196,81,0.12); color: var(--gold); border: 1px solid rgba(245,196,81,0.3); }
+  .status-pill.approved { background: rgba(34,197,94,0.12); color: var(--green); border: 1px solid rgba(34,197,94,0.3); }
+  .status-pill.rejected { background: rgba(239,68,68,0.12); color: var(--red); border: 1px solid rgba(239,68,68,0.3); }
+  .status-pill.tesla { background: rgba(232,33,39,0.12); color: var(--tesla-red); border: 1px solid rgba(232,33,39,0.3); }
+  .status-pill.bonus { background: rgba(245,196,81,0.12); color: var(--gold); border: 1px solid rgba(245,196,81,0.3); }
+  .action-btns { display: flex; gap: 6px; flex-wrap: wrap; }
+  .icon-btn {
+    padding: 6px 10px;
+    border-radius: 7px;
+    font-size: 11px;
+    font-weight: 600;
+    transition: all 0.2s;
+    border: 1px solid var(--line);
+    background: rgba(255,255,255,0.02);
+  }
+  .icon-btn.approve { color: var(--green); border-color: rgba(34,197,94,0.25); }
+  .icon-btn.approve:hover { background: rgba(34,197,94,0.12); }
+  .icon-btn.reject { color: var(--red); border-color: rgba(239,68,68,0.25); }
+  .icon-btn.reject:hover { background: rgba(239,68,68,0.12); }
+  .icon-btn.view { color: var(--accent-2); border-color: rgba(0,212,255,0.25); }
+  .icon-btn.view:hover { background: rgba(0,212,255,0.12); }
+  .icon-btn.fund { color: var(--gold); border-color: rgba(245,196,81,0.25); }
+  .icon-btn.fund:hover { background: rgba(245,196,81,0.12); }
+  .icon-btn.bonus { color: #fff; background: var(--grad-bonus); border-color: transparent; }
+  .icon-btn.bonus:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(245,196,81,0.3); }
+
+  .empty-state { padding: 60px 20px; text-align: center; color: var(--muted); }
+  .empty-state .icon { font-size: 40px; margin-bottom: 12px; opacity: 0.5; }
+  .empty-state .title { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+  .empty-state .desc { font-size: 13px; }
+
+  .editor-section {
+    background: linear-gradient(180deg, rgba(20,23,35,0.7), rgba(11,13,20,0.5));
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 24px;
+    margin-bottom: 20px;
+  }
+  .editor-section h3 {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 18px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .editor-section h3 .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--gold);
+  }
+  .editor-field { margin-bottom: 16px; }
+  .editor-field label {
+    display: block;
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 600;
+  }
+  .editor-field input,
+  .editor-field textarea,
+  .editor-field select {
+    width: 100%;
+    padding: 11px 14px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--line);
+    border-radius: 9px;
+    color: var(--text);
+    font-size: 14px;
+    font-family: inherit;
+    transition: all 0.2s;
+  }
+  .editor-field textarea { resize: vertical; min-height: 90px; line-height: 1.5; }
+  .editor-field input:focus,
+  .editor-field textarea:focus,
+  .editor-field select:focus {
+    outline: none;
+    border-color: var(--gold);
+    background: rgba(245,196,81,0.04);
+  }
+  .editor-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+  .payment-method-card {
+    background: rgba(255,255,255,0.02);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+  .payment-method-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .payment-method-title { display: flex; align-items: center; gap: 12px; }
+  .payment-method-icon {
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    display: grid;
+    place-items: center;
+    font-size: 18px;
+    font-weight: 800;
+  }
+  .payment-method-icon.btc { background: linear-gradient(135deg, #f7931a, #ffb84d); color: #05060a; }
+  .payment-method-icon.bank { background: linear-gradient(135deg, #7c5cff, #00d4ff); color: #fff; }
+  .payment-method-icon.paypal { background: linear-gradient(135deg, #003087, #009cde); color: #fff; }
+  .payment-method-name { font-size: 15px; font-weight: 600; }
+  .payment-method-desc { font-size: 12px; color: var(--muted); }
+  .toggle-switch {
+    width: 44px; height: 24px;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.1);
+    position: relative;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+  .toggle-switch::after {
+    content: '';
+    position: absolute;
+    top: 2px; left: 2px;
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    background: var(--muted);
+    transition: all 0.3s;
+  }
+  .toggle-switch.on { background: rgba(34,197,94,0.2); }
+  .toggle-switch.on::after { left: 22px; background: var(--green); }
+
+  .toast {
+    position: fixed;
+    top: 24px; right: 24px;
+    padding: 14px 20px;
+    background: rgba(20,23,35,0.95);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    font-size: 14px;
+    z-index: 9999;
+    opacity: 0;
+    transform: translateX(30px);
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+  }
+  .toast.show { opacity: 1; transform: translateX(0); }
+  .toast.success { border-color: rgba(34,197,94,0.4); color: var(--green); }
+  .toast.error { border-color: rgba(239,68,68,0.4); color: var(--red); }
+  .toast.info { border-color: rgba(0,212,255,0.4); color: var(--accent-2); }
+
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(5,6,10,0.8);
+    backdrop-filter: blur(8px);
+    z-index: 1000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .modal-overlay.show { display: flex; }
+  .modal {
+    background: linear-gradient(180deg, #141723, #0b0d14);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 30px;
+    max-width: 520px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+  .modal h2 { font-size: 20px; margin-bottom: 6px; }
+  .modal .sub { color: var(--muted); font-size: 13px; margin-bottom: 22px; }
+  .modal-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    font-size: 13px;
+  }
+  .modal-row:last-child { border-bottom: none; }
+  .modal-row .label { color: var(--muted); }
+  .modal-row .val { font-weight: 600; text-align: right; }
+  .modal-actions { display: flex; gap: 10px; margin-top: 24px; justify-content: flex-end; }
+
+  .bonus-preview {
+    background: rgba(245,196,81,0.05);
+    border: 1px solid rgba(245,196,81,0.2);
+    border-radius: 10px;
+    padding: 14px;
+    margin: 16px 0;
+  }
+  .bonus-preview-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    margin-bottom: 6px;
+  }
+  .bonus-preview-row:last-child {
+    margin-bottom: 0;
+    font-weight: 700;
+    color: var(--gold);
+    padding-top: 8px;
+    border-top: 1px solid rgba(255,255,255,0.08);
+  }
+
+  .lock-info {
+    background: rgba(232,33,39,0.06);
+    border: 1px solid rgba(232,33,39,0.2);
+    border-radius: 10px;
+    padding: 12px;
+    margin-top: 12px;
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+  .lock-info strong { color: var(--tesla-red); }
+
+  .mobile-menu-btn {
+    display: none;
+    padding: 8px 12px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    font-size: 18px;
+  }
+
+  @media (max-width: 960px) {
+    .admin-wrap.active { grid-template-columns: 1fr; }
+    .sidebar {
+      position: fixed;
+      left: -280px;
+      top: 0;
+      width: 260px;
+      z-index: 200;
+      transition: left 0.3s ease;
+    }
+    .sidebar.open { left: 0; }
+    .main { padding: 20px; }
+    .mobile-menu-btn { display: inline-flex; }
+    .editor-row { grid-template-columns: 1fr; }
+    .data-table th:nth-child(3),
+    .data-table td:nth-child(3) { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ LOGIN SCREEN ============ -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-card">
+    <div class="login-logo">
+      <span class="login-logo-mark">N</span>
+      <span>NexaVault</span>
+    </div>
+    <span class="login-eyebrow">Restricted Access</span>
+    <h1>Admin Portal</h1>
+    <p class="sub">Enter your credentials to access the control panel.</p>
+    <div class="login-error" id="loginError">Invalid username or password.</div>
+    <form id="adminLoginForm">
+      <div class="login-field">
+        <label for="adminUser">Username</label>
+        <input type="text" id="adminUser" placeholder="Enter username" autocomplete="username" required />
+      </div>
+      <div class="login-field">
+        <label for="adminPass">Password</label>
+        <input type="password" id="adminPass" placeholder="Enter password" autocomplete="current-password" required />
+      </div>
+      <button type="submit" class="login-btn">Access Admin Panel →</button>
+    </form>
+    <a href="index.html" class="login-back">← Back to Public Site</a>
+  </div>
+</div>
+
+<!-- ============ ADMIN DASHBOARD ============ -->
+<div class="admin-wrap" id="adminWrap">
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <span class="sidebar-logo-mark">N</span>
+      <span>NexaVault</span>
+      <span class="admin-badge">ADMIN</span>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Main</div>
+      <div class="nav-item active" data-tab="overview">
+        <span class="icon">📊</span>
+        <span>Overview</span>
+      </div>
+      <div class="nav-item" data-tab="users">
+        <span class="icon">👥</span>
+        <span>Users</span>
+        <span class="badge" id="usersBadge">0</span>
+      </div>
+      <div class="nav-item" data-tab="transactions">
+        <span class="icon">💰</span>
+        <span>Transactions</span>
+        <span class="badge" id="txnBadge">0</span>
+      </div>
+
+      <div class="nav-section-label">Manage</div>
+      <div class="nav-item" data-tab="payments">
+        <span class="icon">💳</span>
+        <span>Payment Settings</span>
+      </div>
+      <div class="nav-item" data-tab="editor">
+        <span class="icon">🎨</span>
+        <span>Site Editor</span>
+      </div>
+      <div class="nav-item" data-tab="emails">
+        <span class="icon">📧</span>
+        <span>Email Logs</span>
+      </div>
+      <div class="nav-item" data-tab="settings">
+        <span class="icon">⚙️</span>
+        <span>Settings</span>
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="avatar">O</div>
+        <div class="info">
+          <div class="name">ovie65</div>
+          <div class="role">Super Admin</div>
+        </div>
+      </div>
+      <button class="logout-btn" id="logoutBtn">⎋ Sign Out</button>
+    </div>
+  </aside>
+
+  <main class="main">
+
+    <!-- OVERVIEW TAB -->
+    <div class="tab-content active" data-tab="overview">
+      <div class="main-header">
+        <div>
+          <button class="mobile-menu-btn" id="mobileMenuBtn">☰</button>
+          <h1>Dashboard Overview</h1>
+          <div class="sub">Welcome back, ovie65. Here's what's happening today.</div>
+        </div>
+        <div class="header-actions">
+          <button class="btn btn-ghost" id="refreshBtn">↻ Refresh</button>
+          <a href="index.html" class="btn btn-gold">View Site →</a>
+        </div>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="label">Total Users</div>
+          <div class="value" id="statUsers">0</div>
+          <div class="delta" id="statUsersDelta">No users yet</div>
+        </div>
+        <div class="stat-card gold">
+          <div class="label">Total Deposits</div>
+          <div class="value" id="statDeposits">$0</div>
+          <div class="delta">Across all users</div>
+        </div>
+        <div class="stat-card bonus">
+          <div class="label">Total Locked Bonuses</div>
+          <div class="value" id="statLocked">$0</div>
+          <div class="delta">Pending unlock</div>
+        </div>
+        <div class="stat-card green">
+          <div class="label">Approved</div>
+          <div class="value" id="statApproved">0</div>
+          <div class="delta">Transactions cleared</div>
+        </div>
+        <div class="stat-card red">
+          <div class="label">Pending</div>
+          <div class="value" id="statPending">0</div>
+          <div class="delta">Awaiting review</div>
+        </div>
+      </div>
+
+      <div class="data-card">
+        <div class="data-card-head">
+          <h3>Recent Activity</h3>
+        </div>
+        <div id="recentActivity">
+          <div class="empty-state">
+            <div class="icon">📋</div>
+            <div class="title">No activity yet</div>
+            <div class="desc">User signups and transactions will appear here.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- USERS TAB -->
+    <div class="tab-content" data-tab="users">
+      <div class="main-header">
+        <div>
+          <h1>Registered Users</h1>
+          <div class="sub">Manage all user accounts on the platform.</div>
+        </div>
+        <div class="header-actions">
+          <button class="btn btn-ghost" id="exportUsersBtn">⬇ Export CSV</button>
+        </div>
+      </div>
+
+      <div class="data-card">
+        <div class="data-card-head">
+          <h3>All Users <span class="count" id="usersCount">0</span></h3>
+        </div>
+        <div id="usersTable">
+          <div class="empty-state">
+            <div class="icon">👥</div>
+            <div class="title">No users yet</div>
+            <div class="desc">Users will appear here after signing up.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TRANSACTIONS TAB -->
+    <div class="tab-content" data-tab="transactions">
+      <div class="main-header">
+        <div>
+          <h1>Transactions</h1>
+          <div class="sub">Review and approve user funding requests.</div>
+        </div>
+        <div class="header-actions">
+          <button class="btn btn-ghost" data-filter="all">All</button>
+          <button class="btn btn-ghost" data-filter="pending">Pending</button>
+          <button class="btn btn-ghost" data-filter="approved">Approved</button>
+        </div>
+      </div>
+
+      <div class="data-card">
+        <div class="data-card-head">
+          <h3>Funding Requests <span class="count" id="txnCount">0</span></h3>
+        </div>
+        <div id="txnTable">
+          <div class="empty-state">
+            <div class="icon">💰</div>
+            <div class="title">No transactions yet</div>
+            <div class="desc">Funding requests from users will appear here.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAYMENT SETTINGS TAB -->
+    <div class="tab-content" data-tab="payments">
+      <div class="main-header">
+        <div>
+          <h1>Payment Settings</h1>
+          <div class="sub">Configure payment methods shown to users. Changes apply instantly.</div>
+        </div>
+        <div class="header-actions">
+          <button class="btn btn-gold" id="savePaymentsBtn">💾 Save Changes</button>
+        </div>
+      </div>
+
+      <div class="editor-section">
+        <h3><span class="dot"></span>Active Payment Methods</h3>
+        <p style="color:var(--muted);font-size:13px;margin-bottom:20px;">
+          Enable or disable payment methods and update their details. Users will see these when funding their accounts.
+        </p>
+        <div id="paymentMethodsList"></div>
+      </div>
+    </div>
+
+    <!-- SITE EDITOR TAB -->
+    <div class="tab-content" data-tab="editor">
+      <div class="main-header">
+        <div>
+          <h1>Site Editor</h1>
+          <div class="sub">Update content on the public landing page.</div>
+        </div>
+        <div class="header-actions">
+          <button class="btn btn-gold" id="saveSiteBtn">💾 Save Changes</button>
+        </div>
+      </div>
+
+      <div class="editor-section">
+        <h3><span class="dot"></span>Hero Section</h3>
+        <div class="editor-field">
+          <label>Main Headline</label>
+          <input type="text" id="editHeroTitle" value="Invest Smarter with AI." />
+        </div>
+        <div class="editor-field">
+          <label>Subheadline</label>
+          <textarea id="editHeroSub">NexaVault is the next-generation investment banking platform powered by autonomous AI agents.</textarea>
+        </div>
+      </div>
+
+      <div class="editor-section">
+        <h3><span class="dot"></span>Statistics</h3>
+        <div class="editor-row">
+          <div class="editor-field">
+            <label>Assets Managed</label>
+            <input type="text" id="editStat1" value="$2.4B+" />
+          </div>
+          <div class="editor-field">
+            <label>Active Investors</label>
+            <input type="text" id="editStat2" value="184K" />
+          </div>
+        </div>
+        <div class="editor-field">
+          <label>Uptime SLA</label>
+          <input type="text" id="editStat3" value="99.99%" />
+        </div>
+      </div>
+    </div>
+
+    <!-- EMAIL LOGS TAB -->
+    <div class="tab-content" data-tab="emails">
+      <div class="main-header">
+        <div>
+          <h1>Email Logs</h1>
+          <div class="sub">Track all emails sent via Resend.</div>
+        </div>
+        <div class="header-actions">
+          <button class="btn btn-danger" id="clearEmailsBtn">🗑 Clear All</button>
+        </div>
+      </div>
+
+      <div class="data-card">
+        <div class="data-card-head">
+          <h3>Sent Emails <span class="count" id="emailCount">0</span></h3>
+        </div>
+        <div id="emailsTable">
+          <div class="empty-state">
+            <div class="icon">📧</div>
+            <div class="title">No emails sent yet</div>
+            <div class="desc">Emails will appear here after being triggered.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SETTINGS TAB -->
+    <div class="tab-content" data-tab="settings">
+      <div class="main-header">
+        <div>
+          <h1>Settings</h1>
+          <div class="sub">System configuration and admin tools.</div>
+        </div>
+      </div>
+
+      <div class="editor-section">
+        <h3><span class="dot"></span>Admin Account</h3>
+        <div class="editor-row">
+          <div class="editor-field">
+            <label>Username</label>
+            <input type="text" value="ovie65" disabled />
+          </div>
+          <div class="editor-field">
+            <label>Status</label>
+            <input type="text" value="Super Admin" disabled />
+          </div>
+        </div>
+      </div>
+
+      <div class="editor-section">
+        <h3><span class="dot"></span>Danger Zone</h3>
+        <p style="color:var(--muted);font-size:13px;margin-bottom:16px;">These actions are irreversible. Proceed with caution.</p>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <button class="btn btn-danger" id="resetUsersBtn">🗑 Clear All Users</button>
+          <button class="btn btn-danger" id="resetTxnBtn">🗑 Clear All Transactions</button>
+          <button class="btn btn-danger" id="resetAllBtn">⚠ Reset Everything</button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ============ MODALS ============ -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal" id="modalContent"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  /* ============ ADMIN CREDENTIALS ============ */
+  const ADMIN_USER = 'ovie65';
+  const ADMIN_PASS = 'Voltovie65$$';
+
+  /* ============ STORAGE KEYS ============ */
+  const KEYS = {
+    USERS: 'nexavault_users',
+    TRANSACTIONS: 'nexavault_transactions',
+    EMAILS: 'nexavault_emails',
+    SITE: 'nexavault_site_content',
+    PAYMENTS: 'nexavault_payment_methods',
+    SESSION: 'nexavault_admin_session'
+  };
+
+  /* ============ DEFAULT PAYMENT METHODS ============ */
+  const DEFAULT_PAYMENTS = {
+    btc: {
+      id: 'btc',
+      name: 'Bitcoin',
+      icon: '₿',
+      iconClass: 'btc',
+      desc: 'Pay with Bitcoin',
+      enabled: true,
+      account: 'bc1qxy2kgdygjrsqtzq2n0yrf2499p5a0w8mdjm64u'
+    },
+    bank: {
+      id: 'bank',
+      name: 'Bank Transfer',
+      icon: '🏦',
+      iconClass: 'bank',
+      desc: 'Direct bank transfer',
+      enabled: true,
+      account: 'Bank: Chase Bank\nAccount Name: NexaVault LLC\nAccount Number: 1234567890\nRouting: 021000021'
+    },
+    paypal: {
+      id: 'paypal',
+      name: 'PayPal',
+      icon: 'P',
+      iconClass: 'paypal',
+      desc: 'Pay via PayPal',
+      enabled: false,
+      account: 'payments@nexavault.com'
+    }
+  };
+
+  /* ============ HELPERS ============ */
+  function getStore(key, fallback) {
+    try {
+      const v = localStorage.getItem(key);
+      return v ? JSON.parse(v) : fallback;
+    } catch(e) { return fallback; }
+  }
+  function setStore(key, val) {
+    localStorage.setItem(key, JSON.stringify(val));
+  }
+
+  function toast(msg, type) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast show ' + (type || '');
+    clearTimeout(window._tt);
+    window._tt = setTimeout(() => t.classList.remove('show'), 3000);
+  }
+
+  function formatDate(iso) {
+    if (!iso) return '—';
+    const d = new Date(iso);
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) +
+           ' · ' + d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+  }
+
+  function formatMoney(n) {
+    return '$' + Number(n || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  function initials(name) {
+    return (name || '?').split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2);
+  }
+
+  function calculateLockTimeLeft(lockDate) {
+    if (!lockDate) return null;
+    const now = new Date();
+    const lock = new Date(lockDate);
+    const diff = lock - now;
+    if (diff <= 0) return 'Unlocked';
+    const months = Math.floor(diff / (1000 * 60 * 60 * 24 * 30));
+    const days = Math.floor((diff % (1000 * 60 * 60 * 24 * 30)) / (1000 * 60 * 60 * 24));
+    if (months > 0) return `${months} month${months > 1 ? 's' : ''}`;
+    return `${days} day${days > 1 ? 's' : ''}`;
+  }
+
+  /* ============ LOGIN ============ */
+  const loginScreen = document.getElementById('loginScreen');
+  const adminWrap = document.getElementById('adminWrap');
+
+  function showDashboard() {
+    loginScreen.style.display = 'none';
+    adminWrap.classList.add('active');
+    renderAll();
+    gsap.from('.sidebar', { x: -30, opacity: 0, duration: 0.5, ease: 'power2.out' });
+    gsap.from('.main', { y: 20, opacity: 0, duration: 0.5, ease: 'power2.out', delay: 0.1 });
+  }
+
+  function showLogin() {
+    loginScreen.style.display = 'grid';
+    adminWrap.classList.remove('active');
+  }
+
+  if (sessionStorage.getItem(KEYS.SESSION) === 'true') {
+    showDashboard();
+  }
+
+  document.getElementById('adminLoginForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const u = document.getElementById('adminUser').value.trim();
+    const p = document.getElementById('adminPass').value;
+    const errEl = document.getElementById('loginError');
+
+    if (u === ADMIN_USER && p === ADMIN_PASS) {
+      sessionStorage.setItem(KEYS.SESSION, 'true');
+      errEl.classList.remove('show');
+      showDashboard();
+      toast('Welcome back, ovie65', 'success');
+    } else {
+      errEl.classList.add('show');
+    }
+  });
+
+  document.getElementById('logoutBtn').addEventListener('click', () => {
+    sessionStorage.removeItem(KEYS.SESSION);
+    showLogin();
+    document.getElementById('adminUser').value = '';
+    document.getElementById('adminPass').value = '';
+    toast('Signed out', 'info');
+  });
+
+  /* ============ NAVIGATION ============ */
+  document.querySelectorAll('.nav-item').forEach(item => {
+    item.addEventListener('click', () => {
+      const tab = item.dataset.tab;
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      item.classList.add('active');
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      document.querySelector(`.tab-content[data-tab="${tab}"]`).classList.add('active');
+      document.getElementById('sidebar').classList.remove('open');
+    });
+  });
+
+  document.getElementById('mobileMenuBtn').addEventListener('click', () => {
+    document.getElementById('sidebar').classList.toggle('open');
+  });
+
+  /* ============ RENDER OVERVIEW ============ */
+  function renderOverview() {
+    const users = getStore(KEYS.USERS, []);
+    const txns = getStore(KEYS.TRANSACTIONS, []);
+
+    const totalDeposits = txns.filter(t => t.status === 'approved' && t.type === 'funding_request').reduce((s, t) => s + Number(t.amount || 0), 0);
+    const totalLocked = users.reduce((s, u) => s + Number(u.lockedBalance || 0), 0);
+    const approved = txns.filter(t => t.status === 'approved').length;
+    const pending = txns.filter(t => t.status === 'pending').length;
+
+    document.getElementById('statUsers').textContent = users.length;
+    document.getElementById('statUsersDelta').textContent = users.length === 0 ? 'No users yet' :
+      `${users.length} registered investor${users.length === 1 ? '' : 's'}`;
+
+    document.getElementById('statDeposits').textContent = formatMoney(totalDeposits);
+    document.getElementById('statLocked').textContent = formatMoney(totalLocked);
+    document.getElementById('statApproved').textContent = approved;
+    document.getElementById('statPending').textContent = pending;
+
+    const allActivity = [
+      ...users.map(u => ({ type: 'user', name: u.name, time: u.createdAt })),
+      ...txns.map(t => ({ type: 'txn', name: t.userName, amount: t.amount, status: t.status, txnType: t.type, time: t.createdAt }))
+    ].sort((a, b) => new Date(b.time) - new Date(a.time)).slice(0, 5);
+
+    const actEl = document.getElementById('recentActivity');
+    if (allActivity.length === 0) {
+      actEl.innerHTML = `<div class="empty-state"><div class="icon">📋</div><div class="title">No activity yet</div><div class="desc">User signups and transactions will appear here.</div></div>`;
+    } else {
+      actEl.innerHTML = `<table class="data-table"><tbody>
+        ${allActivity.map(a => {
+          if (a.type === 'user') {
+            return `<tr><td><div class="user-cell"><div class="user-avatar">${initials(a.name)}</div><div><div class="user-name">${a.name}</div><div class="user-email">New account created</div></div></div></td><td><span class="status-pill approved">Signed Up</span></td><td style="color:var(--muted);font-size:12px;">${formatDate(a.time)}</td></tr>`;
+          } else {
+            const statusClass = a.status === 'approved' ? 'approved' : a.status === 'rejected' ? 'rejected' : 'pending';
+            const typeLabel = a.txnType === 'tesla_investment' ? '🚗 Tesla' : a.txnType === 'bonus_grant' ? '🎁 Bonus' : '💰 Funding';
+            return `<tr><td><div class="user-cell"><div class="user-avatar">${initials(a.name)}</div><div><div class="user-name">${a.name}</div><div class="user-email">${typeLabel}: ${formatMoney(a.amount)}</div></div></div></td><td><span class="status-pill ${statusClass}">${a.status}</span></td><td style="color:var(--muted);font-size:12px;">${formatDate(a.time)}</td></tr>`;
+          }
+        }).join('')}
+      </tbody></table>`;
+    }
+
+    document.getElementById('usersBadge').textContent = users.length;
+    document.getElementById('txnBadge').textContent = pending;
+  }
+
+  /* ============ RENDER USERS ============ */
+  function renderUsers() {
+    const users = getStore(KEYS.USERS, []);
+    const el = document.getElementById('usersTable');
+    document.getElementById('usersCount').textContent = users.length;
+
+    if (users.length === 0) {
+      el.innerHTML = `<div class="empty-state"><div class="icon">👥</div><div class="title">No users yet</div><div class="desc">Users will appear here after signing up.</div></div>`;
+      return;
+    }
+
+    const sorted = [...users].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    el.innerHTML = `<table class="data-table">
+      <thead><tr><th>User</th><th>Contact</th><th>Available</th><th>Locked Bonus</th><th>Actions</th></tr></thead>
+      <tbody>
+        ${sorted.map(u => {
+          const lockLeft = u.lockedUntil ? calculateLockTimeLeft(u.lockedUntil) : null;
+          const lockedDisplay = Number(u.lockedBalance || 0) > 0
+            ? `${formatMoney(u.lockedBalance)}${lockLeft ? `<div style="font-size:10px;color:var(--gold);">🔒 ${lockLeft} left</div>` : ''}`
+            : '<span style="color:var(--muted);">—</span>';
+          return `<tr>
+          <td><div class="user-cell"><div class="user-avatar">${initials(u.name)}</div><div><div class="user-name">${u.name}</div><div class="user-email">Age: ${u.age || '—'}</div></div></div></td>
+          <td><div style="font-size:12px;">${u.email}</div><div style="font-size:11px;color:var(--muted);">${u.phone || '—'}</div></td>
+          <td style="font-weight:600;color:var(--green);">${formatMoney(u.balance)}</td>
+          <td style="font-weight:600;color:var(--gold);">${lockedDisplay}</td>
+          <td><div class="action-btns">
+            <button class="icon-btn view" data-view-user="${u.id}">View</button>
+            <button class="icon-btn fund" data-fund-user="${u.id}">💰 Fund</button>
+            <button class="icon-btn bonus" data-bonus-user="${u.id}">🎁 Bonus</button>
+            <button class="icon-btn reject" data-del-user="${u.id}">Delete</button>
+          </div></td>
+        </tr>`;
+        }).join('')}
+      </tbody>
+    </table>`;
+
+    el.querySelectorAll('[data-view-user]').forEach(btn => {
+      btn.addEventListener('click', () => viewUser(btn.dataset.viewUser));
+    });
+    el.querySelectorAll('[data-fund-user]').forEach(btn => {
+      btn.addEventListener('click', () => manualFundUser(btn.dataset.fundUser));
+    });
+    el.querySelectorAll('[data-bonus-user]').forEach(btn => {
+      btn.addEventListener('click', () => grantBonusToUser(btn.dataset.bonusUser));
+    });
+    el.querySelectorAll('[data-del-user]').forEach(btn => {
+      btn.addEventListener('click', () => deleteUser(btn.dataset.delUser));
+    });
+  }
+
+  function viewUser(id) {
+    const users = getStore(KEYS.USERS, []);
+    const u = users.find(x => x.id === id);
+    if (!u) return;
+    const txns = getStore(KEYS.TRANSACTIONS, []).filter(t => t.userId === id);
+    const totalDeposited = txns.filter(t => t.status === 'approved' && t.type === 'funding_request').reduce((s, t) => s + Number(t.amount), 0);
+    const bonuses = (u.bonuses || []);
+
+    let bonusesHtml = '';
+    if (bonuses.length > 0) {
+      bonusesHtml = `
+        <div style="margin-top:16px;">
+          <div style="font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:10px;font-weight:600;">Bonus History</div>
+          ${bonuses.map(b => {
+            const lockLeft = b.lockedUntil ? calculateLockTimeLeft(b.lockedUntil) : null;
+            return `<div style="background:rgba(245,196,81,0.05);border:1px solid rgba(245,196,81,0.2);border-radius:8px;padding:10px;margin-bottom:8px;font-size:12px;">
+              <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+                <strong style="color:var(--gold);">${formatMoney(b.amount)}</strong>
+                <span style="color:var(--muted);">${formatDate(b.grantedAt)}</span>
+              </div>
+              <div style="color:var(--muted);font-size:11px;">${b.reason || 'No reason'}</div>
+              ${b.lockedUntil ? `<div style="margin-top:6px;font-size:11px;color:${lockLeft === 'Unlocked' ? 'var(--green)' : 'var(--gold)'};">🔒 ${lockLeft === 'Unlocked' ? 'Unlocked' : lockLeft + ' left'}</div>` : '<div style="margin-top:6px;font-size:11px;color:var(--green);">✓ Available</div>'}
+            </div>`;
+          }).join('')}
+        </div>
+      `;
+    }
+
+    document.getElementById('modalContent').innerHTML = `
+      <h2>${u.name}</h2>
+      <div class="sub">User details and activity</div>
+      <div class="modal-row"><span class="label">Email</span><span class="val">${u.email}</span></div>
+      <div class="modal-row"><span class="label">Phone</span><span class="val">${u.phone || '—'}</span></div>
+      <div class="modal-row"><span class="label">Age</span><span class="val">${u.age || '—'}</span></div>
+      <div class="modal-row"><span class="label">Available Balance</span><span class="val" style="color:var(--green)">${formatMoney(u.balance)}</span></div>
+      <div class="modal-row"><span class="label">Locked Bonus</span><span class="val" style="color:var(--gold)">${formatMoney(u.lockedBalance || 0)}</span></div>
+      ${u.lockedUntil ? `<div class="modal-row"><span class="label">Lock Expires</span><span class="val">${formatDate(u.lockedUntil)}</span></div>` : ''}
+      <div class="modal-row"><span class="label">Total Deposited</span><span class="val">${formatMoney(totalDeposited)}</span></div>
+      <div class="modal-row"><span class="label">Transactions</span><span class="val">${txns.length}</span></div>
+      <div class="modal-row"><span class="label">Joined</span><span class="val">${formatDate(u.createdAt)}</span></div>
+      ${bonusesHtml}
+      <div class="modal-actions">
+        <button class="btn btn-ghost" onclick="closeModal()">Close</button>
+      </div>
+    `;
+    document.getElementById('modalOverlay').classList.add('show');
+  }
+
+  function manualFundUser(id) {
+    const users = getStore(KEYS.USERS, []);
+    const u = users.find(x => x.id === id);
+    if (!u) return;
+
+    document.getElementById('modalContent').innerHTML = `
+      <h2>💰 Manual Funding</h2>
+      <div class="sub">Add funds to ${u.name}'s available balance</div>
+      <form id="manualFundForm">
+        <div class="editor-field">
+          <label>Amount (USD)</label>
+          <input type="number" id="fundAmount" step="0.01" min="1" placeholder="5000.00" required />
+        </div>
+        <div class="editor-field">
+          <label>Payment Method</label>
+          <select id="fundMethod">
+            <option value="Bitcoin">Bitcoin</option>
+            <option value="Bank Transfer">Bank Transfer</option>
+            <option value="PayPal">PayPal</option>
+            <option value="Bonus">Bonus / Adjustment</option>
+          </select>
+        </div>
+        <div class="editor-field">
+          <label>Reason / Note</label>
+          <textarea id="fundReason" placeholder="User deposited via BTC wallet..."></textarea>
+        </div>
+        <div class="bonus-preview">
+          <div class="bonus-preview-row"><span>Current Balance</span><span>${formatMoney(u.balance)}</span></div>
+          <div class="bonus-preview-row"><span>Adding</span><span id="fundAdding">$0.00</span></div>
+          <div class="bonus-preview-row"><span>New Balance</span><span id="fundNewBalance" style="color:var(--green);">${formatMoney(u.balance)}</span></div>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+          <button type="submit" class="btn btn-gold">✓ Confirm Fund</button>
+        </div>
+      </form>
+    `;
+
+    const amountInput = document.getElementById('fundAmount');
+    const addingEl = document.getElementById('fundAdding');
+    const newBalanceEl = document.getElementById('fundNewBalance');
+    amountInput.addEventListener('input', () => {
+      const amt = parseFloat(amountInput.value) || 0;
+      addingEl.textContent = formatMoney(amt);
+      newBalanceEl.textContent = formatMoney(Number(u.balance) + amt);
+    });
+
+    document.getElementById('manualFundForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const amount = parseFloat(document.getElementById('fundAmount').value);
+      const method = document.getElementById('fundMethod').value;
+      const reason = document.getElementById('fundReason').value;
+
+      if (!amount || amount <= 0) { toast('Please enter a valid amount', 'error'); return; }
+
+      let users = getStore(KEYS.USERS, []);
+      const user = users.find(x => x.id === id);
+      if (user) {
+        user.balance = Number(user.balance || 0) + amount;
+        setStore(KEYS.USERS, users);
+      }
+
+      const txns = getStore(KEYS.TRANSACTIONS, []);
+      txns.unshift({
+        id: 'TXN-' + Date.now().toString().slice(-8),
+        userId: id,
+        userName: u.name,
+        userEmail: u.email,
+        amount: amount,
+        method: method,
+        reason: reason,
+        type: 'manual_fund',
+        status: 'approved',
+        createdAt: new Date().toISOString(),
+        reviewedAt: new Date().toISOString()
+      });
+      setStore(KEYS.TRANSACTIONS, txns);
+
+      logEmail({
+        type: 'manual_fund_notification',
+        to: u.email,
+        subject: `Your account has been funded — ${formatMoney(amount)}`,
+        status: 'sent'
+      });
+
+      closeModal();
+      renderAll();
+      toast(`Funded ${formatMoney(amount)} to ${u.name}`, 'success');
+    });
+
+    document.getElementById('modalOverlay').classList.add('show');
+  }
+
+  /* ============ GRANT BONUS TO USER ============ */
+  function grantBonusToUser(id) {
+    const users = getStore(KEYS.USERS, []);
+    const u = users.find(x => x.id === id);
+    if (!u) return;
+
+    document.getElementById('modalContent').innerHTML = `
+      <h2>🎁 Grant Bonus</h2>
+      <div class="sub">Award a bonus to ${u.name}</div>
+      <form id="grantBonusForm">
+        <div class="editor-field">
+          <label>Bonus Amount (USD)</label>
+          <input type="number" id="bonusAmount" step="0.01" min="1" placeholder="8770.00" required />
+        </div>
+        <div class="editor-field">
+          <label>Reason</label>
+          <select id="bonusReason">
+            <option value="Tesla Investment Bonus">🚗 Tesla Investment Bonus</option>
+            <option value="Loyalty Reward">⭐ Loyalty Reward</option>
+            <option value="Referral Bonus">👥 Referral Bonus</option>
+            <option value="Promotional Bonus">🎉 Promotional Bonus</option>
+            <option value="Custom Bonus">✏️ Custom (specify below)</option>
+          </select>
+        </div>
+        <div class="editor-field" id="customReasonField" style="display:none;">
+          <label>Custom Reason</label>
+          <input type="text" id="customReason" placeholder="e.g., VIP customer appreciation" />
+        </div>
+        <div class="editor-field">
+          <label>Lock Period</label>
+          <select id="bonusLock">
+            <option value="0">🔓 No lock (immediately available)</option>
+            <option value="1">🔒 1 month</option>
+            <option value="3">🔒 3 months</option>
+            <option value="6">🔒 6 months</option>
+            <option value="12" selected>🔒 1 year (12 months)</option>
+            <option value="custom">✏️ Custom duration</option>
+          </select>
+        </div>
+        <div class="editor-field" id="customLockField" style="display:none;">
+          <label>Custom Lock (in months)</label>
+          <input type="number" id="customLockMonths" min="1" max="120" placeholder="e.g., 18" />
+        </div>
+        <div class="bonus-preview" id="bonusPreview">
+          <div class="bonus-preview-row"><span>Bonus Amount</span><span id="previewAmount">$0.00</span></div>
+          <div class="bonus-preview-row"><span>Lock Period</span><span id="previewLock">1 year</span></div>
+          <div class="bonus-preview-row"><span>Status</span><span id="previewStatus" style="color:var(--gold);">🔒 Locked</span></div>
+        </div>
+        <div class="lock-info">
+          <strong>⚠️ Note:</strong> Locked bonuses cannot be withdrawn by the user until the lock period expires. 
+          Unlocked bonuses are added to their available balance immediately.
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+          <button type="submit" class="btn btn-bonus">🎁 Grant Bonus</button>
+        </div>
+      </form>
+    `;
+
+    // Show/hide custom reason field
+    const reasonSelect = document.getElementById('bonusReason');
+    const customReasonField = document.getElementById('customReasonField');
+    reasonSelect.addEventListener('change', () => {
+      customReasonField.style.display = reasonSelect.value === 'Custom Bonus' ? 'block' : 'none';
+    });
+
+    // Show/hide custom lock field
+    const lockSelect = document.getElementById('bonusLock');
+    const customLockField = document.getElementById('customLockField');
+    lockSelect.addEventListener('change', () => {
+      customLockField.style.display = lockSelect.value === 'custom' ? 'block' : 'none';
+      updateBonusPreview();
+    });
+
+    // Update preview
+    const amountInput = document.getElementById('bonusAmount');
+    amountInput.addEventListener('input', updateBonusPreview);
+
+    function updateBonusPreview() {
+      const amt = parseFloat(amountInput.value) || 0;
+      const lockVal = lockSelect.value;
+      document.getElementById('previewAmount').textContent = formatMoney(amt);
+      
+      let lockText = 'No lock';
+      let statusText = '✓ Available';
+      let statusColor = 'var(--green)';
+      
+      if (lockVal === '0') {
+        lockText = 'None';
+        statusText = '✓ Available';
+        statusColor = 'var(--green)';
+      } else if (lockVal === 'custom') {
+        const months = parseInt(document.getElementById('customLockMonths').value) || 0;
+        lockText = months > 0 ? `${months} month${months > 1 ? 's' : ''}` : 'Not set';
+        statusText = months > 0 ? '🔒 Locked' : '✓ Available';
+        statusColor = months > 0 ? 'var(--gold)' : 'var(--green)';
+      } else {
+        const months = parseInt(lockVal);
+        lockText = months === 12 ? '1 year' : `${months} month${months > 1 ? 's' : ''}`;
+        statusText = '🔒 Locked';
+        statusColor = 'var(--gold)';
+      }
+      
+      document.getElementById('previewLock').textContent = lockText;
+      document.getElementById('previewStatus').textContent = statusText;
+      document.getElementById('previewStatus').style.color = statusColor;
+    }
+
+    // Custom lock months listener
+    document.getElementById('customLockMonths').addEventListener('input', updateBonusPreview);
+
+    document.getElementById('grantBonusForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const amount = parseFloat(document.getElementById('bonusAmount').value);
+      let reason = document.getElementById('bonusReason').value;
+      const lockVal = document.getElementById('bonusLock').value;
+
+      if (reason === 'Custom Bonus') {
+        reason = document.getElementById('customReason').value.trim() || 'Custom Bonus';
+      }
+
+      if (!amount || amount <= 0) {
+        toast('Please enter a valid amount', 'error');
+        return;
+      }
+
+      // Calculate lock date
+      let lockedUntil = null;
+      let lockMonths = 0;
+      if (lockVal !== '0') {
+        if (lockVal === 'custom') {
+          lockMonths = parseInt(document.getElementById('customLockMonths').value) || 0;
+        } else {
+          lockMonths = parseInt(lockVal);
+        }
+        if (lockMonths > 0) {
+          const lockDate = new Date();
+          lockDate.setMonth(lockDate.getMonth() + lockMonths);
+          lockedUntil = lockDate.toISOString();
+        }
+      }
+
+      // Update user
+      let users = getStore(KEYS.USERS, []);
+      const user = users.find(x => x.id === id);
+      if (user) {
+        if (!user.bonuses) user.bonuses = [];
+        
+        const bonusEntry = {
+          id: 'BNS-' + Date.now().toString().slice(-8),
+          amount: amount,
+          reason: reason,
+          grantedAt: new Date().toISOString(),
+          grantedBy: 'ovie65',
+          lockedUntil: lockedUntil,
+          lockMonths: lockMonths
+        };
+        
+        user.bonuses.push(bonusEntry);
+        
+        if (lockedUntil) {
+          // Add to locked balance
+          user.lockedBalance = Number(user.lockedBalance || 0) + amount;
+          // Update furthest lock date
+          if (!user.lockedUntil || new Date(lockedUntil) > new Date(user.lockedUntil)) {
+            user.lockedUntil = lockedUntil;
+          }
+        } else {
+          // Add to available balance
+          user.balance = Number(user.balance || 0) + amount;
+        }
+        
+        setStore(KEYS.USERS, users);
+      }
+
+      // Create transaction record
+      const txns = getStore(KEYS.TRANSACTIONS, []);
+      txns.unshift({
+        id: 'TXN-' + Date.now().toString().slice(-8),
+        userId: id,
+        userName: u.name,
+        userEmail: u.email,
+        amount: amount,
+        method: 'Admin Bonus',
+        reason: reason,
+        type: 'bonus_grant',
+        status: 'approved',
+        lockedUntil: lockedUntil,
+        lockMonths: lockMonths,
+        createdAt: new Date().toISOString(),
+        reviewedAt: new Date().toISOString()
+      });
+      setStore(KEYS.TRANSACTIONS, txns);
+
+      // Log email
+      logEmail({
+        type: 'bonus_granted_notification',
+        to: u.email,
+        subject: `🎁 You've received a ${formatMoney(amount)} bonus!`,
+        status: 'sent'
+      });
+
+      closeModal();
+      renderAll();
+      toast(`Granted ${formatMoney(amount)} bonus to ${u.name}${lockedUntil ? ' (locked)' : ''}`, 'success');
+    });
+
+    document.getElementById('modalOverlay').classList.add('show');
+  }
+
+  function deleteUser(id) {
+    if (!confirm('Delete this user? This cannot be undone.')) return;
+    let users = getStore(KEYS.USERS, []);
+    users = users.filter(u => u.id !== id);
+    setStore(KEYS.USERS, users);
+    renderAll();
+    toast('User deleted', 'success');
+  }
+
+  function closeModal() {
+    document.getElementById('modalOverlay').classList.remove('show');
+  }
+  window.closeModal = closeModal;
+  document.getElementById('modalOverlay').addEventListener('click', (e) => {
+    if (e.target.id === 'modalOverlay') closeModal();
+  });
+
+  /* ============ RENDER TRANSACTIONS ============ */
+  let currentFilter = 'all';
+  function renderTransactions() {
+    const txns = getStore(KEYS.TRANSACTIONS, []);
+    const el = document.getElementById('txnTable');
+    const filtered = currentFilter === 'all' ? txns : txns.filter(t => t.status === currentFilter);
+    const sorted = [...filtered].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+    document.getElementById('txnCount').textContent = filtered.length;
+
+    if (sorted.length === 0) {
+      el.innerHTML = `<div class="empty-state"><div class="icon">💰</div><div class="title">No transactions</div><div class="desc">${currentFilter === 'all' ? 'Funding requests will appear here.' : 'No ' + currentFilter + ' transactions.'}</div></div>`;
+      return;
+    }
+
+    el.innerHTML = `<table class="data-table">
+      <thead><tr><th>User</th><th>Amount</th><th>Type</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead>
+      <tbody>
+        ${sorted.map(t => {
+          const statusClass = t.status === 'approved' ? 'approved' : t.status === 'rejected' ? 'rejected' : 'pending';
+          let typeLabel = '💰 Funding';
+          let typeClass = '';
+          if (t.type === 'tesla_investment') { typeLabel = '🚗 Tesla'; typeClass = 'tesla'; }
+          else if (t.type === 'bonus_grant') { typeLabel = '🎁 Bonus'; typeClass = 'bonus'; }
+          else if (t.type === 'manual_fund') { typeLabel = '💰 Manual'; }
+          else if (t.type === 'asset_purchase') { typeLabel = '📈 Purchase'; }
+          
+          const actions = t.status === 'pending' ? `
+            <button class="icon-btn approve" data-approve="${t.id}">✓ Approve</button>
+            <button class="icon-btn reject" data-reject="${t.id}">✕ Reject</button>
+          ` : `<button class="icon-btn view" data-view-txn="${t.id}">View</button>`;
+          return `<tr>
+            <td><div class="user-cell"><div class="user-avatar">${initials(t.userName)}</div><div><div class="user-name">${t.userName}</div><div class="user-email">${t.userEmail}</div></div></div></td>
+            <td style="font-weight:700;color:var(--gold);">${formatMoney(t.amount)}</td>
+            <td><span class="status-pill ${typeClass || statusClass}">${typeLabel}</span></td>
+            <td><span class="status-pill ${statusClass}">${t.status}</span></td>
+            <td style="font-size:12px;color:var(--muted);">${formatDate(t.createdAt)}</td>
+            <td><div class="action-btns">${actions}</div></td>
+          </tr>`;
+        }).join('')}
+      </tbody>
+    </table>`;
+
+    el.querySelectorAll('[data-approve]').forEach(btn => {
+      btn.addEventListener('click', () => approveTxn(btn.dataset.approve));
+    });
+    el.querySelectorAll('[data-reject]').forEach(btn => {
+      btn.addEventListener('click', () => rejectTxn(btn.dataset.reject));
+    });
+    el.querySelectorAll('[data-view-txn]').forEach(btn => {
+      btn.addEventListener('click', () => viewTxn(btn.dataset.viewTxn));
+    });
+  }
+
+  document.querySelectorAll('[data-filter]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      currentFilter = btn.dataset.filter;
+      renderTransactions();
+    });
+  });
+
+  function approveTxn(id) {
+    if (!confirm('Approve this transaction?')) return;
+    let txns = getStore(KEYS.TRANSACTIONS, []);
+    const txn = txns.find(t => t.id === id);
+    if (!txn) return;
+
+    txn.status = 'approved';
+    txn.reviewedAt = new Date().toISOString();
+
+    let users = getStore(KEYS.USERS, []);
+    const user = users.find(u => u.id === txn.userId);
+    
+    if (user) {
+      if (txn.type === 'tesla_investment') {
+        // Tesla: investment + bonus both locked
+        const bonus = txn.bonus || (txn.amount * 2.1925);
+        const totalLocked = txn.amount + bonus;
+        user.lockedBalance = Number(user.lockedBalance || 0) + totalLocked;
+        user.lockedUntil = txn.lockedUntil;
+        if (!user.bonuses) user.bonuses = [];
+        user.bonuses.push({
+          id: 'BNS-' + Date.now().toString().slice(-8),
+          amount: bonus,
+          reason: 'Tesla Roadster Investment Bonus',
+          grantedAt: new Date().toISOString(),
+          grantedBy: 'system',
+          lockedUntil: txn.lockedUntil,
+          lockMonths: 12,
+          investmentAmount: txn.amount
+        });
+      } else if (txn.type === 'funding_request' || txn.type === 'manual_fund') {
+        user.balance = Number(user.balance || 0) + Number(txn.amount);
+      } else if (txn.type === 'asset_purchase') {
+        // Deduct from balance
+        user.balance = Math.max(0, Number(user.balance || 0) - Number(txn.amount));
+      }
+      setStore(KEYS.USERS, users);
+    }
+
+    setStore(KEYS.TRANSACTIONS, txns);
+
+    logEmail({
+      type: 'transaction_approved',
+      to: txn.userEmail,
+      subject: `Transaction Approved — ${formatMoney(txn.amount)}`,
+      status: 'sent'
+    });
+
+    renderAll();
+    toast(`Approved ${formatMoney(txn.amount)} for ${txn.userName}`, 'success');
+  }
+
+  function rejectTxn(id) {
+    if (!confirm('Reject this transaction?')) return;
+    let txns = getStore(KEYS.TRANSACTIONS, []);
+    const txn = txns.find(t => t.id === id);
+    if (!txn) return;
+
+    txn.status = 'rejected';
+    txn.reviewedAt = new Date().toISOString();
+    setStore(KEYS.TRANSACTIONS, txns);
+
+    logEmail({
+      type: 'transaction_rejected',
+      to: txn.userEmail,
+      subject: `Transaction Update — ${formatMoney(txn.amount)}`,
+      status: 'sent'
+    });
+
+    renderAll();
+    toast(`Rejected transaction for ${txn.userName}`, 'error');
+  }
+
+  function viewTxn(id) {
+    const txns = getStore(KEYS.TRANSACTIONS, []);
+    const t = txns.find(x => x.id === id);
+    if (!t) return;
+    
+    let extraRows = '';
+    if (t.type === 'tesla_investment' && t.bonus) {
+      extraRows = `
+        <div class="modal-row"><span class="label">Bonus Profit</span><span class="val" style="color:var(--gold)">${formatMoney(t.bonus)}</span></div>
+        <div class="modal-row"><span class="label">Total Locked</span><span class="val" style="color:var(--green)">${formatMoney(t.amount + t.bonus)}</span></div>
+        ${t.lockedUntil ? `<div class="modal-row"><span class="label">Unlocks</span><span class="val">${formatDate(t.lockedUntil)}</span></div>` : ''}
+      `;
+    }
+    if (t.type === 'bonus_grant') {
+      extraRows = `
+        <div class="modal-row"><span class="label">Lock Period</span><span class="val">${t.lockMonths ? t.lockMonths + ' months' : 'None'}</span></div>
+        ${t.lockedUntil ? `<div class="modal-row"><span class="label">Unlocks</span><span class="val">${formatDate(t.lockedUntil)}</span></div>` : ''}
+      `;
+    }
+    
+    document.getElementById('modalContent').innerHTML = `
+      <h2>Transaction Details</h2>
+      <div class="sub">Reference: ${t.id}</div>
+      <div class="modal-row"><span class="label">User</span><span class="val">${t.userName}</span></div>
+      <div class="modal-row"><span class="label">Email</span><span class="val">${t.userEmail}</span></div>
+      <div class="modal-row"><span class="label">Amount</span><span class="val" style="color:var(--gold)">${formatMoney(t.amount)}</span></div>
+      <div class="modal-row"><span class="label">Type</span><span class="val">${t.type}</span></div>
+      <div class="modal-row"><span class="label">Method</span><span class="val">${t.method || '—'}</span></div>
+      <div class="modal-row"><span class="label">Status</span><span class="val">${t.status}</span></div>
+      <div class="modal-row"><span class="label">Created</span><span class="val">${formatDate(t.createdAt)}</span></div>
+      ${t.reviewedAt ? `<div class="modal-row"><span class="label">Reviewed</span><span class="val">${formatDate(t.reviewedAt)}</span></div>` : ''}
+      ${t.reason ? `<div class="modal-row"><span class="label">Reason</span><span class="val">${t.reason}</span></div>` : ''}
+      ${extraRows}
+      <div class="modal-actions">
+        <button class="btn btn-ghost" onclick="closeModal()">Close</button>
+      </div>
+    `;
+    document.getElementById('modalOverlay').classList.add('show');
+  }
+
+  /* ============ PAYMENT SETTINGS ============ */
+  function renderPaymentMethods() {
+    const payments = getStore(KEYS.PAYMENTS, DEFAULT_PAYMENTS);
+    const container = document.getElementById('paymentMethodsList');
+
+    container.innerHTML = Object.values(payments).map(p => `
+      <div class="payment-method-card" data-method="${p.id}">
+        <div class="payment-method-header">
+          <div class="payment-method-title">
+            <div class="payment-method-icon ${p.iconClass}">${p.icon}</div>
+            <div>
+              <div class="payment-method-name">${p.name}</div>
+              <div class="payment-method-desc">${p.desc}</div>
+            </div>
+          </div>
+          <div class="toggle-switch ${p.enabled ? 'on' : ''}" data-toggle="${p.id}"></div>
+        </div>
+        <div class="editor-field">
+          <label>${p.id === 'bank' ? 'Bank Details' : 'Account / Address'}</label>
+          <textarea data-account="${p.id}" rows="3" placeholder="Enter ${p.name} details...">${p.account}</textarea>
+        </div>
+      </div>
+    `).join('');
+
+    container.querySelectorAll('.toggle-switch').forEach(toggle => {
+      toggle.addEventListener('click', () => toggle.classList.toggle('on'));
+    });
+  }
+
+  document.getElementById('savePaymentsBtn').addEventListener('click', () => {
+    const payments = getStore(KEYS.PAYMENTS, DEFAULT_PAYMENTS);
+
+    document.querySelectorAll('.toggle-switch').forEach(toggle => {
+      const id = toggle.dataset.toggle;
+      if (payments[id]) payments[id].enabled = toggle.classList.contains('on');
+    });
+
+    document.querySelectorAll('[data-account]').forEach(textarea => {
+      const id = textarea.dataset.account;
+      if (payments[id]) payments[id].account = textarea.value.trim();
+    });
+
+    setStore(KEYS.PAYMENTS, payments);
+    toast('Payment settings saved — changes are live!', 'success');
+  });
+
+  /* ============ EMAIL LOGS ============ */
+  function logEmail(entry) {
+    const emails = getStore(KEYS.EMAILS, []);
+    emails.unshift({
+      id: 'EM-' + Date.now().toString().slice(-8),
+      ...entry,
+      timestamp: new Date().toISOString()
+    });
+    setStore(KEYS.EMAILS, emails);
+  }
+
+  function renderEmails() {
+    const emails = getStore(KEYS.EMAILS, []);
+    const el = document.getElementById('emailsTable');
+    document.getElementById('emailCount').textContent = emails.length;
+
+    if (emails.length === 0) {
+      el.innerHTML = `<div class="empty-state"><div class="icon">📧</div><div class="title">No emails sent yet</div><div class="desc">Emails will appear here after being triggered.</div></div>`;
+      return;
+    }
+
+    el.innerHTML = `<table class="data-table">
+      <thead><tr><th>Subject</th><th>Recipient</th><th>Type</th><th>Status</th><th>Sent</th></tr></thead>
+      <tbody>
+        ${emails.map(e => `<tr>
+          <td style="font-weight:600;">${e.subject}</td>
+          <td style="font-size:12px;">${e.to}</td>
+          <td style="font-size:12px;color:var(--muted);">${e.type}</td>
+          <td><span class="status-pill ${e.status === 'sent' ? 'approved' : 'rejected'}">${e.status}</span></td>
+          <td style="font-size:12px;color:var(--muted);">${formatDate(e.timestamp)}</td>
+        </tr>`).join('')}
+      </tbody>
+    </table>`;
+  }
+
+  document.getElementById('clearEmailsBtn').addEventListener('click', () => {
+    if (!confirm('Clear all email logs? This cannot be undone.')) return;
+    setStore(KEYS.EMAILS, []);
+    renderEmails();
+    toast('Email logs cleared', 'success');
+  });
+
+  /* ============ SITE EDITOR ============ */
+  function loadSiteContent() {
+    const site = getStore(KEYS.SITE, null);
+    if (site) {
+      document.getElementById('editHeroTitle').value = site.heroTitle || '';
+      document.getElementById('editHeroSub').value = site.heroSub || '';
+      document.getElementById('editStat1').value = site.stat1 || '';
+      document.getElementById('editStat2').value = site.stat2 || '';
+      document.getElementById('editStat3').value = site.stat3 || '';
+    }
+  }
+
+  document.getElementById('saveSiteBtn').addEventListener('click', () => {
+    const site = {
+      heroTitle: document.getElementById('editHeroTitle').value,
+      heroSub: document.getElementById('editHeroSub').value,
+      stat1: document.getElementById('editStat1').value,
+      stat2: document.getElementById('editStat2').value,
+      stat3: document.getElementById('editStat3').value,
+      updatedAt: new Date().toISOString()
+    };
+    setStore(KEYS.SITE, site);
+    toast('Site content saved', 'success');
+  });
+
+  /* ============ SETTINGS ACTIONS ============ */
+  document.getElementById('resetUsersBtn').addEventListener('click', () => {
+    if (!confirm('Delete ALL users? This cannot be undone.')) return;
+    setStore(KEYS.USERS, []);
+    renderAll();
+    toast('All users deleted', 'success');
+  });
+
+  document.getElementById('resetTxnBtn').addEventListener('click', () => {
+    if (!confirm('Delete ALL transactions? This cannot be undone.')) return;
+    setStore(KEYS.TRANSACTIONS, []);
+    renderAll();
+    toast('All transactions deleted', 'success');
+  });
+
+  document.getElementById('resetAllBtn').addEventListener('click', () => {
+    if (!confirm('⚠ RESET EVERYTHING? This cannot be undone.')) return;
+    Object.values(KEYS).forEach(k => {
+      if (k !== KEYS.SESSION) localStorage.removeItem(k);
+    });
+    renderAll();
+    toast('Everything has been reset', 'success');
+  });
+
+  document.getElementById('refreshBtn').addEventListener('click', () => {
+    renderAll();
+    toast('Dashboard refreshed', 'info');
+  });
+
+  document.getElementById('exportUsersBtn').addEventListener('click', () => {
+    const users = getStore(KEYS.USERS, []);
+    if (users.length === 0) { toast('No users to export', 'error'); return; }
+    const csv = 'Name,Email,Phone,Age,Balance,LockedBonus,Joined\n' +
+      users.map(u => `"${u.name}","${u.email}","${u.phone || ''}",${u.age || ''},${u.balance || 0},${u.lockedBalance || 0},"${u.createdAt}"`).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `nexavault-users-${new Date().toISOString().slice(0,10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast('Users exported', 'success');
+  });
+
+  /* ============ RENDER ALL ============ */
+  function renderAll() {
+    renderOverview();
+    renderUsers();
+    renderTransactions();
+    renderPaymentMethods();
+    renderEmails();
+    loadSiteContent();
+  }
+
+  /* ============ ENTRANCE ANIMATION ============ */
+  window.addEventListener('load', () => {
+    gsap.from('.login-card', { opacity: 0, y: 30, scale: 0.97, duration: 0.7, ease: 'power3.out' });
+  });
+</script>
+
+</body>
+</html>

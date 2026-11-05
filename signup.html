@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Create Your Account — NexaVault</title>
+<meta name="description" content="Join NexaVault and start investing smarter with AI-powered automation." />
+
+<!-- GSAP -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+
+<!-- Fonts -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/inter@5.0.0/index.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/space-grotesk@5.0.0/index.css" />
+
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background: #05060a;
+    color: #e7e9ee;
+    min-height: 100vh;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.6;
+  }
+  h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; letter-spacing: -0.02em; }
+  a { color: inherit; text-decoration: none; }
+  button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; }
+
+  :root {
+    --bg: #05060a;
+    --bg-2: #0b0d14;
+    --bg-3: #11141d;
+    --line: rgba(255,255,255,0.08);
+    --text: #e7e9ee;
+    --muted: #8a8f9c;
+    --accent: #7c5cff;
+    --accent-2: #00d4ff;
+    --gold: #f5c451;
+    --green: #22c55e;
+    --red: #ef4444;
+    --grad: linear-gradient(135deg, #7c5cff 0%, #00d4ff 50%, #f5c451 100%);
+    --grad-2: linear-gradient(135deg, #7c5cff 0%, #00d4ff 100%);
+  }
+
+  /* ============ LAYOUT ============ */
+  .auth-wrap {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    position: relative;
+  }
+
+  /* ============ LEFT PANEL (BRANDING) ============ */
+  .auth-brand {
+    position: relative;
+    padding: 60px 50px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    background:
+      radial-gradient(circle at 30% 20%, rgba(124,92,255,0.25), transparent 50%),
+      radial-gradient(circle at 70% 80%, rgba(0,212,255,0.18), transparent 50%),
+      radial-gradient(circle at 50% 50%, rgba(245,196,81,0.08), transparent 60%),
+      linear-gradient(135deg, #0a0c14, #05060a);
+    border-right: 1px solid var(--line);
+    overflow: hidden;
+  }
+  .auth-brand::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    mask-image: radial-gradient(ellipse at center, black 30%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .brand-top {
+    position: relative;
+    z-index: 2;
+  }
+  .brand-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 22px;
+  }
+  .brand-logo-mark {
+    width: 40px; height: 40px;
+    border-radius: 11px;
+    background: var(--grad);
+    display: grid;
+    place-items: center;
+    color: #05060a;
+    font-weight: 800;
+    font-size: 20px;
+    font-family: 'Space Grotesk', sans-serif;
+  }
+
+  .brand-middle {
+    position: relative;
+    z-index: 2;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 40px 0;
+  }
+  .brand-giant-n {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: clamp(200px, 20vw, 320px);
+    font-weight: 800;
+    line-height: 0.85;
+    background: var(--grad);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 30px;
+    opacity: 0.9;
+  }
+  .brand-middle h2 {
+    font-size: clamp(28px, 3vw, 40px);
+    font-weight: 700;
+    line-height: 1.15;
+    margin-bottom: 16px;
+    max-width: 440px;
+  }
+  .brand-middle h2 .grad {
+    background: var(--grad);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .brand-middle p {
+    color: var(--muted);
+    font-size: 16px;
+    max-width: 440px;
+    line-height: 1.7;
+  }
+
+  .brand-features {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    gap: 28px;
+    flex-wrap: wrap;
+  }
+  .brand-feature {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .brand-feature .check {
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    background: rgba(34,197,94,0.15);
+    border: 1px solid rgba(34,197,94,0.3);
+    display: grid;
+    place-items: center;
+    color: var(--green);
+    font-size: 11px;
+    font-weight: 700;
+  }
+
+  /* ============ RIGHT PANEL (FORM) ============ */
+  .auth-form-wrap {
+    padding: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow-y: auto;
+  }
+  .auth-form-wrap::before {
+    content: '';
+    position: absolute;
+    top: -100px; right: -100px;
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(124,92,255,0.1), transparent 60%);
+    filter: blur(40px);
+    pointer-events: none;
+  }
+
+  .auth-form {
+    width: 100%;
+    max-width: 460px;
+    position: relative;
+    z-index: 2;
+  }
+  .auth-header {
+    margin-bottom: 36px;
+  }
+  .auth-header .eyebrow {
+    display: inline-block;
+    font-size: 12px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--accent-2);
+    margin-bottom: 14px;
+    padding: 5px 12px;
+    border: 1px solid rgba(0,212,255,0.2);
+    border-radius: 100px;
+    background: rgba(0,212,255,0.05);
+  }
+  .auth-header h1 {
+    font-size: 34px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    line-height: 1.15;
+  }
+  .auth-header p {
+    color: var(--muted);
+    font-size: 15px;
+  }
+
+  /* ============ FORM FIELDS ============ */
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  .field {
+    margin-bottom: 18px;
+  }
+  .field label {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+    margin-bottom: 8px;
+  }
+  .field label .req { color: var(--accent-2); }
+  .input-wrap {
+    position: relative;
+  }
+  .input-wrap .icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--muted);
+    font-size: 15px;
+    pointer-events: none;
+  }
+  .field input {
+    width: 100%;
+    padding: 13px 14px 13px 42px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    color: var(--text);
+    font-size: 14px;
+    font-family: inherit;
+    transition: all 0.2s ease;
+  }
+  .field input:focus {
+    outline: none;
+    border-color: var(--accent);
+    background: rgba(124,92,255,0.05);
+    box-shadow: 0 0 0 3px rgba(124,92,255,0.15);
+  }
+  .field input::placeholder { color: rgba(138,143,156,0.6); }
+  .field input.error {
+    border-color: var(--red);
+    background: rgba(239,68,68,0.05);
+  }
+  .field .error-msg {
+    display: none;
+    font-size: 12px;
+    color: var(--red);
+    margin-top: 6px;
+  }
+  .field .error-msg.show { display: block; }
+
+  /* Password toggle */
+  .pw-toggle {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--muted);
+    font-size: 13px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    transition: color 0.2s;
+  }
+  .pw-toggle:hover { color: var(--text); }
+
+  /* Password strength */
+  .pw-strength {
+    display: flex;
+    gap: 4px;
+    margin-top: 8px;
+  }
+  .pw-strength .bar {
+    flex: 1;
+    height: 3px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 3px;
+    transition: background 0.3s;
+  }
+  .pw-strength.weak .bar:nth-child(1) { background: var(--red); }
+  .pw-strength.medium .bar:nth-child(1),
+  .pw-strength.medium .bar:nth-child(2) { background: var(--gold); }
+  .pw-strength.strong .bar:nth-child(1),
+  .pw-strength.strong .bar:nth-child(2),
+  .pw-strength.strong .bar:nth-child(3) { background: var(--green); }
+  .pw-strength.very-strong .bar { background: var(--accent-2); }
+  .pw-strength-text {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  /* Terms checkbox */
+  .terms {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin: 22px 0 26px;
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+  .terms input[type="checkbox"] {
+    appearance: none;
+    width: 18px; height: 18px;
+    min-width: 18px;
+    border: 1px solid var(--line);
+    border-radius: 5px;
+    background: rgba(255,255,255,0.03);
+    cursor: pointer;
+    position: relative;
+    margin-top: 1px;
+    transition: all 0.2s;
+  }
+  .terms input[type="checkbox"]:checked {
+    background: var(--grad-2);
+    border-color: transparent;
+  }
+  .terms input[type="checkbox"]:checked::after {
+    content: '✓';
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+  }
+  .terms a { color: var(--accent-2); text-decoration: underline; }
+
+  /* Submit button */
+  .submit-btn {
+    width: 100%;
+    padding: 15px;
+    background: var(--grad-2);
+    color: #fff;
+    font-size: 15px;
+    font-weight: 600;
+    border-radius: 11px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    box-shadow: 0 8px 30px rgba(124,92,255,0.35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .submit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 40px rgba(124,92,255,0.5);
+  }
+  .submit-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
+  .submit-btn .spinner {
+    display: none;
+    width: 16px; height: 16px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+  }
+  .submit-btn.loading .spinner { display: block; }
+  .submit-btn.loading .btn-text { display: none; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Divider */
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin: 26px 0;
+    color: var(--muted);
+    font-size: 12px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+  .divider::before, .divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--line);
+  }
+
+  /* Footer links */
+  .auth-footer {
+    text-align: center;
+    margin-top: 28px;
+    font-size: 14px;
+    color: var(--muted);
+  }
+  .auth-footer a {
+    color: var(--accent-2);
+    font-weight: 600;
+    transition: color 0.2s;
+  }
+  .auth-footer a:hover { color: var(--text); }
+  .back-home {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 18px;
+    font-size: 13px;
+    color: var(--muted);
+    transition: color 0.2s;
+  }
+  .back-home:hover { color: var(--text); }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    padding: 14px 20px;
+    background: rgba(20,23,35,0.95);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    font-size: 14px;
+    z-index: 9999;
+    opacity: 0;
+    transform: translateX(30px);
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+  }
+  .toast.show { opacity: 1; transform: translateX(0); }
+  .toast.success { border-color: rgba(34,197,94,0.4); color: var(--green); }
+  .toast.error { border-color: rgba(239,68,68,0.4); color: var(--red); }
+
+  /* ============ RESPONSIVE ============ */
+  @media (max-width: 960px) {
+    .auth-wrap { grid-template-columns: 1fr; }
+    .auth-brand {
+      padding: 30px 24px;
+      min-height: auto;
+      border-right: none;
+      border-bottom: 1px solid var(--line);
+    }
+    .brand-giant-n { font-size: 120px; margin-bottom: 16px; }
+    .brand-middle { padding: 20px 0; }
+    .brand-middle h2 { font-size: 24px; }
+    .brand-features { gap: 16px; }
+    .auth-form-wrap { padding: 30px 24px; }
+    .form-row { grid-template-columns: 1fr; gap: 0; }
+  }
+</style>
+</head>
+<body>
+
+<div class="auth-wrap">
+
+  <!-- ============ LEFT: BRANDING ============ -->
+  <aside class="auth-brand">
+    <div class="brand-top">
+      <a href="index.html" class="brand-logo">
+        <span class="brand-logo-mark">N</span>
+        <span>NexaVault</span>
+      </a>
+    </div>
+
+    <div class="brand-middle">
+      <div class="brand-giant-n" id="brandN">N</div>
+      <h2>Start your journey to <span class="grad">smarter investing.</span></h2>
+      <p>Join 184,000+ investors using NexaVault's AI agents to grow their wealth with automated, bank-grade portfolio management.</p>
+    </div>
+
+    <div class="brand-features">
+      <div class="brand-feature"><span class="check">✓</span> Bank-grade security</div>
+      <div class="brand-feature"><span class="check">✓</span> 24/7 AI trading</div>
+      <div class="brand-feature"><span class="check">✓</span> No hidden fees</div>
+    </div>
+  </aside>
+
+  <!-- ============ RIGHT: FORM ============ -->
+  <main class="auth-form-wrap">
+    <form class="auth-form" id="signupForm" novalidate>
+
+      <div class="auth-header">
+        <span class="eyebrow">Create Account</span>
+        <h1>Welcome to NexaVault</h1>
+        <p>Fill in your details to get started. It takes less than a minute.</p>
+      </div>
+
+      <!-- Name -->
+      <div class="field">
+        <label for="fName">Full Name <span class="req">*</span></label>
+        <div class="input-wrap">
+          <span class="icon">👤</span>
+          <input type="text" id="fName" name="name" placeholder="John Doe" autocomplete="name" required />
+        </div>
+        <div class="error-msg" id="errName">Please enter your full name</div>
+      </div>
+
+      <!-- Email + Phone -->
+      <div class="form-row">
+        <div class="field">
+          <label for="fEmail">Email <span class="req">*</span></label>
+          <div class="input-wrap">
+            <span class="icon">✉️</span>
+            <input type="email" id="fEmail" name="email" placeholder="you@example.com" autocomplete="email" required />
+          </div>
+          <div class="error-msg" id="errEmail">Please enter a valid email</div>
+        </div>
+
+        <div class="field">
+          <label for="fPhone">Phone <span class="req">*</span></label>
+          <div class="input-wrap">
+            <span class="icon">📱</span>
+            <input type="tel" id="fPhone" name="phone" placeholder="+1 555 000 0000" autocomplete="tel" required />
+          </div>
+          <div class="error-msg" id="errPhone">Please enter a valid phone number</div>
+        </div>
+      </div>
+
+      <!-- Age + Password -->
+      <div class="form-row">
+        <div class="field">
+          <label for="fAge">Age <span class="req">*</span></label>
+          <div class="input-wrap">
+            <span class="icon">🎂</span>
+            <input type="number" id="fAge" name="age" placeholder="25" min="18" max="120" required />
+          </div>
+          <div class="error-msg" id="errAge">You must be 18 or older</div>
+        </div>
+
+        <div class="field">
+          <label for="fPassword">Password <span class="req">*</span></label>
+          <div class="input-wrap">
+            <span class="icon">🔒</span>
+            <input type="password" id="fPassword" name="password" placeholder="Min 8 characters" autocomplete="new-password" required />
+            <button type="button" class="pw-toggle" id="pwToggle">Show</button>
+          </div>
+          <div class="pw-strength" id="pwStrength">
+            <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
+          </div>
+          <div class="pw-strength-text" id="pwStrengthText">Password strength</div>
+          <div class="error-msg" id="errPassword">Password must be at least 8 characters</div>
+        </div>
+      </div>
+
+      <!-- Terms -->
+      <label class="terms">
+        <input type="checkbox" id="fTerms" required />
+        <span>I agree to NexaVault's <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>, and confirm I am 18 years or older.</span>
+      </label>
+
+      <!-- Submit -->
+      <button type="submit" class="submit-btn" id="submitBtn">
+        <span class="btn-text">Create My Account →</span>
+        <span class="spinner"></span>
+      </button>
+
+      <div class="divider">or</div>
+
+      <div class="auth-footer">
+        Already have an account? <a href="login.html">Log in</a>
+        <br />
+        <a href="index.html" class="back-home">← Back to Home Page</a>
+      </div>
+
+    </form>
+  </main>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  /* ============ ENTRANCE ANIMATIONS ============ */
+  window.addEventListener('load', () => {
+    gsap.from('.brand-logo', { opacity: 0, y: -15, duration: 0.6, ease: 'power2.out' });
+    gsap.from('#brandN', { opacity: 0, scale: 0.8, filter: 'blur(20px)', duration: 1.2, ease: 'power3.out', delay: 0.1 });
+    gsap.from('.brand-middle h2', { opacity: 0, y: 20, duration: 0.8, ease: 'power2.out', delay: 0.4 });
+    gsap.from('.brand-middle p', { opacity: 0, y: 20, duration: 0.8, ease: 'power2.out', delay: 0.55 });
+    gsap.from('.brand-feature', { opacity: 0, y: 15, duration: 0.6, stagger: 0.1, ease: 'power2.out', delay: 0.7 });
+
+    gsap.from('.auth-header > *', { opacity: 0, y: 20, duration: 0.6, stagger: 0.1, ease: 'power2.out', delay: 0.3 });
+    gsap.from('.field', { opacity: 0, y: 20, duration: 0.5, stagger: 0.08, ease: 'power2.out', delay: 0.5 });
+    gsap.from('.terms', { opacity: 0, duration: 0.5, delay: 0.9 });
+    gsap.from('.submit-btn', { opacity: 0, y: 15, duration: 0.6, ease: 'power2.out', delay: 1 });
+  });
+
+  /* ============ TOAST ============ */
+  function toast(msg, type) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast show ' + (type || '');
+    clearTimeout(window._tt);
+    window._tt = setTimeout(() => t.classList.remove('show'), 3000);
+  }
+
+  /* ============ PASSWORD TOGGLE ============ */
+  const pwInput = document.getElementById('fPassword');
+  const pwToggle = document.getElementById('pwToggle');
+  pwToggle.addEventListener('click', () => {
+    if (pwInput.type === 'password') {
+      pwInput.type = 'text';
+      pwToggle.textContent = 'Hide';
+    } else {
+      pwInput.type = 'password';
+      pwToggle.textContent = 'Show';
+    }
+  });
+
+  /* ============ PASSWORD STRENGTH ============ */
+  const pwStrength = document.getElementById('pwStrength');
+  const pwStrengthText = document.getElementById('pwStrengthText');
+  pwInput.addEventListener('input', () => {
+    const v = pwInput.value;
+    let score = 0;
+    if (v.length >= 8) score++;
+    if (/[A-Z]/.test(v) && /[a-z]/.test(v)) score++;
+    if (/\d/.test(v)) score++;
+    if (/[^A-Za-z0-9]/.test(v)) score++;
+
+    pwStrength.className = 'pw-strength';
+    let label = 'Password strength';
+    if (v.length === 0) {
+      label = 'Password strength';
+    } else if (score <= 1) {
+      pwStrength.classList.add('weak');
+      label = 'Weak';
+    } else if (score === 2) {
+      pwStrength.classList.add('medium');
+      label = 'Medium';
+    } else if (score === 3) {
+      pwStrength.classList.add('strong');
+      label = 'Strong';
+    } else {
+      pwStrength.classList.add('very-strong');
+      label = 'Very Strong';
+    }
+    pwStrengthText.textContent = label;
+  });
+
+  /* ============ FORM VALIDATION ============ */
+  const form = document.getElementById('signupForm');
+  const submitBtn = document.getElementById('submitBtn');
+
+  function showError(id, show) {
+    const el = document.getElementById(id);
+    if (show) el.classList.add('show');
+    else el.classList.remove('show');
+  }
+
+  function clearErrors() {
+    document.querySelectorAll('.error-msg').forEach(e => e.classList.remove('show'));
+    document.querySelectorAll('.field input').forEach(i => i.classList.remove('error'));
+  }
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    clearErrors();
+
+    const name = document.getElementById('fName').value.trim();
+    const email = document.getElementById('fEmail').value.trim();
+    const phone = document.getElementById('fPhone').value.trim();
+    const age = parseInt(document.getElementById('fAge').value);
+    const password = document.getElementById('fPassword').value;
+    const terms = document.getElementById('fTerms').checked;
+
+    let hasError = false;
+
+    if (!name || name.length < 2) {
+      showError('errName', true);
+      document.getElementById('fName').classList.add('error');
+      hasError = true;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      showError('errEmail', true);
+      document.getElementById('fEmail').classList.add('error');
+      hasError = true;
+    }
+    if (!phone || phone.replace(/\D/g, '').length < 7) {
+      showError('errPhone', true);
+      document.getElementById('fPhone').classList.add('error');
+      hasError = true;
+    }
+    if (!age || age < 18) {
+      showError('errAge', true);
+      document.getElementById('fAge').classList.add('error');
+      hasError = true;
+    }
+    if (!password || password.length < 8) {
+      showError('errPassword', true);
+      document.getElementById('fPassword').classList.add('error');
+      hasError = true;
+    }
+    if (!terms) {
+      toast('Please accept the Terms of Service', 'error');
+      hasError = true;
+    }
+
+    if (hasError) return;
+
+    // Simulate submission (we'll wire this to MongoDB later)
+    submitBtn.classList.add('loading');
+    submitBtn.disabled = true;
+
+    setTimeout(() => {
+      // Save to localStorage for now (will be replaced with MongoDB call)
+      const user = {
+        name, email, phone, age, password,
+        createdAt: new Date().toISOString(),
+        balance: 0,
+        id: 'USR-' + Date.now().toString().slice(-8)
+      };
+      localStorage.setItem('nexavault_user', JSON.stringify(user));
+      localStorage.setItem('nexavault_logged_in', 'true');
+
+      toast('Account created! Redirecting...', 'success');
+
+      setTimeout(() => {
+        window.location.href = 'dashboard.html';
+      }, 1200);
+    }, 1400);
+  });
+
+  /* ============ CLEAR ERROR ON INPUT ============ */
+  document.querySelectorAll('.field input').forEach(input => {
+    input.addEventListener('input', () => {
+      input.classList.remove('error');
+      const errId = 'err' + input.id.charAt(1).toUpperCase() + input.id.slice(2);
+      const errEl = document.getElementById(errId);
+      if (errEl) errEl.classList.remove('show');
+    });
+  });
+</script>
+
+</body>
+</html>

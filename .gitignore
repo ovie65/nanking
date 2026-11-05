@@ -1,0 +1,16 @@
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+
+# Node (for future Vercel functions)
+node_modules/
+.env
+.env.local
+
+# Logs
+*.log

@@ -1,0 +1,1536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Dashboard — NexaVault</title>
+<meta name="robots" content="noindex, nofollow" />
+
+<!-- GSAP -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+
+<!-- Fonts -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/inter@5.0.0/index.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/space-grotesk@5.0.0/index.css" />
+
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background: #05060a;
+    color: #e7e9ee;
+    min-height: 100vh;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.6;
+  }
+  h1, h2, h3, h4 { font-family: 'Space Grotesk', sans-serif; letter-spacing: -0.02em; }
+  a { color: inherit; text-decoration: none; }
+  button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; }
+
+  :root {
+    --bg: #05060a;
+    --bg-2: #0b0d14;
+    --bg-3: #11141d;
+    --bg-4: #1a1d28;
+    --line: rgba(255,255,255,0.08);
+    --line-2: rgba(255,255,255,0.12);
+    --text: #e7e9ee;
+    --muted: #8a8f9c;
+    --accent: #7c5cff;
+    --accent-2: #00d4ff;
+    --gold: #f5c451;
+    --green: #22c55e;
+    --red: #ef4444;
+    --tesla-red: #e82127;
+    --grad: linear-gradient(135deg, #7c5cff 0%, #00d4ff 50%, #f5c451 100%);
+    --grad-2: linear-gradient(135deg, #7c5cff 0%, #00d4ff 100%);
+    --grad-gold: linear-gradient(135deg, #f5c451 0%, #d4a017 100%);
+    --grad-purple: linear-gradient(135deg, #7c5cff 0%, #a855f7 100%);
+    --grad-tesla: linear-gradient(135deg, #e82127 0%, #ff4444 100%);
+  }
+
+  /* ============ TOP NAV ============ */
+  .top-nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(5,6,10,0.85);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--line);
+    padding: 14px 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .nav-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+  }
+  .nav-logo-mark {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    background: var(--grad);
+    display: grid;
+    place-items: center;
+    color: #05060a;
+    font-weight: 800;
+    font-size: 16px;
+  }
+  .nav-user {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .nav-user-info {
+    text-align: right;
+  }
+  .nav-user-name {
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .nav-user-email {
+    font-size: 11px;
+    color: var(--muted);
+  }
+  .nav-avatar {
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    background: var(--grad-2);
+    display: grid;
+    place-items: center;
+    color: #fff;
+    font-weight: 700;
+    font-size: 14px;
+  }
+  .logout-btn {
+    padding: 8px 14px;
+    background: rgba(239,68,68,0.08);
+    border: 1px solid rgba(239,68,68,0.2);
+    color: var(--red);
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    transition: all 0.2s;
+  }
+  .logout-btn:hover { background: rgba(239,68,68,0.15); }
+
+  /* ============ MAIN CONTAINER ============ */
+  .dashboard-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 32px;
+  }
+
+  /* ============ BALANCE CARD ============ */
+  .balance-card {
+    background: linear-gradient(135deg, rgba(124,92,255,0.15), rgba(0,212,255,0.1), rgba(245,196,81,0.08));
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    padding: 32px;
+    margin-bottom: 28px;
+    position: relative;
+    overflow: hidden;
+  }
+  .balance-card::before {
+    content: '';
+    position: absolute;
+    top: -50%; right: -20%;
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(124,92,255,0.2), transparent 60%);
+    filter: blur(60px);
+    pointer-events: none;
+  }
+  .balance-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 24px;
+    position: relative;
+    z-index: 2;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+  .balance-section {
+    flex: 1;
+    min-width: 200px;
+  }
+  .balance-title {
+    font-size: 13px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .balance-amount {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 42px;
+    font-weight: 700;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .balance-amount .currency {
+    font-size: 26px;
+    color: var(--muted);
+  }
+  .balance-amount.locked {
+    font-size: 32px;
+  }
+  .balance-amount.locked .currency {
+    font-size: 20px;
+  }
+  .balance-subtitle {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .lock-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    background: rgba(245,196,81,0.12);
+    border: 1px solid rgba(245,196,81,0.3);
+    border-radius: 100px;
+    font-size: 11px;
+    color: var(--gold);
+    font-weight: 600;
+  }
+  .eye-toggle {
+    padding: 8px 12px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    font-size: 16px;
+    transition: all 0.2s;
+    cursor: pointer;
+  }
+  .eye-toggle:hover { background: rgba(255,255,255,0.1); }
+  .balance-actions {
+    display: flex;
+    gap: 12px;
+    position: relative;
+    z-index: 2;
+  }
+  .fund-btn {
+    padding: 12px 24px;
+    background: var(--grad-gold);
+    color: #05060a;
+    font-weight: 700;
+    border-radius: 10px;
+    font-size: 14px;
+    transition: all 0.25s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .fund-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(245,196,81,0.3); }
+
+  /* ============ AI AGENT STATUS ============ */
+  .ai-status {
+    background: linear-gradient(180deg, rgba(20,23,35,0.7), rgba(11,13,20,0.5));
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 28px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+  .ai-icon {
+    width: 56px; height: 56px;
+    border-radius: 14px;
+    background: var(--grad-2);
+    display: grid;
+    place-items: center;
+    font-size: 28px;
+    position: relative;
+  }
+  .ai-icon::after {
+    content: '';
+    position: absolute;
+    top: -4px; right: -4px;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: var(--green);
+    border: 2px solid var(--bg-3);
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(34,197,94,0.4); }
+    50% { box-shadow: 0 0 0 8px rgba(34,197,94,0); }
+  }
+  .ai-info { flex: 1; }
+  .ai-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .ai-desc {
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .ai-stats {
+    display: flex;
+    gap: 24px;
+  }
+  .ai-stat {
+    text-align: center;
+  }
+  .ai-stat-val {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--accent-2);
+  }
+  .ai-stat-lbl {
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  /* ============ MARKET TICKER ============ */
+  .ticker-section {
+    margin-bottom: 32px;
+  }
+  .section-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-title .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent-2);
+    animation: pulse 1.5s infinite;
+  }
+  .ticker-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 14px;
+  }
+  .ticker-card {
+    background: linear-gradient(180deg, rgba(20,23,35,0.7), rgba(11,13,20,0.5));
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 18px;
+    transition: all 0.25s;
+  }
+  .ticker-card:hover {
+    border-color: var(--line-2);
+    transform: translateY(-2px);
+  }
+  .ticker-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  .ticker-symbol {
+    font-weight: 700;
+    font-size: 15px;
+  }
+  .ticker-change {
+    font-size: 12px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 6px;
+  }
+  .ticker-change.up {
+    background: rgba(34,197,94,0.12);
+    color: var(--green);
+  }
+  .ticker-change.down {
+    background: rgba(239,68,68,0.12);
+    color: var(--red);
+  }
+  .ticker-price {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+  }
+
+  /* ============ INVESTMENT MARKET ============ */
+  .market-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 16px;
+  }
+  .asset-card {
+    background: linear-gradient(180deg, rgba(20,23,35,0.7), rgba(11,13,20,0.5));
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 20px;
+    transition: all 0.25s;
+    position: relative;
+    overflow: hidden;
+  }
+  .asset-card:hover {
+    border-color: var(--line-2);
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  }
+  .asset-card.tesla-special {
+    background: linear-gradient(135deg, rgba(232,33,39,0.15), rgba(255,68,68,0.1));
+    border-color: rgba(232,33,39,0.3);
+    grid-column: 1 / -1;
+  }
+  .asset-card.tesla-special::before {
+    content: '⭐ BONUS PROGRAM';
+    position: absolute;
+    top: 12px; right: 12px;
+    font-size: 10px;
+    padding: 4px 10px;
+    background: var(--grad-tesla);
+    color: #fff;
+    border-radius: 100px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+  }
+  .asset-icon {
+    width: 44px; height: 44px;
+    border-radius: 11px;
+    display: grid;
+    place-items: center;
+    font-size: 20px;
+    font-weight: 800;
+    margin-bottom: 14px;
+  }
+  .asset-icon.crypto {
+    background: linear-gradient(135deg, #f7931a, #ffb84d);
+    color: #05060a;
+  }
+  .asset-icon.stock {
+    background: linear-gradient(135deg, #00d4ff, #7c5cff);
+    color: #fff;
+  }
+  .asset-icon.tesla {
+    background: #000;
+    border: 2px solid var(--tesla-red);
+    color: var(--tesla-red);
+    font-size: 24px;
+    font-weight: 900;
+  }
+  .asset-name {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .asset-type {
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 12px;
+  }
+  .asset-price {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .asset-change {
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 14px;
+  }
+  .asset-change.up { color: var(--green); }
+  .asset-change.down { color: var(--red); }
+  .buy-btn {
+    width: 100%;
+    padding: 10px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--line);
+    border-radius: 9px;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.2s;
+    color: var(--text);
+  }
+  .buy-btn:hover {
+    background: var(--grad-2);
+    border-color: transparent;
+    color: #fff;
+  }
+  .buy-btn.tesla-btn {
+    background: var(--grad-tesla);
+    border-color: transparent;
+    color: #fff;
+    font-weight: 700;
+  }
+  .buy-btn.tesla-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(232,33,39,0.4);
+  }
+
+  /* Tesla special card content */
+  .tesla-content {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 20px;
+    align-items: start;
+  }
+  .tesla-info {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .tesla-title {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .tesla-desc {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.6;
+    margin-bottom: 12px;
+  }
+  .tesla-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+  .tesla-stat {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 12px;
+    text-align: center;
+  }
+  .tesla-stat-val {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--tesla-red);
+    margin-bottom: 4px;
+  }
+  .tesla-stat-lbl {
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .tesla-warning {
+    background: rgba(245,196,81,0.08);
+    border: 1px solid rgba(245,196,81,0.25);
+    border-radius: 10px;
+    padding: 12px;
+    font-size: 12px;
+    color: var(--gold);
+    line-height: 1.5;
+    margin-bottom: 16px;
+  }
+  .tesla-example {
+    background: rgba(232,33,39,0.08);
+    border: 1px solid rgba(232,33,39,0.2);
+    border-radius: 10px;
+    padding: 14px;
+    margin-bottom: 16px;
+  }
+  .tesla-example-title {
+    font-size: 12px;
+    color: var(--tesla-red);
+    font-weight: 600;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .tesla-example-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    margin-bottom: 4px;
+  }
+  .tesla-example-row:last-child {
+    margin-bottom: 0;
+    font-weight: 700;
+    color: var(--green);
+  }
+
+  /* ============ MODAL ============ */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(5,6,10,0.85);
+    backdrop-filter: blur(8px);
+    z-index: 1000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .modal-overlay.show { display: flex; }
+  .modal {
+    background: linear-gradient(180deg, #141723, #0b0d14);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 32px;
+    max-width: 520px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+  .modal h2 {
+    font-size: 22px;
+    margin-bottom: 6px;
+  }
+  .modal .sub {
+    color: var(--muted);
+    font-size: 13px;
+    margin-bottom: 24px;
+  }
+  .modal-field {
+    margin-bottom: 18px;
+  }
+  .modal-field label {
+    display: block;
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 600;
+  }
+  .modal-field input,
+  .modal-field select,
+  .modal-field textarea {
+    width: 100%;
+    padding: 12px 14px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--line);
+    border-radius: 9px;
+    color: var(--text);
+    font-size: 14px;
+    font-family: inherit;
+    transition: all 0.2s;
+  }
+  .modal-field textarea {
+    resize: vertical;
+    min-height: 80px;
+  }
+  .modal-field input:focus,
+  .modal-field select:focus,
+  .modal-field textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    background: rgba(124,92,255,0.04);
+  }
+  .payment-methods {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  .payment-method-option {
+    padding: 16px;
+    background: rgba(255,255,255,0.03);
+    border: 2px solid var(--line);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+  }
+  .payment-method-option:hover {
+    border-color: var(--line-2);
+    background: rgba(255,255,255,0.05);
+  }
+  .payment-method-option.selected {
+    border-color: var(--accent);
+    background: rgba(124,92,255,0.08);
+  }
+  .payment-method-option .icon {
+    font-size: 24px;
+    margin-bottom: 6px;
+  }
+  .payment-method-option .name {
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .payment-details {
+    background: rgba(245,196,81,0.05);
+    border: 1px solid rgba(245,196,81,0.2);
+    border-radius: 10px;
+    padding: 18px;
+    margin: 20px 0;
+  }
+  .payment-details-title {
+    font-size: 12px;
+    color: var(--gold);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 10px;
+    font-weight: 600;
+  }
+  .payment-details-value {
+    font-family: monospace;
+    font-size: 13px;
+    word-break: break-all;
+    color: var(--text);
+    line-height: 1.6;
+  }
+  .bonus-calculator {
+    background: rgba(232,33,39,0.08);
+    border: 1px solid rgba(232,33,39,0.25);
+    border-radius: 10px;
+    padding: 16px;
+    margin: 16px 0;
+  }
+  .bonus-calculator-title {
+    font-size: 12px;
+    color: var(--tesla-red);
+    font-weight: 600;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .bonus-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    margin-bottom: 6px;
+  }
+  .bonus-row:last-child {
+    margin-bottom: 0;
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--green);
+    padding-top: 8px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+  }
+  .modal-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 24px;
+    justify-content: flex-end;
+  }
+  .btn {
+    padding: 11px 20px;
+    border-radius: 9px;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.2s;
+  }
+  .btn-ghost {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--line);
+    color: var(--text);
+  }
+  .btn-ghost:hover { background: rgba(255,255,255,0.06); }
+  .btn-primary {
+    background: var(--grad-2);
+    color: #fff;
+  }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(124,92,255,0.3); }
+  .btn-tesla {
+    background: var(--grad-tesla);
+    color: #fff;
+    font-weight: 700;
+  }
+  .btn-tesla:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(232,33,39,0.4); }
+
+  /* ============ TOAST ============ */
+  .toast {
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    padding: 14px 20px;
+    background: rgba(20,23,35,0.95);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    font-size: 14px;
+    z-index: 9999;
+    opacity: 0;
+    transform: translateX(30px);
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+  }
+  .toast.show { opacity: 1; transform: translateX(0); }
+  .toast.success { border-color: rgba(34,197,94,0.4); color: var(--green); }
+  .toast.error { border-color: rgba(239,68,68,0.4); color: var(--red); }
+  .toast.info { border-color: rgba(0,212,255,0.4); color: var(--accent-2); }
+
+  /* ============ RESPONSIVE ============ */
+  @media (max-width: 768px) {
+    .dashboard-container { padding: 20px; }
+    .balance-amount { font-size: 32px; }
+    .balance-amount.locked { font-size: 24px; }
+    .ai-status { flex-direction: column; text-align: center; }
+    .ai-stats { justify-content: center; }
+    .payment-methods { grid-template-columns: 1fr; }
+    .tesla-content { grid-template-columns: 1fr; }
+    .tesla-stats { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ TOP NAV ============ -->
+<nav class="top-nav">
+  <a href="index.html" class="nav-logo">
+    <span class="nav-logo-mark">N</span>
+    <span>NexaVault</span>
+  </a>
+  <div class="nav-user">
+    <div class="nav-user-info">
+      <div class="nav-user-name" id="userName">Loading...</div>
+      <div class="nav-user-email" id="userEmail">—</div>
+    </div>
+    <div class="nav-avatar" id="userAvatar">?</div>
+    <button class="logout-btn" id="logoutBtn">Sign Out</button>
+  </div>
+</nav>
+
+<!-- ============ DASHBOARD ============ -->
+<div class="dashboard-container">
+
+  <!-- Balance Card -->
+  <div class="balance-card">
+    <div class="balance-header">
+      <div class="balance-section">
+        <div class="balance-title">Available Balance</div>
+        <div class="balance-amount">
+          <span class="currency">$</span>
+          <span id="balanceValue">0.00</span>
+          <button class="eye-toggle" id="eyeToggle">👁</button>
+        </div>
+        <div class="balance-subtitle">Ready to invest</div>
+      </div>
+      <div class="balance-section">
+        <div class="balance-title">Locked Bonus Profit</div>
+        <div class="balance-amount locked">
+          <span class="currency">$</span>
+          <span id="lockedBalanceValue">0.00</span>
+        </div>
+        <div class="balance-subtitle">
+          <span class="lock-badge">🔒 <span id="lockTimeLeft">No locked funds</span></span>
+        </div>
+      </div>
+    </div>
+    <div class="balance-actions">
+      <button class="fund-btn" id="fundBtn">💰 Fund Account</button>
+    </div>
+  </div>
+
+  <!-- AI Agent Status -->
+  <div class="ai-status">
+    <div class="ai-icon">🤖</div>
+    <div class="ai-info">
+      <div class="ai-title">Your AI Mini-Worker is Active</div>
+      <div class="ai-desc">Autonomous agent monitoring markets 24/7 and optimizing your portfolio</div>
+    </div>
+    <div class="ai-stats">
+      <div class="ai-stat">
+        <div class="ai-stat-val">2,847</div>
+        <div class="ai-stat-lbl">Signals/Day</div>
+      </div>
+      <div class="ai-stat">
+        <div class="ai-stat-val">99.8%</div>
+        <div class="ai-stat-lbl">Uptime</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Live Market Ticker -->
+  <div class="ticker-section">
+    <div class="section-title">
+      <span class="dot"></span>
+      <span>Live Market Preview</span>
+    </div>
+    <div class="ticker-grid" id="tickerGrid"></div>
+  </div>
+
+  <!-- Investment Market -->
+  <div class="ticker-section">
+    <div class="section-title">
+      <span class="dot"></span>
+      <span>Investment Market</span>
+    </div>
+    <div class="market-grid" id="marketGrid"></div>
+  </div>
+
+</div>
+
+<!-- ============ FUNDING MODAL ============ -->
+<div class="modal-overlay" id="fundModal">
+  <div class="modal">
+    <h2>💰 Fund Your Account</h2>
+    <div class="sub">Choose a payment method and send funds to activate your account.</div>
+
+    <div class="modal-field">
+      <label>Amount (USD)</label>
+      <input type="number" id="fundAmount" step="0.01" min="100" placeholder="5000.00" />
+    </div>
+
+    <div class="modal-field">
+      <label>Select Payment Method</label>
+      <div class="payment-methods" id="paymentMethods"></div>
+    </div>
+
+    <div class="payment-details" id="paymentDetails" style="display:none;">
+      <div class="payment-details-title">Send Payment To</div>
+      <div class="payment-details-value" id="paymentAddress">—</div>
+    </div>
+
+    <div class="modal-field">
+      <label>Reference Note (optional)</label>
+      <textarea id="fundNote" placeholder="Add a note for your records..."></textarea>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="cancelFund">Cancel</button>
+      <button class="btn btn-primary" id="submitFund">Submit Funding Request</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ BUY MODAL ============ -->
+<div class="modal-overlay" id="buyModal">
+  <div class="modal">
+    <h2>📈 Buy Asset</h2>
+    <div class="sub" id="buyAssetName">—</div>
+
+    <div class="modal-field">
+      <label>Investment Amount (USD)</label>
+      <input type="number" id="buyAmount" step="0.01" min="10" placeholder="1000.00" />
+    </div>
+
+    <div class="modal-field">
+      <label>Select Payment Method</label>
+      <div class="payment-methods" id="buyPaymentMethods"></div>
+    </div>
+
+    <div class="payment-details" id="buyPaymentDetails" style="display:none;">
+      <div class="payment-details-title">Send Payment To</div>
+      <div class="payment-details-value" id="buyPaymentAddress">—</div>
+    </div>
+
+    <div class="modal-field">
+      <label>Reference Note (optional)</label>
+      <textarea id="buyNote" placeholder="Add a note for your records..."></textarea>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="cancelBuy">Cancel</button>
+      <button class="btn btn-primary" id="submitBuy">Submit Purchase Request</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ TESLA MODAL ============ -->
+<div class="modal-overlay" id="teslaModal">
+  <div class="modal">
+    <h2>🚗 Tesla Roadster Investment Program</h2>
+    <div class="sub">Join the exclusive Tesla growth program and earn scaled bonus profits.</div>
+
+    <div class="modal-field">
+      <label>Investment Amount (USD) — Minimum $4,000</label>
+      <input type="number" id="teslaAmount" step="0.01" min="4000" placeholder="10000.00" />
+    </div>
+
+    <div class="bonus-calculator" id="bonusCalculator" style="display:none;">
+      <div class="bonus-calculator-title">Your Bonus Breakdown</div>
+      <div class="bonus-row">
+        <span>Your Investment</span>
+        <span id="teslaInvestment">$0.00</span>
+      </div>
+      <div class="bonus-row">
+        <span>Bonus Profit (2.19x)</span>
+        <span id="teslaBonus">$0.00</span>
+      </div>
+      <div class="bonus-row">
+        <span>Total After 1 Year</span>
+        <span id="teslaTotal">$0.00</span>
+      </div>
+    </div>
+
+    <div class="modal-field">
+      <label>Select Payment Method</label>
+      <div class="payment-methods" id="teslaPaymentMethods"></div>
+    </div>
+
+    <div class="payment-details" id="teslaPaymentDetails" style="display:none;">
+      <div class="payment-details-title">Send Payment To</div>
+      <div class="payment-details-value" id="teslaPaymentAddress">—</div>
+    </div>
+
+    <div class="modal-field">
+      <label>Reference Note (optional)</label>
+      <textarea id="teslaNote" placeholder="Add a note for your records..."></textarea>
+    </div>
+
+    <div style="background:rgba(245,196,81,0.08);border:1px solid rgba(245,196,81,0.25);border-radius:10px;padding:14px;margin:16px 0;font-size:12px;color:var(--gold);line-height:1.6;">
+      ⚠️ <strong>Important:</strong> Bonus profit is locked for 1 year and cannot be withdrawn until the lock period ends. This is projected profit based on Tesla's growth.
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="cancelTesla">Cancel</button>
+      <button class="btn btn-tesla" id="submitTesla">🚀 Join Tesla Program</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  /* ============ STORAGE KEYS ============ */
+  const KEYS = {
+    USERS: 'nexavault_users',
+    TRANSACTIONS: 'nexavault_transactions',
+    PAYMENTS: 'nexavault_payment_methods',
+    LOGGED_IN: 'nexavault_logged_in',
+    CURRENT_USER: 'nexavault_current_user'
+  };
+
+  /* ============ DEFAULT PAYMENT METHODS ============ */
+  const DEFAULT_PAYMENTS = {
+    btc: {
+      id: 'btc',
+      name: 'Bitcoin',
+      icon: '₿',
+      desc: 'Pay with Bitcoin',
+      enabled: true,
+      account: 'bc1qxy2kgdygjrsqtzq2n0yrf2499p5a0w8mdjm64u'
+    },
+    bank: {
+      id: 'bank',
+      name: 'Bank Transfer',
+      icon: '🏦',
+      desc: 'Direct bank transfer',
+      enabled: true,
+      account: 'Bank: Chase Bank\nAccount Name: NexaVault LLC\nAccount Number: 1234567890\nRouting: 021000021'
+    },
+    paypal: {
+      id: 'paypal',
+      name: 'PayPal',
+      icon: 'P',
+      desc: 'Pay via PayPal',
+      enabled: false,
+      account: 'payments@nexavault.com'
+    }
+  };
+
+  /* ============ HELPERS ============ */
+  function getStore(key, fallback) {
+    try {
+      const v = localStorage.getItem(key);
+      return v ? JSON.parse(v) : fallback;
+    } catch(e) { return fallback; }
+  }
+  function setStore(key, val) {
+    localStorage.setItem(key, JSON.stringify(val));
+  }
+
+  function toast(msg, type) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast show ' + (type || '');
+    clearTimeout(window._tt);
+    window._tt = setTimeout(() => t.classList.remove('show'), 3000);
+  }
+
+  function formatMoney(n) {
+    return Number(n || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  function initials(name) {
+    return (name || '?').split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2);
+  }
+
+  function calculateLockTimeLeft(lockDate) {
+    if (!lockDate) return 'No locked funds';
+    const now = new Date();
+    const lock = new Date(lockDate);
+    const diff = lock - now;
+    if (diff <= 0) return 'Unlocked';
+    
+    const months = Math.floor(diff / (1000 * 60 * 60 * 24 * 30));
+    const days = Math.floor((diff % (1000 * 60 * 60 * 24 * 30)) / (1000 * 60 * 60 * 24));
+    
+    if (months > 0) {
+      return `${months} month${months > 1 ? 's' : ''} left`;
+    } else {
+      return `${days} day${days > 1 ? 's' : ''} left`;
+    }
+  }
+
+  /* ============ AUTH CHECK ============ */
+  const isLoggedIn = localStorage.getItem(KEYS.LOGGED_IN) === 'true';
+  const currentUser = getStore(KEYS.CURRENT_USER, null);
+
+  if (!isLoggedIn || !currentUser) {
+    window.location.href = 'login.html';
+  }
+
+  /* ============ LOAD USER DATA ============ */
+  function loadUserData() {
+    const users = getStore(KEYS.USERS, []);
+    const user = users.find(u => u.id === currentUser.id);
+    if (user) {
+      setStore(KEYS.CURRENT_USER, user);
+      return user;
+    }
+    return currentUser;
+  }
+
+  const user = loadUserData();
+
+  /* ============ RENDER USER INFO ============ */
+  document.getElementById('userName').textContent = user.name;
+  document.getElementById('userEmail').textContent = user.email;
+  document.getElementById('userAvatar').textContent = initials(user.name);
+
+  /* ============ BALANCE ============ */
+  let balanceVisible = true;
+  const balanceEl = document.getElementById('balanceValue');
+  const lockedBalanceEl = document.getElementById('lockedBalanceValue');
+  const lockTimeEl = document.getElementById('lockTimeLeft');
+  const eyeToggle = document.getElementById('eyeToggle');
+
+  function updateBalance() {
+    const userData = loadUserData();
+    if (balanceVisible) {
+      balanceEl.textContent = formatMoney(userData.balance || 0);
+      lockedBalanceEl.textContent = formatMoney(userData.lockedBalance || 0);
+    } else {
+      balanceEl.textContent = '••••••';
+      lockedBalanceEl.textContent = '••••••';
+    }
+    
+    // Update lock time
+    if (userData.lockedUntil) {
+      lockTimeEl.textContent = calculateLockTimeLeft(userData.lockedUntil);
+    } else {
+      lockTimeEl.textContent = 'No locked funds';
+    }
+  }
+
+  eyeToggle.addEventListener('click', () => {
+    balanceVisible = !balanceVisible;
+    eyeToggle.textContent = balanceVisible ? '👁' : '🙈';
+    updateBalance();
+  });
+
+  updateBalance();
+
+  /* ============ LIVE TICKER ============ */
+  const TICKER_ASSETS = [
+    { symbol: 'BTC', name: 'Bitcoin', basePrice: 67842 },
+    { symbol: 'ETH', name: 'Ethereum', basePrice: 3542 },
+    { symbol: 'TSLA', name: 'Tesla', basePrice: 248 },
+    { symbol: 'NVDA', name: 'NVIDIA', basePrice: 875 },
+    { symbol: 'SOL', name: 'Solana', basePrice: 178 }
+  ];
+
+  function renderTicker() {
+    const grid = document.getElementById('tickerGrid');
+    grid.innerHTML = TICKER_ASSETS.map(asset => {
+      const change = (Math.random() - 0.45) * 5;
+      const price = asset.basePrice * (1 + change / 100);
+      const changeClass = change >= 0 ? 'up' : 'down';
+      const changeText = (change >= 0 ? '+' : '') + change.toFixed(2) + '%';
+      return `
+        <div class="ticker-card">
+          <div class="ticker-header">
+            <div class="ticker-symbol">${asset.symbol}</div>
+            <div class="ticker-change ${changeClass}">${changeText}</div>
+          </div>
+          <div class="ticker-price">$${formatMoney(price)}</div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  renderTicker();
+  setInterval(renderTicker, 5000);
+
+  /* ============ INVESTMENT MARKET ============ */
+  const CRYPTO_ASSETS = [
+    { name: 'Bitcoin', symbol: 'BTC', price: 67842 },
+    { name: 'Ethereum', symbol: 'ETH', price: 3542 },
+    { name: 'Solana', symbol: 'SOL', price: 178 },
+    { name: 'Cardano', symbol: 'ADA', price: 0.68 },
+    { name: 'Polkadot', symbol: 'DOT', price: 8.45 },
+    { name: 'Chainlink', symbol: 'LINK', price: 18.32 },
+    { name: 'Avalanche', symbol: 'AVAX', price: 42.15 },
+    { name: 'Polygon', symbol: 'MATIC', price: 0.92 },
+    { name: 'Uniswap', symbol: 'UNI', price: 12.78 },
+    { name: 'Cosmos', symbol: 'ATOM', price: 14.56 }
+  ];
+
+  const STOCK_ASSETS = [
+    { name: 'NVIDIA', symbol: 'NVDA', price: 875 },
+    { name: 'Apple', symbol: 'AAPL', price: 189 },
+    { name: 'Microsoft', symbol: 'MSFT', price: 412 },
+    { name: 'Amazon', symbol: 'AMZN', price: 178 },
+    { name: 'Google', symbol: 'GOOGL', price: 142 },
+    { name: 'Meta', symbol: 'META', price: 485 },
+    { name: 'Netflix', symbol: 'NFLX', price: 623 },
+    { name: 'AMD', symbol: 'AMD', price: 168 }
+  ];
+
+  function renderMarket() {
+    const grid = document.getElementById('marketGrid');
+    
+    // Tesla special card first
+    const teslaCard = `
+      <div class="asset-card tesla-special">
+        <div class="tesla-content">
+          <div class="asset-icon tesla">T</div>
+          <div class="tesla-info">
+            <div>
+              <div class="tesla-title">Tesla Roadster Investment Program</div>
+              <div class="asset-type">Special Bonus Program</div>
+            </div>
+            <div class="tesla-desc">
+              Invest in Tesla's future and earn scaled bonus profits tied to Tesla's growth. 
+              The more you invest, the more you reap as Tesla continues to innovate and expand.
+            </div>
+            <div class="tesla-stats">
+              <div class="tesla-stat">
+                <div class="tesla-stat-val">$4,000</div>
+                <div class="tesla-stat-lbl">Minimum</div>
+              </div>
+              <div class="tesla-stat">
+                <div class="tesla-stat-val">2.19x</div>
+                <div class="tesla-stat-lbl">Bonus Multiplier</div>
+              </div>
+              <div class="tesla-stat">
+                <div class="tesla-stat-val">1 Year</div>
+                <div class="tesla-stat-lbl">Lock Period</div>
+              </div>
+            </div>
+            <div class="tesla-example">
+              <div class="tesla-example-title">Example Returns</div>
+              <div class="tesla-example-row">
+                <span>Invest $4,000</span>
+                <span>→ Get $8,770 bonus</span>
+              </div>
+              <div class="tesla-example-row">
+                <span>Invest $10,000</span>
+                <span>→ Get $21,925 bonus</span>
+              </div>
+              <div class="tesla-example-row">
+                <span>Invest $20,000</span>
+                <span>→ Get $43,850 bonus</span>
+              </div>
+            </div>
+            <div class="tesla-warning">
+              ⚠️ Bonus profit is locked for 1 year and cannot be withdrawn until the lock period ends.
+            </div>
+            <button class="buy-btn tesla-btn" id="teslaBtn">🚀 Join Tesla Program</button>
+          </div>
+        </div>
+      </div>
+    `;
+
+    const regularAssets = [
+      ...CRYPTO_ASSETS.map(a => ({ ...a, type: 'crypto', icon: '₿', iconClass: 'crypto' })),
+      ...STOCK_ASSETS.map(a => ({ ...a, type: 'stock', icon: '📈', iconClass: 'stock' }))
+    ];
+
+    const regularCards = regularAssets.map(asset => {
+      const change = (Math.random() - 0.45) * 8;
+      const changeClass = change >= 0 ? 'up' : 'down';
+      const changeText = (change >= 0 ? '+' : '') + change.toFixed(2) + '%';
+      return `
+        <div class="asset-card">
+          <div class="asset-icon ${asset.iconClass}">${asset.icon}</div>
+          <div class="asset-name">${asset.name}</div>
+          <div class="asset-type">${asset.type}</div>
+          <div class="asset-price">$${formatMoney(asset.price)}</div>
+          <div class="asset-change ${changeClass}">${changeText}</div>
+          <button class="buy-btn" data-asset="${asset.symbol}" data-name="${asset.name}" data-price="${asset.price}">Buy ${asset.symbol}</button>
+        </div>
+      `;
+    }).join('');
+
+    grid.innerHTML = teslaCard + regularCards;
+
+    // Tesla button
+    document.getElementById('teslaBtn').addEventListener('click', openTeslaModal);
+
+    // Regular buy buttons
+    grid.querySelectorAll('.buy-btn:not(.tesla-btn)').forEach(btn => {
+      btn.addEventListener('click', () => {
+        openBuyModal(btn.dataset.asset, btn.dataset.name, btn.dataset.price);
+      });
+    });
+  }
+
+  renderMarket();
+
+  /* ============ FUNDING MODAL ============ */
+  const fundModal = document.getElementById('fundModal');
+  const fundBtn = document.getElementById('fundBtn');
+  const cancelFund = document.getElementById('cancelFund');
+  const submitFund = document.getElementById('submitFund');
+  const paymentMethodsEl = document.getElementById('paymentMethods');
+  const paymentDetailsEl = document.getElementById('paymentDetails');
+  const paymentAddressEl = document.getElementById('paymentAddress');
+
+  let selectedPaymentMethod = null;
+
+  fundBtn.addEventListener('click', () => {
+    renderPaymentMethods('fund');
+    fundModal.classList.add('show');
+  });
+
+  cancelFund.addEventListener('click', () => {
+    fundModal.classList.remove('show');
+    resetFundModal();
+  });
+
+  function renderPaymentMethods(modalType) {
+    const payments = getStore(KEYS.PAYMENTS, DEFAULT_PAYMENTS);
+    const container = modalType === 'fund' ? paymentMethodsEl : 
+                     modalType === 'buy' ? document.getElementById('buyPaymentMethods') :
+                     document.getElementById('teslaPaymentMethods');
+    const enabledPayments = Object.values(payments).filter(p => p.enabled);
+
+    container.innerHTML = enabledPayments.map(p => `
+      <div class="payment-method-option" data-method="${p.id}" data-account="${p.account.replace(/"/g, '&quot;')}">
+        <div class="icon">${p.icon}</div>
+        <div class="name">${p.name}</div>
+      </div>
+    `).join('');
+
+    container.querySelectorAll('.payment-method-option').forEach(option => {
+      option.addEventListener('click', () => {
+        container.querySelectorAll('.payment-method-option').forEach(o => o.classList.remove('selected'));
+        option.classList.add('selected');
+        selectedPaymentMethod = {
+          id: option.dataset.method,
+          account: option.dataset.account
+        };
+        showPaymentDetails(modalType, selectedPaymentMethod.account);
+      });
+    });
+  }
+
+  function showPaymentDetails(modalType, account) {
+    const detailsEl = modalType === 'fund' ? paymentDetailsEl : 
+                     modalType === 'buy' ? document.getElementById('buyPaymentDetails') :
+                     document.getElementById('teslaPaymentDetails');
+    const addressEl = modalType === 'fund' ? paymentAddressEl : 
+                     modalType === 'buy' ? document.getElementById('buyPaymentAddress') :
+                     document.getElementById('teslaPaymentAddress');
+    detailsEl.style.display = 'block';
+    addressEl.textContent = account;
+  }
+
+  function resetFundModal() {
+    document.getElementById('fundAmount').value = '';
+    document.getElementById('fundNote').value = '';
+    paymentMethodsEl.querySelectorAll('.payment-method-option').forEach(o => o.classList.remove('selected'));
+    paymentDetailsEl.style.display = 'none';
+    selectedPaymentMethod = null;
+  }
+
+  submitFund.addEventListener('click', () => {
+    const amount = parseFloat(document.getElementById('fundAmount').value);
+    const note = document.getElementById('fundNote').value;
+
+    if (!amount || amount < 100) {
+      toast('Please enter at least $100', 'error');
+      return;
+    }
+
+    if (!selectedPaymentMethod) {
+      toast('Please select a payment method', 'error');
+      return;
+    }
+
+    const txns = getStore(KEYS.TRANSACTIONS, []);
+    txns.unshift({
+      id: 'TXN-' + Date.now().toString().slice(-8),
+      userId: user.id,
+      userName: user.name,
+      userEmail: user.email,
+      amount: amount,
+      method: selectedPaymentMethod.id,
+      reason: note,
+      type: 'funding_request',
+      status: 'pending',
+      createdAt: new Date().toISOString()
+    });
+    setStore(KEYS.TRANSACTIONS, txns);
+
+    fundModal.classList.remove('show');
+    resetFundModal();
+    toast('Your payment has been submitted successfully. Please stand by for confirmation.', 'success');
+  });
+
+  /* ============ BUY MODAL ============ */
+  const buyModal = document.getElementById('buyModal');
+  const cancelBuy = document.getElementById('cancelBuy');
+  const submitBuy = document.getElementById('submitBuy');
+
+  function openBuyModal(symbol, name, price) {
+    document.getElementById('buyAssetName').textContent = `Invest in ${name} (${symbol}) — Current price: $${formatMoney(price)}`;
+    renderPaymentMethods('buy');
+    buyModal.classList.add('show');
+  }
+
+  cancelBuy.addEventListener('click', () => {
+    buyModal.classList.remove('show');
+    resetBuyModal();
+  });
+
+  function resetBuyModal() {
+    document.getElementById('buyAmount').value = '';
+    document.getElementById('buyNote').value = '';
+    document.getElementById('buyPaymentMethods').querySelectorAll('.payment-method-option').forEach(o => o.classList.remove('selected'));
+    document.getElementById('buyPaymentDetails').style.display = 'none';
+    selectedPaymentMethod = null;
+  }
+
+  submitBuy.addEventListener('click', () => {
+    const amount = parseFloat(document.getElementById('buyAmount').value);
+    const note = document.getElementById('buyNote').value;
+
+    if (!amount || amount < 10) {
+      toast('Please enter at least $10', 'error');
+      return;
+    }
+
+    if (!selectedPaymentMethod) {
+      toast('Please select a payment method', 'error');
+      return;
+    }
+
+    const txns = getStore(KEYS.TRANSACTIONS, []);
+    txns.unshift({
+      id: 'TXN-' + Date.now().toString().slice(-8),
+      userId: user.id,
+      userName: user.name,
+      userEmail: user.email,
+      amount: amount,
+      method: selectedPaymentMethod.id,
+      reason: note,
+      type: 'asset_purchase',
+      status: 'pending',
+      createdAt: new Date().toISOString()
+    });
+    setStore(KEYS.TRANSACTIONS, txns);
+
+    buyModal.classList.remove('show');
+    resetBuyModal();
+    toast('Your payment has been submitted successfully. Please stand by for confirmation.', 'success');
+  });
+
+  /* ============ TESLA MODAL ============ */
+  const teslaModal = document.getElementById('teslaModal');
+  const cancelTesla = document.getElementById('cancelTesla');
+  const submitTesla = document.getElementById('submitTesla');
+  const teslaAmountInput = document.getElementById('teslaAmount');
+  const bonusCalculator = document.getElementById('bonusCalculator');
+
+  function openTeslaModal() {
+    renderPaymentMethods('tesla');
+    teslaModal.classList.add('show');
+  }
+
+  cancelTesla.addEventListener('click', () => {
+    teslaModal.classList.remove('show');
+    resetTeslaModal();
+  });
+
+  function resetTeslaModal() {
+    teslaAmountInput.value = '';
+    document.getElementById('teslaNote').value = '';
+    document.getElementById('teslaPaymentMethods').querySelectorAll('.payment-method-option').forEach(o => o.classList.remove('selected'));
+    document.getElementById('teslaPaymentDetails').style.display = 'none';
+    bonusCalculator.style.display = 'none';
+    selectedPaymentMethod = null;
+  }
+
+  teslaAmountInput.addEventListener('input', () => {
+    const amount = parseFloat(teslaAmountInput.value) || 0;
+    if (amount >= 4000) {
+      const bonus = amount * 2.1925;
+      const total = amount + bonus;
+      
+      document.getElementById('teslaInvestment').textContent = '$' + formatMoney(amount);
+      document.getElementById('teslaBonus').textContent = '$' + formatMoney(bonus);
+      document.getElementById('teslaTotal').textContent = '$' + formatMoney(total);
+      bonusCalculator.style.display = 'block';
+    } else {
+      bonusCalculator.style.display = 'none';
+    }
+  });
+
+  submitTesla.addEventListener('click', () => {
+    const amount = parseFloat(teslaAmountInput.value);
+    const note = document.getElementById('teslaNote').value;
+
+    if (!amount || amount < 4000) {
+      toast('Minimum investment is $4,000', 'error');
+      return;
+    }
+
+    if (!selectedPaymentMethod) {
+      toast('Please select a payment method', 'error');
+      return;
+    }
+
+    const bonus = amount * 2.1925;
+    const lockUntil = new Date();
+    lockUntil.setFullYear(lockUntil.getFullYear() + 1);
+
+    const txns = getStore(KEYS.TRANSACTIONS, []);
+    txns.unshift({
+      id: 'TXN-' + Date.now().toString().slice(-8),
+      userId: user.id,
+      userName: user.name,
+      userEmail: user.email,
+      amount: amount,
+      bonus: bonus,
+      method: selectedPaymentMethod.id,
+      reason: note || 'Tesla Roadster Investment Program',
+      type: 'tesla_investment',
+      status: 'pending',
+      lockUntil: lockUntil.toISOString(),
+      createdAt: new Date().toISOString()
+    });
+    setStore(KEYS.TRANSACTIONS, txns);
+
+    teslaModal.classList.remove('show');
+    resetTeslaModal();
+    toast('Your Tesla investment request has been submitted. Please stand by for confirmation.', 'success');
+  });
+
+  /* ============ LOGOUT ============ */
+  document.getElementById('logoutBtn').addEventListener('click', () => {
+    localStorage.removeItem(KEYS.LOGGED_IN);
+    localStorage.removeItem(KEYS.CURRENT_USER);
+    window.location.href = 'login.html';
+  });
+
+  /* ============ ENTRANCE ANIMATION ============ */
+  window.addEventListener('load', () => {
+    gsap.from('.balance-card', { opacity: 0, y: 30, duration: 0.7, ease: 'power3.out' });
+    gsap.from('.ai-status', { opacity: 0, y: 20, duration: 0.6, delay: 0.1, ease: 'power2.out' });
+    gsap.from('.ticker-card', { opacity: 0, y: 20, duration: 0.5, stagger: 0.08, delay: 0.2, ease: 'power2.out' });
+    gsap.from('.asset-card', { opacity: 0, y: 20, duration: 0.5, stagger: 0.05, delay: 0.4, ease: 'power2.out' });
+  });
+</script>
+
+</body>
+</html>
