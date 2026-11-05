@@ -151,15 +151,12 @@
   .toast.success { border-color: rgba(34,197,94,0.4); color: var(--green); }
   .toast.error { border-color: rgba(239,68,68,0.4); color: var(--red); }
 
+  /* ============ RESPONSIVE ============ */
   @media (max-width: 960px) {
     .auth-wrap { grid-template-columns: 1fr; }
-    .auth-brand { padding: 30px 24px; min-height: auto; border-right: none; border-bottom: 1px solid var(--line); }
-    .brand-giant-n { font-size: 120px; margin-bottom: 16px; }
-    .brand-middle { padding: 20px 0; }
-    .brand-middle h2 { font-size: 24px; }
-    .brand-features { gap: 16px; }
-    .auth-form-wrap { padding: 30px 24px; }
-    /* Mobile specific toggle fix */
+    /* FIX: Hide the left branding panel on mobile */
+    .auth-brand { display: none; }
+    .auth-form-wrap { padding: 40px 24px; }
     .pw-toggle { font-size: 11px; padding: 5px 8px; }
   }
 </style>
@@ -167,6 +164,7 @@
 <body>
 
 <div class="auth-wrap">
+  <!-- Left Branding Panel (Hidden on mobile) -->
   <aside class="auth-brand">
     <div class="brand-top">
       <a href="index.html" class="brand-logo">
@@ -186,6 +184,7 @@
     </div>
   </aside>
 
+  <!-- Right Form Panel -->
   <main class="auth-form-wrap">
     <form class="auth-form" id="loginForm" novalidate>
       <div class="auth-header">
@@ -249,7 +248,6 @@
     gsap.from('.auth-header > *', { opacity: 0, y: 20, duration: 0.6, stagger: 0.1, ease: 'power2.out', delay: 0.3 });
     gsap.from('.field', { opacity: 0, y: 20, duration: 0.5, stagger: 0.1, ease: 'power2.out', delay: 0.5 });
     gsap.from('.form-options', { opacity: 0, duration: 0.5, delay: 0.8 });
-    // FIX: Removed opacity: 0 from the button animation so it stays visible
     gsap.from('.submit-btn', { y: 15, duration: 0.6, ease: 'power2.out', delay: 0.9 });
   });
 
@@ -258,7 +256,7 @@
     t.textContent = msg;
     t.className = 'toast show ' + (type || '');
     clearTimeout(window._tt);
-    window._tt = setTimeout(() => t.classList.remove('show'), 3000);
+    window._tt = setTimeout(() => t.classList.remove('show'), 4000);
   }
 
   const pwInput = document.getElementById('fPassword');
@@ -280,7 +278,7 @@
     document.querySelectorAll('.field input').forEach(i => i.classList.remove('error'));
   }
 
-  form.addEventListener('submit', (e) => {
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
     clearErrors();
 
@@ -296,26 +294,36 @@
     submitBtn.classList.add('loading');
     submitBtn.disabled = true;
 
-    setTimeout(() => {
-      const storedUser = localStorage.getItem('nexavault_current_user');
-      if (!storedUser) {
-        toast('No active session found. Please sign up.', 'error');
-        submitBtn.classList.remove('loading');
-        submitBtn.disabled = false;
-        return;
-      }
-      const user = JSON.parse(storedUser);
-      if (user.email !== email) {
-        toast('Email does not match active session', 'error');
-        submitBtn.classList.remove('loading');
-        submitBtn.disabled = false;
-        return;
+    try {
+      // Call the real Vercel MongoDB API
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Invalid email or password');
       }
 
+      // Save the real user data from MongoDB to local session
       localStorage.setItem('nexavault_logged_in', 'true');
+      localStorage.setItem('nexavault_current_user', JSON.stringify(data.user));
+
       toast('Welcome back! Redirecting...', 'success');
-      setTimeout(() => { window.location.href = 'dashboard.html'; }, 1200);
-    }, 1000);
+      
+      setTimeout(() => {
+        window.location.href = 'dashboard.html';
+      }, 1200);
+
+    } catch (error) {
+      console.error('Login error:', error);
+      toast(error.message, 'error');
+      submitBtn.classList.remove('loading');
+      submitBtn.disabled = false;
+    }
   });
 
   document.querySelectorAll('.field input').forEach(input => {

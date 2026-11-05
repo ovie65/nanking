@@ -657,6 +657,14 @@
     .asset-tab { flex: 1; justify-content: center; }
     .btn-admin { font-size: 11px; padding: 7px 12px; }
   }
+
+/* Hide Admin and Log in buttons on mobile */
+@media (max-width: 768px) {
+  .desktop-only {
+    display: none !important;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -681,10 +689,10 @@
     <a href="#">Docs</a>
   </div>
   <div class="nav-cta">
-    <a href="admin.html" class="btn-admin">Admin</a>
-    <a href="login.html" class="btn btn-ghost">Log in</a>
-    <a href="signup.html" class="btn btn-primary">Get Started</a>
-  </div>
+  <a href="admin.html" class="btn-admin desktop-only">Admin</a>
+  <a href="login.html" class="btn btn-ghost desktop-only">Log in</a>
+  <a href="signup.html" class="btn btn-primary">Get Started</a>
+</div>
 </nav>
 
 <!-- ============ HERO ============ -->
