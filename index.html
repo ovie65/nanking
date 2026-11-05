@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
 <title>NexaVault — AI-Powered Investment Banking</title>
 <meta name="description" content="NexaVault is an AI-powered investment banking platform that helps you invest smarter with automated AI agents, high-yield assets, and bank-grade security." />
 
@@ -658,13 +658,68 @@
     .btn-admin { font-size: 11px; padding: 7px 12px; }
   }
 
-/* Hide Admin and Log in buttons on mobile */
-@media (max-width: 768px) {
-  .desktop-only {
-    display: none !important;
-  }
-}
+  /* ============ MOBILE NAV FIX ============ */
+  @media (max-width: 768px) {
+    /* Hide Admin and Sign Up buttons on mobile */
+    .desktop-only {
+      display: none !important;
+    }
+    
+    /* Ensure nav is properly spaced */
+    .nav {
+      padding: 14px 16px;
+      justify-content: space-between;
+    }
+    
+    /* Push Log In button to the right */
+    .nav-cta {
+      margin-left: auto;
+      flex-shrink: 0;
+    }
+    
+    /* Ensure Log In button is properly sized for mobile */
+    .nav-cta .btn-primary {
+      padding: 10px 18px;
+      font-size: 14px;
+      border-radius: 8px;
+      white-space: nowrap;
+    }
 
+    /* Stack hero actions vertically on mobile */
+    .hero-actions {
+      flex-direction: column;
+      width: 100%;
+      max-width: 320px;
+      margin: 0 auto 48px;
+    }
+    .hero-actions .btn {
+      width: 100%;
+      justify-content: center;
+      padding: 14px;
+    }
+
+    /* Make stats cards on mobile */
+    .hero-stats {
+      grid-template-columns: 1fr;
+      gap: 12px;
+      padding-top: 24px;
+    }
+    .hero-stats .stat-item {
+      padding: 16px;
+      background: rgba(255,255,255,0.02);
+      border-radius: 12px;
+      border: 1px solid var(--line);
+    }
+  }
+
+  @media (max-width: 480px) {
+    .nav { padding: 12px 16px; }
+    .hero { padding: 100px 16px 40px; }
+    .hero h1 { font-size: clamp(32px, 8vw, 48px); }
+    .hero p.lead { font-size: 16px; }
+    .chart-card { padding: 20px; }
+    .chart-price .val { font-size: 22px; }
+  }
 </style>
 </head>
 <body>
@@ -687,12 +742,12 @@
     <a href="#about">About</a>
     <a href="#cta">Pricing</a>
     <a href="#">Docs</a>
+  </div>
   <div class="nav-cta">
-  <a href="admin.html" class="btn-admin desktop-only">Admin</a>
-  <a href="signup.html" class="btn btn-ghost desktop-only">Sign Up</a>
-  <a href="login.html" class="btn btn-primary">Log In</a>
-</div></div>
-  
+    <a href="admin.html" class="btn-admin desktop-only">Admin</a>
+    <a href="signup.html" class="btn btn-ghost desktop-only">Sign Up</a>
+    <a href="login.html" class="btn btn-primary">Log In</a>
+  </div>
 </nav>
 
 <!-- ============ HERO ============ -->
@@ -716,15 +771,15 @@
       <a href="#features" class="btn btn-ghost btn-lg">Explore Platform</a>
     </div>
     <div class="hero-stats">
-      <div>
+      <div class="stat-item">
         <div class="stat-val">$2.4B+</div>
         <div class="stat-lbl">Assets Managed</div>
       </div>
-      <div>
+      <div class="stat-item">
         <div class="stat-val">184K</div>
         <div class="stat-lbl">Active Investors</div>
       </div>
-      <div>
+      <div class="stat-item">
         <div class="stat-val">99.99%</div>
         <div class="stat-lbl">Uptime SLA</div>
       </div>
@@ -818,7 +873,7 @@
 
     <div class="features-grid" id="about">
       <div class="feature">
-        <div class="feature-icon">🤖</div>
+        <div class="feature-icon"></div>
         <h3>Automated AI Agent</h3>
         <p>
           Your personal AI mini-worker runs 24/7, scanning global markets, executing
@@ -832,7 +887,7 @@
       </div>
 
       <div class="feature">
-        <div class="feature-icon">📈</div>
+        <div class="feature-icon"></div>
         <h3>High-Yield Assets</h3>
         <p>
           Access a curated universe of 20+ premium assets — from blue-chip equities
