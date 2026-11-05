@@ -70,56 +70,42 @@
 
   /* Mobile Nav Fix */
   @media (max-width: 768px) {
-    .top-nav { flex-wrap: wrap; padding: 12px 16px; gap: 12px; }
+    .top-nav {
+      flex-wrap: wrap;
+      padding: 12px 16px;
+      gap: 12px;
+    }
     .nav-logo { flex: 1; }
-    .nav-user { width: 100%; flex-wrap: wrap; justify-content: space-between; align-items: center; border-top: 1px solid var(--line); padding-top: 12px; margin-top: 4px; }
+    .nav-user {
+      width: 100%;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid var(--line);
+      padding-top: 12px;
+      margin-top: 4px;
+    }
     .nav-avatar { order: 1; }
-    .nav-user-info { order: 2; text-align: left; flex: 1; padding-left: 12px; }
+    .nav-user-info {
+      order: 2;
+      text-align: left;
+      flex: 1;
+      padding-left: 12px;
+    }
     .nav-user-name { font-size: 13px; }
     .nav-user-email { font-size: 10px; }
-    .logout-btn { order: 3; width: 100%; margin-top: 8px; justify-content: center; padding: 10px; }
-  }
-
-  /* ============ TAB SWITCHER ============ */
-  .tab-switcher-container {
-    display: flex;
-    justify-content: center;
-    margin: 30px auto 40px;
-  }
-  .tab-switcher {
-    display: inline-flex;
-    background: rgba(255,255,255,0.03);
-    border: 1px solid var(--line);
-    border-radius: 14px;
-    padding: 6px;
-    gap: 6px;
-  }
-  .tab-btn {
-    padding: 10px 28px;
-    border-radius: 10px;
-    background: transparent;
-    color: var(--muted);
-    font-weight: 600;
-    font-size: 14px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .tab-btn:hover { color: var(--text); }
-  .tab-btn.active {
-    background: var(--grad-2);
-    color: #fff;
-    box-shadow: 0 4px 15px rgba(124,92,255,0.3);
-  }
-  @media (max-width: 480px) {
-    .tab-btn { padding: 8px 16px; font-size: 13px; }
+    .logout-btn {
+      order: 3;
+      width: 100%; /* Pushes sign out to the bottom of the nav */
+      margin-top: 8px;
+      justify-content: center;
+      padding: 10px;
+    }
   }
 
   /* ============ MAIN CONTAINER ============ */
-  .dashboard-container { max-width: 1400px; margin: 0 auto; padding: 0 32px 32px; }
-  @media (max-width: 768px) { .dashboard-container { padding: 0 20px 20px; } }
+  .dashboard-container { max-width: 1400px; margin: 0 auto; padding: 32px; }
+  @media (max-width: 768px) { .dashboard-container { padding: 20px; } }
 
   /* ============ BALANCE CARD ============ */
   .balance-card {
@@ -279,85 +265,72 @@
   </div>
 </nav>
 
-<!-- ============ TAB SWITCHER ============ -->
-<div class="tab-switcher-container">
-  <div class="tab-switcher">
-    <button class="tab-btn active" id="tabDashboard">📊 Dashboard</button>
-    <button class="tab-btn" id="tabMarkets">📈 Markets</button>
-  </div>
-</div>
-
 <!-- ============ DASHBOARD ============ -->
 <div class="dashboard-container">
 
-  <!-- DASHBOARD VIEW -->
-  <div id="viewDashboard">
-    <!-- Balance Card -->
-    <div class="balance-card">
-      <div class="balance-header">
-        <div class="balance-section">
-          <div class="balance-title">Available Balance</div>
-          <div class="balance-amount">
-            <span class="currency">$</span>
-            <span id="balanceValue">0.00</span>
-            <button class="eye-toggle" id="eyeToggle">👁</button>
-          </div>
-          <div class="balance-subtitle">Ready to invest</div>
+  <!-- Balance Card -->
+  <div class="balance-card">
+    <div class="balance-header">
+      <div class="balance-section">
+        <div class="balance-title">Available Balance</div>
+        <div class="balance-amount">
+          <span class="currency">$</span>
+          <span id="balanceValue">0.00</span>
+          <button class="eye-toggle" id="eyeToggle">👁</button>
         </div>
-        <div class="balance-section">
-          <div class="balance-title">Locked Bonus Profit</div>
-          <div class="balance-amount locked">
-            <span class="currency">$</span>
-            <span id="lockedBalanceValue">0.00</span>
-          </div>
-          <div class="balance-subtitle">
-            <span class="lock-badge">🔒 <span id="lockTimeLeft">No locked funds</span></span>
-          </div>
+        <div class="balance-subtitle">Ready to invest</div>
+      </div>
+      <div class="balance-section">
+        <div class="balance-title">Locked Bonus Profit</div>
+        <div class="balance-amount locked">
+          <span class="currency">$</span>
+          <span id="lockedBalanceValue">0.00</span>
         </div>
-      </div>
-      <div class="balance-actions">
-        <button class="fund-btn" id="fundBtn">💰 Fund Account</button>
-      </div>
-    </div>
-
-    <!-- AI Agent Status -->
-    <div class="ai-status">
-      <div class="ai-icon">🤖</div>
-      <div class="ai-info">
-        <div class="ai-title">Your AI Mini-Worker is Active</div>
-        <div class="ai-desc">Autonomous agent monitoring markets 24/7 and optimizing your portfolio</div>
-      </div>
-      <div class="ai-stats">
-        <div class="ai-stat">
-          <div class="ai-stat-val">2,847</div>
-          <div class="ai-stat-lbl">Signals/Day</div>
-        </div>
-        <div class="ai-stat">
-          <div class="ai-stat-val">99.8%</div>
-          <div class="ai-stat-lbl">Uptime</div>
+        <div class="balance-subtitle">
+          <span class="lock-badge">🔒 <span id="lockTimeLeft">No locked funds</span></span>
         </div>
       </div>
     </div>
-
-    <!-- Live Market Ticker -->
-    <div class="ticker-section">
-      <div class="section-title">
-        <span class="dot"></span>
-        <span>Live Market Preview</span>
-      </div>
-      <div class="ticker-grid" id="tickerGrid"></div>
+    <div class="balance-actions">
+      <button class="fund-btn" id="fundBtn">💰 Fund Account</button>
     </div>
   </div>
 
-  <!-- MARKETS VIEW -->
-  <div id="viewMarkets" style="display: none;">
-    <div class="ticker-section">
-      <div class="section-title">
-        <span class="dot"></span>
-        <span>Investment Market</span>
-      </div>
-      <div class="market-grid" id="marketGrid"></div>
+  <!-- AI Agent Status -->
+  <div class="ai-status">
+    <div class="ai-icon">🤖</div>
+    <div class="ai-info">
+      <div class="ai-title">Your AI Mini-Worker is Active</div>
+      <div class="ai-desc">Autonomous agent monitoring markets 24/7 and optimizing your portfolio</div>
     </div>
+    <div class="ai-stats">
+      <div class="ai-stat">
+        <div class="ai-stat-val">2,847</div>
+        <div class="ai-stat-lbl">Signals/Day</div>
+      </div>
+      <div class="ai-stat">
+        <div class="ai-stat-val">99.8%</div>
+        <div class="ai-stat-lbl">Uptime</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Live Market Ticker -->
+  <div class="ticker-section">
+    <div class="section-title">
+      <span class="dot"></span>
+      <span>Live Market Preview</span>
+    </div>
+    <div class="ticker-grid" id="tickerGrid"></div>
+  </div>
+
+  <!-- Investment Market -->
+  <div class="ticker-section">
+    <div class="section-title">
+      <span class="dot"></span>
+      <span>Investment Market</span>
+    </div>
+    <div class="market-grid" id="marketGrid"></div>
   </div>
 
 </div>
@@ -503,28 +476,6 @@
   document.getElementById('userName').textContent = user.name;
   document.getElementById('userEmail').textContent = user.email;
   document.getElementById('userAvatar').textContent = initials(user.name);
-
-  /* ============ TAB SWITCHING LOGIC ============ */
-  const tabDash = document.getElementById('tabDashboard');
-  const tabMarkets = document.getElementById('tabMarkets');
-  const viewDash = document.getElementById('viewDashboard');
-  const viewMarkets = document.getElementById('viewMarkets');
-
-  tabDash.addEventListener('click', () => {
-    tabDash.classList.add('active');
-    tabMarkets.classList.remove('active');
-    viewMarkets.style.display = 'none';
-    viewDash.style.display = 'block';
-    gsap.from(viewDash, { opacity: 0, y: 15, duration: 0.4, ease: 'power2.out' });
-  });
-
-  tabMarkets.addEventListener('click', () => {
-    tabMarkets.classList.add('active');
-    tabDash.classList.remove('active');
-    viewDash.style.display = 'none';
-    viewMarkets.style.display = 'block';
-    gsap.from(viewMarkets, { opacity: 0, y: 15, duration: 0.4, ease: 'power2.out' });
-  });
 
   /* ============ BALANCE ============ */
   let balanceVisible = true;
@@ -700,6 +651,7 @@
     gsap.from('.balance-card', { opacity: 0, y: 30, duration: 0.7, ease: 'power3.out' });
     gsap.from('.ai-status', { opacity: 0, y: 20, duration: 0.6, delay: 0.1, ease: 'power2.out' });
     gsap.from('.ticker-card', { opacity: 0, y: 20, duration: 0.5, stagger: 0.08, delay: 0.2, ease: 'power2.out' });
+    gsap.from('.asset-card', { opacity: 0, y: 20, duration: 0.5, stagger: 0.05, delay: 0.4, ease: 'power2.out' });
   });
 </script>
 
