@@ -1042,9 +1042,7 @@
         <h3><span class="dot"></span>Danger Zone</h3>
         <p style="color:var(--muted);font-size:13px;margin-bottom:16px;">These actions are irreversible. Proceed with caution.</p>
         <div style="display:flex;gap:10px;flex-wrap:wrap;">
-          <button class="btn btn-danger" id="resetUsersBtn">🗑 Clear All Users</button>
-          <button class="btn btn-danger" id="resetTxnBtn">🗑 Clear All Transactions</button>
-          <button class="btn btn-danger" id="resetAllBtn">⚠ Reset Everything</button>
+          <button class="btn btn-danger" id="resetAllBtn">⚠ Reset Local Settings</button>
         </div>
       </div>
     </div>
@@ -1064,10 +1062,8 @@
   const ADMIN_USER = 'ovie65';
   const ADMIN_PASS = 'Voltovie65$$';
 
-  /* ============ STORAGE KEYS ============ */
+  /* ============ STORAGE KEYS (For Admin Settings Only) ============ */
   const KEYS = {
-    USERS: 'nexavault_users',
-    TRANSACTIONS: 'nexavault_transactions',
     EMAILS: 'nexavault_emails',
     SITE: 'nexavault_site_content',
     PAYMENTS: 'nexavault_payment_methods',
@@ -1212,19 +1208,21 @@
     document.getElementById('sidebar').classList.toggle('open');
   });
 
+  /* ============ DATA STATE ============ */
+  let allUsers = [];
+  let allTxns = [];
+
   /* ============ RENDER OVERVIEW ============ */
-  function renderOverview() {
-    const users = getStore(KEYS.USERS, []);
-    const txns = getStore(KEYS.TRANSACTIONS, []);
+  async function renderOverview() {
+    // Stats are calculated from the loaded data
+    const totalDeposits = allTxns.filter(t => t.status === 'approved' && t.type === 'funding_request').reduce((s, t) => s + Number(t.amount || 0), 0);
+    const totalLocked = allUsers.reduce((s, u) => s + Number(u.lockedBalance || 0), 0);
+    const approved = allTxns.filter(t => t.status === 'approved').length;
+    const pending = allTxns.filter(t => t.status === 'pending').length;
 
-    const totalDeposits = txns.filter(t => t.status === 'approved' && t.type === 'funding_request').reduce((s, t) => s + Number(t.amount || 0), 0);
-    const totalLocked = users.reduce((s, u) => s + Number(u.lockedBalance || 0), 0);
-    const approved = txns.filter(t => t.status === 'approved').length;
-    const pending = txns.filter(t => t.status === 'pending').length;
-
-    document.getElementById('statUsers').textContent = users.length;
-    document.getElementById('statUsersDelta').textContent = users.length === 0 ? 'No users yet' :
-      `${users.length} registered investor${users.length === 1 ? '' : 's'}`;
+    document.getElementById('statUsers').textContent = allUsers.length;
+    document.getElementById('statUsersDelta').textContent = allUsers.length === 0 ? 'No users yet' :
+      `${allUsers.length} registered investor${allUsers.length === 1 ? '' : 's'}`;
 
     document.getElementById('statDeposits').textContent = formatMoney(totalDeposits);
     document.getElementById('statLocked').textContent = formatMoney(totalLocked);
@@ -1232,8 +1230,8 @@
     document.getElementById('statPending').textContent = pending;
 
     const allActivity = [
-      ...users.map(u => ({ type: 'user', name: u.name, time: u.createdAt })),
-      ...txns.map(t => ({ type: 'txn', name: t.userName, amount: t.amount, status: t.status, txnType: t.type, time: t.createdAt }))
+      ...allUsers.map(u => ({ type: 'user', name: u.name, time: u.createdAt })),
+      ...allTxns.map(t => ({ type: 'txn', name: t.userName, amount: t.amount, status: t.status, txnType: t.type, time: t.createdAt }))
     ].sort((a, b) => new Date(b.time) - new Date(a.time)).slice(0, 5);
 
     const actEl = document.getElementById('recentActivity');
@@ -1253,22 +1251,21 @@
       </tbody></table>`;
     }
 
-    document.getElementById('usersBadge').textContent = users.length;
+    document.getElementById('usersBadge').textContent = allUsers.length;
     document.getElementById('txnBadge').textContent = pending;
   }
 
   /* ============ RENDER USERS ============ */
   function renderUsers() {
-    const users = getStore(KEYS.USERS, []);
     const el = document.getElementById('usersTable');
-    document.getElementById('usersCount').textContent = users.length;
+    document.getElementById('usersCount').textContent = allUsers.length;
 
-    if (users.length === 0) {
+    if (allUsers.length === 0) {
       el.innerHTML = `<div class="empty-state"><div class="icon">👥</div><div class="title">No users yet</div><div class="desc">Users will appear here after signing up.</div></div>`;
       return;
     }
 
-    const sorted = [...users].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    const sorted = [...allUsers].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
     el.innerHTML = `<table class="data-table">
       <thead><tr><th>User</th><th>Contact</th><th>Available</th><th>Locked Bonus</th><th>Actions</th></tr></thead>
       <tbody>
@@ -1308,11 +1305,10 @@
   }
 
   function viewUser(id) {
-    const users = getStore(KEYS.USERS, []);
-    const u = users.find(x => x.id === id);
+    const u = allUsers.find(x => x.id === id);
     if (!u) return;
-    const txns = getStore(KEYS.TRANSACTIONS, []).filter(t => t.userId === id);
-    const totalDeposited = txns.filter(t => t.status === 'approved' && t.type === 'funding_request').reduce((s, t) => s + Number(t.amount), 0);
+    const userTxns = allTxns.filter(t => t.userId === id);
+    const totalDeposited = userTxns.filter(t => t.status === 'approved' && t.type === 'funding_request').reduce((s, t) => s + Number(t.amount), 0);
     const bonuses = (u.bonuses || []);
 
     let bonusesHtml = '';
@@ -1345,7 +1341,7 @@
       <div class="modal-row"><span class="label">Locked Bonus</span><span class="val" style="color:var(--gold)">${formatMoney(u.lockedBalance || 0)}</span></div>
       ${u.lockedUntil ? `<div class="modal-row"><span class="label">Lock Expires</span><span class="val">${formatDate(u.lockedUntil)}</span></div>` : ''}
       <div class="modal-row"><span class="label">Total Deposited</span><span class="val">${formatMoney(totalDeposited)}</span></div>
-      <div class="modal-row"><span class="label">Transactions</span><span class="val">${txns.length}</span></div>
+      <div class="modal-row"><span class="label">Transactions</span><span class="val">${userTxns.length}</span></div>
       <div class="modal-row"><span class="label">Joined</span><span class="val">${formatDate(u.createdAt)}</span></div>
       ${bonusesHtml}
       <div class="modal-actions">
@@ -1356,8 +1352,7 @@
   }
 
   function manualFundUser(id) {
-    const users = getStore(KEYS.USERS, []);
-    const u = users.find(x => x.id === id);
+    const u = allUsers.find(x => x.id === id);
     if (!u) return;
 
     document.getElementById('modalContent').innerHTML = `
@@ -1367,15 +1362,6 @@
         <div class="editor-field">
           <label>Amount (USD)</label>
           <input type="number" id="fundAmount" step="0.01" min="1" placeholder="5000.00" required />
-        </div>
-        <div class="editor-field">
-          <label>Payment Method</label>
-          <select id="fundMethod">
-            <option value="Bitcoin">Bitcoin</option>
-            <option value="Bank Transfer">Bank Transfer</option>
-            <option value="PayPal">PayPal</option>
-            <option value="Bonus">Bonus / Adjustment</option>
-          </select>
         </div>
         <div class="editor-field">
           <label>Reason / Note</label>
@@ -1402,47 +1388,27 @@
       newBalanceEl.textContent = formatMoney(Number(u.balance) + amt);
     });
 
-    document.getElementById('manualFundForm').addEventListener('submit', (e) => {
+    document.getElementById('manualFundForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const amount = parseFloat(document.getElementById('fundAmount').value);
-      const method = document.getElementById('fundMethod').value;
       const reason = document.getElementById('fundReason').value;
 
       if (!amount || amount <= 0) { toast('Please enter a valid amount', 'error'); return; }
 
-      let users = getStore(KEYS.USERS, []);
-      const user = users.find(x => x.id === id);
-      if (user) {
-        user.balance = Number(user.balance || 0) + amount;
-        setStore(KEYS.USERS, users);
+      try {
+        const res = await fetch('/api/users', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId: id, action: 'manual_fund', amount, reason })
+        });
+        if (!res.ok) throw new Error('Failed to fund user');
+        
+        closeModal();
+        await renderAll();
+        toast(`Funded ${formatMoney(amount)} to ${u.name}`, 'success');
+      } catch (err) {
+        toast('Error funding user', 'error');
       }
-
-      const txns = getStore(KEYS.TRANSACTIONS, []);
-      txns.unshift({
-        id: 'TXN-' + Date.now().toString().slice(-8),
-        userId: id,
-        userName: u.name,
-        userEmail: u.email,
-        amount: amount,
-        method: method,
-        reason: reason,
-        type: 'manual_fund',
-        status: 'approved',
-        createdAt: new Date().toISOString(),
-        reviewedAt: new Date().toISOString()
-      });
-      setStore(KEYS.TRANSACTIONS, txns);
-
-      logEmail({
-        type: 'manual_fund_notification',
-        to: u.email,
-        subject: `Your account has been funded — ${formatMoney(amount)}`,
-        status: 'sent'
-      });
-
-      closeModal();
-      renderAll();
-      toast(`Funded ${formatMoney(amount)} to ${u.name}`, 'success');
     });
 
     document.getElementById('modalOverlay').classList.add('show');
@@ -1450,8 +1416,7 @@
 
   /* ============ GRANT BONUS TO USER ============ */
   function grantBonusToUser(id) {
-    const users = getStore(KEYS.USERS, []);
-    const u = users.find(x => x.id === id);
+    const u = allUsers.find(x => x.id === id);
     if (!u) return;
 
     document.getElementById('modalContent').innerHTML = `
@@ -1559,7 +1524,7 @@
     // Custom lock months listener
     document.getElementById('customLockMonths').addEventListener('input', updateBonusPreview);
 
-    document.getElementById('grantBonusForm').addEventListener('submit', (e) => {
+    document.getElementById('grantBonusForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const amount = parseFloat(document.getElementById('bonusAmount').value);
       let reason = document.getElementById('bonusReason').value;
@@ -1574,8 +1539,6 @@
         return;
       }
 
-      // Calculate lock date
-      let lockedUntil = null;
       let lockMonths = 0;
       if (lockVal !== '0') {
         if (lockVal === 'custom') {
@@ -1583,88 +1546,41 @@
         } else {
           lockMonths = parseInt(lockVal);
         }
-        if (lockMonths > 0) {
-          const lockDate = new Date();
-          lockDate.setMonth(lockDate.getMonth() + lockMonths);
-          lockedUntil = lockDate.toISOString();
-        }
       }
 
-      // Update user
-      let users = getStore(KEYS.USERS, []);
-      const user = users.find(x => x.id === id);
-      if (user) {
-        if (!user.bonuses) user.bonuses = [];
+      try {
+        const res = await fetch('/api/users', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId: id, action: 'grant_bonus', amount, reason, lockMonths })
+        });
+        if (!res.ok) throw new Error('Failed to grant bonus');
         
-        const bonusEntry = {
-          id: 'BNS-' + Date.now().toString().slice(-8),
-          amount: amount,
-          reason: reason,
-          grantedAt: new Date().toISOString(),
-          grantedBy: 'ovie65',
-          lockedUntil: lockedUntil,
-          lockMonths: lockMonths
-        };
-        
-        user.bonuses.push(bonusEntry);
-        
-        if (lockedUntil) {
-          // Add to locked balance
-          user.lockedBalance = Number(user.lockedBalance || 0) + amount;
-          // Update furthest lock date
-          if (!user.lockedUntil || new Date(lockedUntil) > new Date(user.lockedUntil)) {
-            user.lockedUntil = lockedUntil;
-          }
-        } else {
-          // Add to available balance
-          user.balance = Number(user.balance || 0) + amount;
-        }
-        
-        setStore(KEYS.USERS, users);
+        closeModal();
+        await renderAll();
+        toast(`Granted ${formatMoney(amount)} bonus to ${u.name}${lockMonths > 0 ? ' (locked)' : ''}`, 'success');
+      } catch (err) {
+        toast('Error granting bonus', 'error');
       }
-
-      // Create transaction record
-      const txns = getStore(KEYS.TRANSACTIONS, []);
-      txns.unshift({
-        id: 'TXN-' + Date.now().toString().slice(-8),
-        userId: id,
-        userName: u.name,
-        userEmail: u.email,
-        amount: amount,
-        method: 'Admin Bonus',
-        reason: reason,
-        type: 'bonus_grant',
-        status: 'approved',
-        lockedUntil: lockedUntil,
-        lockMonths: lockMonths,
-        createdAt: new Date().toISOString(),
-        reviewedAt: new Date().toISOString()
-      });
-      setStore(KEYS.TRANSACTIONS, txns);
-
-      // Log email
-      logEmail({
-        type: 'bonus_granted_notification',
-        to: u.email,
-        subject: `🎁 You've received a ${formatMoney(amount)} bonus!`,
-        status: 'sent'
-      });
-
-      closeModal();
-      renderAll();
-      toast(`Granted ${formatMoney(amount)} bonus to ${u.name}${lockedUntil ? ' (locked)' : ''}`, 'success');
     });
 
     document.getElementById('modalOverlay').classList.add('show');
   }
 
-  function deleteUser(id) {
-    if (!confirm('Delete this user? This cannot be undone.')) return;
-    let users = getStore(KEYS.USERS, []);
-    users = users.filter(u => u.id !== id);
-    setStore(KEYS.USERS, users);
-    renderAll();
-    toast('User deleted', 'success');
+  async function deleteUser(id) {
+    if (!confirm('Delete this user from the database? This cannot be undone.')) return;
+    try {
+      const res = await fetch('/api/users', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: id, action: 'delete' })
+      });
+      if (!res.ok) throw new Error('Failed to delete user');
+      await renderAll();
+      toast('User deleted', 'success');
+    } catch (err) {
+      toast('Error deleting user', 'error');
+    }
   }
 
   function closeModal() {
@@ -1678,9 +1594,8 @@
   /* ============ RENDER TRANSACTIONS ============ */
   let currentFilter = 'all';
   function renderTransactions() {
-    const txns = getStore(KEYS.TRANSACTIONS, []);
     const el = document.getElementById('txnTable');
-    const filtered = currentFilter === 'all' ? txns : txns.filter(t => t.status === currentFilter);
+    const filtered = currentFilter === 'all' ? allTxns : allTxns.filter(t => t.status === currentFilter);
     const sorted = [...filtered].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
     document.getElementById('txnCount').textContent = filtered.length;
@@ -1736,82 +1651,40 @@
     });
   });
 
-  function approveTxn(id) {
-    if (!confirm('Approve this transaction?')) return;
-    let txns = getStore(KEYS.TRANSACTIONS, []);
-    const txn = txns.find(t => t.id === id);
-    if (!txn) return;
-
-    txn.status = 'approved';
-    txn.reviewedAt = new Date().toISOString();
-
-    let users = getStore(KEYS.USERS, []);
-    const user = users.find(u => u.id === txn.userId);
-    
-    if (user) {
-      if (txn.type === 'tesla_investment') {
-        // Tesla: investment + bonus both locked
-        const bonus = txn.bonus || (txn.amount * 2.1925);
-        const totalLocked = txn.amount + bonus;
-        user.lockedBalance = Number(user.lockedBalance || 0) + totalLocked;
-        user.lockedUntil = txn.lockedUntil;
-        if (!user.bonuses) user.bonuses = [];
-        user.bonuses.push({
-          id: 'BNS-' + Date.now().toString().slice(-8),
-          amount: bonus,
-          reason: 'Tesla Roadster Investment Bonus',
-          grantedAt: new Date().toISOString(),
-          grantedBy: 'system',
-          lockedUntil: txn.lockedUntil,
-          lockMonths: 12,
-          investmentAmount: txn.amount
-        });
-      } else if (txn.type === 'funding_request' || txn.type === 'manual_fund') {
-        user.balance = Number(user.balance || 0) + Number(txn.amount);
-      } else if (txn.type === 'asset_purchase') {
-        // Deduct from balance
-        user.balance = Math.max(0, Number(user.balance || 0) - Number(txn.amount));
-      }
-      setStore(KEYS.USERS, users);
+  async function approveTxn(id) {
+    if (!confirm('Approve this transaction? This will update the user\'s balance.')) return;
+    try {
+      const res = await fetch('/api/transactions/approve', {
+        method: 'POST', // or PATCH, our API accepts both
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ transactionId: id, action: 'approved' })
+      });
+      if (!res.ok) throw new Error('Failed to approve');
+      await renderAll();
+      toast('Transaction approved and balance updated!', 'success');
+    } catch (err) {
+      toast('Error approving transaction', 'error');
     }
-
-    setStore(KEYS.TRANSACTIONS, txns);
-
-    logEmail({
-      type: 'transaction_approved',
-      to: txn.userEmail,
-      subject: `Transaction Approved — ${formatMoney(txn.amount)}`,
-      status: 'sent'
-    });
-
-    renderAll();
-    toast(`Approved ${formatMoney(txn.amount)} for ${txn.userName}`, 'success');
   }
 
-  function rejectTxn(id) {
+  async function rejectTxn(id) {
     if (!confirm('Reject this transaction?')) return;
-    let txns = getStore(KEYS.TRANSACTIONS, []);
-    const txn = txns.find(t => t.id === id);
-    if (!txn) return;
-
-    txn.status = 'rejected';
-    txn.reviewedAt = new Date().toISOString();
-    setStore(KEYS.TRANSACTIONS, txns);
-
-    logEmail({
-      type: 'transaction_rejected',
-      to: txn.userEmail,
-      subject: `Transaction Update — ${formatMoney(txn.amount)}`,
-      status: 'sent'
-    });
-
-    renderAll();
-    toast(`Rejected transaction for ${txn.userName}`, 'error');
+    try {
+      const res = await fetch('/api/transactions/approve', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ transactionId: id, action: 'rejected' })
+      });
+      if (!res.ok) throw new Error('Failed to reject');
+      await renderAll();
+      toast('Transaction rejected', 'error');
+    } catch (err) {
+      toast('Error rejecting transaction', 'error');
+    }
   }
 
   function viewTxn(id) {
-    const txns = getStore(KEYS.TRANSACTIONS, []);
-    const t = txns.find(x => x.id === id);
+    const t = allTxns.find(x => x.id === id);
     if (!t) return;
     
     let extraRows = '';
@@ -1892,7 +1765,7 @@
     });
 
     setStore(KEYS.PAYMENTS, payments);
-    toast('Payment settings saved — changes are live!', 'success');
+    toast('Payment settings saved locally!', 'success');
   });
 
   /* ============ EMAIL LOGS ============ */
@@ -1959,31 +1832,17 @@
       updatedAt: new Date().toISOString()
     };
     setStore(KEYS.SITE, site);
-    toast('Site content saved', 'success');
+    toast('Site content saved locally', 'success');
   });
 
   /* ============ SETTINGS ACTIONS ============ */
-  document.getElementById('resetUsersBtn').addEventListener('click', () => {
-    if (!confirm('Delete ALL users? This cannot be undone.')) return;
-    setStore(KEYS.USERS, []);
-    renderAll();
-    toast('All users deleted', 'success');
-  });
-
-  document.getElementById('resetTxnBtn').addEventListener('click', () => {
-    if (!confirm('Delete ALL transactions? This cannot be undone.')) return;
-    setStore(KEYS.TRANSACTIONS, []);
-    renderAll();
-    toast('All transactions deleted', 'success');
-  });
-
   document.getElementById('resetAllBtn').addEventListener('click', () => {
-    if (!confirm('⚠ RESET EVERYTHING? This cannot be undone.')) return;
+    if (!confirm('⚠ RESET LOCAL SETTINGS? This will clear payment settings and site editor content.')) return;
     Object.values(KEYS).forEach(k => {
       if (k !== KEYS.SESSION) localStorage.removeItem(k);
     });
     renderAll();
-    toast('Everything has been reset', 'success');
+    toast('Local settings reset', 'success');
   });
 
   document.getElementById('refreshBtn').addEventListener('click', () => {
@@ -1992,10 +1851,9 @@
   });
 
   document.getElementById('exportUsersBtn').addEventListener('click', () => {
-    const users = getStore(KEYS.USERS, []);
-    if (users.length === 0) { toast('No users to export', 'error'); return; }
+    if (allUsers.length === 0) { toast('No users to export', 'error'); return; }
     const csv = 'Name,Email,Phone,Age,Balance,LockedBonus,Joined\n' +
-      users.map(u => `"${u.name}","${u.email}","${u.phone || ''}",${u.age || ''},${u.balance || 0},${u.lockedBalance || 0},"${u.createdAt}"`).join('\n');
+      allUsers.map(u => `"${u.name}","${u.email}","${u.phone || ''}",${u.age || ''},${u.balance || 0},${u.lockedBalance || 0},"${u.createdAt}"`).join('\n');
     const blob = new Blob([csv], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -2006,14 +1864,31 @@
     toast('Users exported', 'success');
   });
 
-  /* ============ RENDER ALL ============ */
-  function renderAll() {
-    renderOverview();
-    renderUsers();
-    renderTransactions();
-    renderPaymentMethods();
-    renderEmails();
-    loadSiteContent();
+  /* ============ RENDER ALL (FETCH FROM DB) ============ */
+  async function renderAll() {
+    // Show loading state (optional, but good UX)
+    document.getElementById('statUsers').textContent = '...';
+    
+    try {
+      // Fetch real data from MongoDB via our APIs
+      const [usersRes, txnsRes] = await Promise.all([
+        fetch('/api/users'),
+        fetch('/api/transactions')
+      ]);
+
+      if (usersRes.ok) allUsers = await usersRes.json();
+      if (txnsRes.ok) allTxns = await txnsRes.json();
+
+      renderOverview();
+      renderUsers();
+      renderTransactions();
+      renderPaymentMethods();
+      renderEmails();
+      loadSiteContent();
+    } catch (error) {
+      console.error('Error loading admin data:', error);
+      toast('Error loading data from database', 'error');
+    }
   }
 
   /* ============ ENTRANCE ANIMATION ============ */
