@@ -46,7 +46,6 @@
     --grad: linear-gradient(135deg, #7c5cff 0%, #00d4ff 50%, #f5c451 100%);
     --grad-2: linear-gradient(135deg, #7c5cff 0%, #00d4ff 100%);
     --grad-gold: linear-gradient(135deg, #f5c451 0%, #d4a017 100%);
-    --grad-purple: linear-gradient(135deg, #7c5cff 0%, #a855f7 100%);
     --grad-tesla: linear-gradient(135deg, #e82127 0%, #ff4444 100%);
   }
 
@@ -59,7 +58,6 @@
   }
   .nav-logo { display: flex; align-items: center; gap: 10px; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 18px; }
   .nav-logo-mark { width: 32px; height: 32px; border-radius: 8px; background: var(--grad); display: grid; place-items: center; color: #05060a; font-weight: 800; font-size: 16px; }
-  
   .nav-user { display: flex; align-items: center; gap: 16px; }
   .nav-user-info { text-align: right; }
   .nav-user-name { font-size: 14px; font-weight: 600; }
@@ -80,51 +78,33 @@
   }
 
   /* ============ TAB SWITCHER ============ */
-  .tab-switcher-container {
-    display: flex;
-    justify-content: center;
-    margin: 30px auto 40px;
-  }
+  .tab-switcher-container { display: flex; justify-content: center; margin: 30px auto 40px; }
   .tab-switcher {
-    display: inline-flex;
-    background: rgba(255,255,255,0.03);
-    border: 1px solid var(--line);
-    border-radius: 14px;
-    padding: 6px;
-    gap: 6px;
+    display: inline-flex; background: rgba(255,255,255,0.03); border: 1px solid var(--line);
+    border-radius: 14px; padding: 6px; gap: 6px;
   }
   .tab-btn {
-    padding: 10px 28px;
-    border-radius: 10px;
-    background: transparent;
-    color: var(--muted);
-    font-weight: 600;
-    font-size: 14px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    gap: 8px;
+    padding: 10px 24px; border-radius: 10px; background: transparent; color: var(--muted);
+    font-weight: 600; font-size: 14px; cursor: pointer; transition: all 0.3s ease;
+    display: flex; align-items: center; gap: 8px; white-space: nowrap;
   }
   .tab-btn:hover { color: var(--text); }
-  .tab-btn.active {
-    background: var(--grad-2);
-    color: #fff;
-    box-shadow: 0 4px 15px rgba(124,92,255,0.3);
-  }
-  @media (max-width: 480px) {
-    .tab-btn { padding: 8px 16px; font-size: 13px; }
-  }
+  .tab-btn.active { background: var(--grad-2); color: #fff; box-shadow: 0 4px 15px rgba(124,92,255,0.3); }
+  @media (max-width: 600px) { .tab-btn { padding: 8px 14px; font-size: 13px; } }
 
   /* ============ MAIN CONTAINER ============ */
   .dashboard-container { max-width: 1400px; margin: 0 auto; padding: 0 32px 32px; }
   @media (max-width: 768px) { .dashboard-container { padding: 0 20px 20px; } }
 
+  /* ============ VIEW SECTIONS ============ */
+  .view-section { display: none; animation: fadeIn 0.3s ease-out; }
+  .view-section.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
   /* ============ BALANCE CARD ============ */
   .balance-card {
     background: linear-gradient(135deg, rgba(124,92,255,0.15), rgba(0,212,255,0.1), rgba(245,196,81,0.08));
-    border: 1px solid var(--line); border-radius: 20px; padding: 32px; margin-bottom: 28px;
-    position: relative; overflow: hidden;
+    border: 1px solid var(--line); border-radius: 20px; padding: 32px; margin-bottom: 28px; position: relative; overflow: hidden;
   }
   .balance-card::before {
     content: ''; position: absolute; top: -50%; right: -20%; width: 500px; height: 500px;
@@ -176,6 +156,65 @@
   .ticker-change.down { background: rgba(239,68,68,0.12); color: var(--red); }
   .ticker-price { font-family: 'Space Grotesk', sans-serif; font-size: 20px; font-weight: 700; }
 
+  /* ============ HOW IT WORKS SECTION ============ */
+  .info-section {
+    background: linear-gradient(180deg, rgba(20,23,35,0.7), rgba(11,13,20,0.5));
+    border: 1px solid var(--line); border-radius: 20px; padding: 32px; margin-bottom: 32px;
+  }
+  .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-top: 24px; }
+  .info-card {
+    background: rgba(255,255,255,0.02); border: 1px solid var(--line); border-radius: 16px; padding: 24px;
+    transition: all 0.3s ease;
+  }
+  .info-card:hover { border-color: var(--accent); background: rgba(124,92,255,0.03); }
+  .info-card.recommended {
+    border-color: var(--gold); background: rgba(245,196,81,0.05); position: relative;
+  }
+  .info-card.recommended::before {
+    content: '🏆 HIGHLY RECOMMENDED'; position: absolute; top: -12px; right: 20px;
+    background: var(--grad-gold); color: #05060a; font-size: 10px; font-weight: 800;
+    padding: 4px 12px; border-radius: 100px; letter-spacing: 0.1em;
+  }
+  .info-card h3 { font-size: 18px; font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; gap: 10px; }
+  .info-card p { font-size: 14px; color: var(--muted); line-height: 1.7; margin-bottom: 16px; }
+  .info-card ul { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+  .info-card ul li { font-size: 13px; color: var(--text); display: flex; align-items: center; gap: 8px; }
+  .info-card ul li::before { content: '✓'; color: var(--green); font-weight: 700; }
+
+  @media (max-width: 768px) {
+    .info-grid { grid-template-columns: 1fr; }
+    .balance-amount { font-size: 32px; }
+    .balance-amount.locked { font-size: 24px; }
+  }
+
+  /* ============ AI AGENT SUBSCRIPTION TAB ============ */
+  .sub-plans { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; margin-top: 32px; }
+  .plan-card {
+    background: linear-gradient(180deg, rgba(20,23,35,0.7), rgba(11,13,20,0.5));
+    border: 1px solid var(--line); border-radius: 20px; padding: 32px; text-align: center;
+    transition: all 0.3s ease; position: relative;
+  }
+  .plan-card.featured { border-color: var(--gold); background: rgba(245,196,81,0.05); transform: scale(1.02); }
+  .plan-card.featured::before {
+    content: 'BEST VALUE'; position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+    background: var(--grad-gold); color: #05060a; font-size: 11px; font-weight: 800;
+    padding: 4px 16px; border-radius: 100px; letter-spacing: 0.1em;
+  }
+  .plan-card h3 { font-size: 22px; font-weight: 700; margin-bottom: 8px; }
+  .plan-price { font-family: 'Space Grotesk', sans-serif; font-size: 42px; font-weight: 700; color: var(--accent-2); margin-bottom: 8px; }
+  .plan-price span { font-size: 16px; color: var(--muted); font-weight: 400; }
+  .plan-desc { font-size: 14px; color: var(--muted); margin-bottom: 24px; line-height: 1.6; }
+  .plan-features { list-style: none; text-align: left; margin-bottom: 32px; display: flex; flex-direction: column; gap: 12px; }
+  .plan-features li { font-size: 14px; display: flex; align-items: center; gap: 10px; }
+  .plan-features li::before { content: '✓'; color: var(--green); font-weight: 700; }
+  .subscribe-btn {
+    width: 100%; padding: 14px; background: var(--grad-2); color: #fff; font-weight: 700;
+    border-radius: 10px; border: none; cursor: pointer; font-size: 15px; transition: all 0.25s;
+  }
+  .subscribe-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(124,92,255,0.4); }
+  .subscribe-btn.gold { background: var(--grad-gold); color: #05060a; }
+  .subscribe-btn.gold:hover { box-shadow: 0 10px 30px rgba(245,196,81,0.4); }
+
   /* ============ INVESTMENT MARKET ============ */
   .market-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; }
   .asset-card { background: linear-gradient(180deg, rgba(20,23,35,0.7), rgba(11,13,20,0.5)); border: 1px solid var(--line); border-radius: 14px; padding: 20px; transition: all 0.25s; position: relative; overflow: hidden; }
@@ -214,8 +253,6 @@
   @media (max-width: 768px) {
     .tesla-content { grid-template-columns: 1fr; }
     .tesla-stats { grid-template-columns: 1fr; }
-    .balance-amount { font-size: 32px; }
-    .balance-amount.locked { font-size: 24px; }
   }
 
   /* ============ MODAL ============ */
@@ -280,15 +317,17 @@
 <div class="tab-switcher-container">
   <div class="tab-switcher">
     <button class="tab-btn active" id="tabDashboard">📊 Dashboard</button>
+    <button class="tab-btn" id="tabAgent">🤖 AI Agent</button>
     <button class="tab-btn" id="tabMarkets">📈 Markets</button>
   </div>
 </div>
 
-<!-- ============ DASHBOARD ============ -->
+<!-- ============ DASHBOARD CONTAINER ============ -->
 <div class="dashboard-container">
 
   <!-- DASHBOARD VIEW -->
-  <div id="viewDashboard">
+  <div id="viewDashboard" class="view-section active">
+    <!-- Balance Card -->
     <div class="balance-card">
       <div class="balance-header">
         <div class="balance-section">
@@ -316,6 +355,7 @@
       </div>
     </div>
 
+    <!-- AI Agent Status -->
     <div class="ai-status">
       <div class="ai-icon">🤖</div>
       <div class="ai-info">
@@ -328,14 +368,79 @@
       </div>
     </div>
 
+    <!-- Live Market Ticker -->
     <div class="ticker-section">
       <div class="section-title"><span class="dot"></span><span>Live Market Preview</span></div>
       <div class="ticker-grid" id="tickerGrid"></div>
     </div>
+
+    <!-- HOW IT WORKS SECTION -->
+    <div class="info-section">
+      <div class="section-title"><span class="dot"></span><span>How Our Markets Work</span></div>
+      <p style="color: var(--muted); font-size: 15px; line-height: 1.7; max-width: 800px;">
+        With the help of experienced financial experts, we have hand-picked <strong style="color: var(--text);">20 of the best stocks and cryptocurrencies</strong> that are certain to yield strong, consistent interest. You have two ways to invest:
+      </p>
+      <div class="info-grid">
+        <div class="info-card">
+          <h3>🛠️ Build Your Own Portfolio</h3>
+          <p>You are free to pick your own stocks and crypto from our curated list and add them to your portfolio. Our sophisticated AI agent will still trade and handle the execution for you.</p>
+          <ul>
+            <li>Full control over asset selection</li>
+            <li>AI handles the trade execution</li>
+            <li><strong>Note:</strong> Your profit depends entirely on the combination of assets you choose.</li>
+          </ul>
+        </div>
+        <div class="info-card recommended">
+          <h3>🤖 AI Full Control (Recommended)</h3>
+          <p>We strongly recommend subscribing to let our AI Agent take full control. It will handpick the perfect combination of crypto and stocks to ensure you get the <strong style="color: var(--gold);">highest possible profit and interest</strong>, backed by tested, fail-proof strategies.</p>
+          <ul>
+            <li>AI optimizes your portfolio automatically</li>
+            <li>Maximum yield guaranteed by tested algorithms</li>
+            <li>Zero stress, fully automated management</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI AGENT VIEW -->
+  <div id="viewAgent" class="view-section">
+    <div class="ticker-section">
+      <div class="section-title"><span class="dot"></span><span>AI Agent Subscription Plans</span></div>
+      <p style="color: var(--muted); font-size: 15px; line-height: 1.7; max-width: 800px; margin-bottom: 24px;">
+        Let our sophisticated AI take the wheel. Choose a plan below to grant the AI full control over your portfolio, ensuring the highest possible returns without the guesswork.
+      </p>
+      <div class="sub-plans">
+        <div class="plan-card">
+          <h3>Annual Plan</h3>
+          <div class="plan-price">$150<span>/year</span></div>
+          <div class="plan-desc">Perfect for getting started with AI-managed investments.</div>
+          <ul class="plan-features">
+            <li>Full AI portfolio management</li>
+            <li>24/7 automated trading</li>
+            <li>Access to all 20 curated assets</li>
+            <li>Monthly performance reports</li>
+          </ul>
+          <button class="subscribe-btn" onclick="subscribeAgent('1 Year', 150)">Subscribe for 1 Year</button>
+        </div>
+        <div class="plan-card featured">
+          <h3>7-Year Plan</h3>
+          <div class="plan-price">$1,050<span> total</span></div>
+          <div class="plan-desc">Lock in the $150/year rate for 7 years. Maximum long-term growth.</div>
+          <ul class="plan-features">
+            <li>Everything in the Annual Plan</li>
+            <li>7 years of uninterrupted AI management</li>
+            <li>Priority support & advanced strategies</li>
+            <li>Best long-term value</li>
+          </ul>
+          <button class="subscribe-btn gold" onclick="subscribeAgent('7 Years', 1050)">Subscribe for 7 Years</button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- MARKETS VIEW -->
-  <div id="viewMarkets" style="display: none;">
+  <div id="viewMarkets" class="view-section">
     <div class="ticker-section">
       <div class="section-title"><span class="dot"></span><span>Investment Market</span></div>
       <div class="market-grid" id="marketGrid"></div>
@@ -344,7 +449,7 @@
 
 </div>
 
-<!-- ============ FUNDING MODAL ============ -->
+<!-- ============ MODALS (Fund, Buy, Tesla) ============ -->
 <div class="modal-overlay" id="fundModal">
   <div class="modal">
     <h2>💰 Fund Your Account</h2>
@@ -372,7 +477,6 @@
   </div>
 </div>
 
-<!-- ============ BUY MODAL ============ -->
 <div class="modal-overlay" id="buyModal">
   <div class="modal">
     <h2>📈 Buy Asset</h2>
@@ -400,7 +504,6 @@
   </div>
 </div>
 
-<!-- ============ TESLA MODAL ============ -->
 <div class="modal-overlay" id="teslaModal">
   <div class="modal">
     <h2>🚗 Tesla Roadster Investment Program</h2>
@@ -488,27 +591,24 @@
     document.getElementById('userAvatar').textContent = initials(user.name);
   }
 
-  /* ============ TAB SWITCHING LOGIC ============ */
+  /* ============ TAB SWITCHING LOGIC (BULLETPROOF) ============ */
   const tabDash = document.getElementById('tabDashboard');
+  const tabAgent = document.getElementById('tabAgent');
   const tabMarkets = document.getElementById('tabMarkets');
   const viewDash = document.getElementById('viewDashboard');
+  const viewAgent = document.getElementById('viewAgent');
   const viewMarkets = document.getElementById('viewMarkets');
 
-  tabDash.addEventListener('click', () => {
-    tabDash.classList.add('active');
-    tabMarkets.classList.remove('active');
-    viewMarkets.style.display = 'none';
-    viewDash.style.display = 'block';
-    gsap.from(viewDash, { opacity: 0, y: 15, duration: 0.4, ease: 'power2.out' });
-  });
+  function switchTab(activeTab, activeView) {
+    [tabDash, tabAgent, tabMarkets].forEach(t => t.classList.remove('active'));
+    activeTab.classList.add('active');
+    [viewDash, viewAgent, viewMarkets].forEach(v => v.classList.remove('active'));
+    activeView.classList.add('active');
+  }
 
-  tabMarkets.addEventListener('click', () => {
-    tabMarkets.classList.add('active');
-    tabDash.classList.remove('active');
-    viewDash.style.display = 'none';
-    viewMarkets.style.display = 'block';
-    gsap.from(viewMarkets, { opacity: 0, y: 15, duration: 0.4, ease: 'power2.out' });
-  });
+  tabDash.addEventListener('click', () => switchTab(tabDash, viewDash));
+  tabAgent.addEventListener('click', () => switchTab(tabAgent, viewAgent));
+  tabMarkets.addEventListener('click', () => switchTab(tabMarkets, viewMarkets));
 
   /* ============ BALANCE ============ */
   let balanceVisible = true;
@@ -648,29 +748,17 @@
       if (!amount || amount < 100) { toast('Please enter at least $100', 'error'); return; }
       if (!selectedPaymentMethod) { toast('Please select a payment method', 'error'); return; }
 
-      submitFund.textContent = 'Processing...';
-      submitFund.disabled = true;
-
+      submitFund.textContent = 'Processing...'; submitFund.disabled = true;
       try {
         const res = await fetch('/api/transactions', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            userId: user.id, userName: user.name, userEmail: user.email,
-            amount: amount, method: selectedPaymentMethod.id, reason: note, type: 'funding_request'
-          })
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId: user.id, userName: user.name, userEmail: user.email, amount: amount, method: selectedPaymentMethod.id, reason: note, type: 'funding_request' })
         });
         if (!res.ok) throw new Error('Failed to submit');
-
-        fundModal.classList.remove('show'); 
-        resetFundModal();
+        fundModal.classList.remove('show'); resetFundModal();
         toast('Your payment has been submitted successfully. Please stand by for confirmation.', 'success');
-      } catch (err) {
-        toast('Error submitting request. Please try again.', 'error');
-      } finally {
-        submitFund.textContent = 'Submit Funding Request';
-        submitFund.disabled = false;
-      }
+      } catch (err) { toast('Error submitting request. Please try again.', 'error'); }
+      finally { submitFund.textContent = 'Submit Funding Request'; submitFund.disabled = false; }
     });
   }
 
@@ -678,9 +766,7 @@
   const buyModal = document.getElementById('buyModal');
   function openBuyModal(symbol, name, price) { document.getElementById('buyAssetName').textContent = `Invest in ${name} (${symbol}) — Current price: $${formatMoney(price)}`; renderPaymentMethods('buy'); buyModal.classList.add('show'); }
   const cancelBuy = document.getElementById('cancelBuy');
-  if(cancelBuy) {
-    cancelBuy.addEventListener('click', () => { buyModal.classList.remove('show'); resetBuyModal(); });
-  }
+  if(cancelBuy) { cancelBuy.addEventListener('click', () => { buyModal.classList.remove('show'); resetBuyModal(); }); }
   function resetBuyModal() { document.getElementById('buyAmount').value = ''; document.getElementById('buyNote').value = ''; document.getElementById('buyPaymentMethods').querySelectorAll('.payment-method-option').forEach(o => o.classList.remove('selected')); document.getElementById('buyPaymentDetails').style.display = 'none'; selectedPaymentMethod = null; }
   
   const submitBuy = document.getElementById('submitBuy');
@@ -688,40 +774,22 @@
     submitBuy.addEventListener('click', async () => {
       const amount = parseFloat(document.getElementById('buyAmount').value); 
       const note = document.getElementById('buyNote').value;
-      
-      // CHECK: Ensure they have enough funds
       const currentBalance = Number(user.balance || 0);
-      if (amount > currentBalance) { 
-        toast('Insufficient funds. Please fund your account first.', 'error'); 
-        return; 
-      }
-
+      if (amount > currentBalance) { toast('Insufficient funds. Please fund your account first.', 'error'); return; }
       if (!amount || amount < 10) { toast('Please enter at least $10', 'error'); return; }
       if (!selectedPaymentMethod) { toast('Please select a payment method', 'error'); return; }
 
-      submitBuy.textContent = 'Processing...';
-      submitBuy.disabled = true;
-
+      submitBuy.textContent = 'Processing...'; submitBuy.disabled = true;
       try {
         const res = await fetch('/api/transactions', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            userId: user.id, userName: user.name, userEmail: user.email,
-            amount: amount, method: selectedPaymentMethod.id, reason: note, type: 'asset_purchase'
-          })
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId: user.id, userName: user.name, userEmail: user.email, amount: amount, method: selectedPaymentMethod.id, reason: note, type: 'asset_purchase' })
         });
         if (!res.ok) throw new Error('Failed to submit');
-
-        buyModal.classList.remove('show'); 
-        resetBuyModal();
+        buyModal.classList.remove('show'); resetBuyModal();
         toast('Your purchase request has been submitted successfully. Please stand by for confirmation.', 'success');
-      } catch (err) {
-        toast('Error submitting request. Please try again.', 'error');
-      } finally {
-        submitBuy.textContent = 'Submit Purchase Request';
-        submitBuy.disabled = false;
-      }
+      } catch (err) { toast('Error submitting request. Please try again.', 'error'); }
+      finally { submitBuy.textContent = 'Submit Purchase Request'; submitBuy.disabled = false; }
     });
   }
 
@@ -729,9 +797,7 @@
   const teslaModal = document.getElementById('teslaModal');
   function openTeslaModal() { renderPaymentMethods('tesla'); teslaModal.classList.add('show'); }
   const cancelTesla = document.getElementById('cancelTesla');
-  if(cancelTesla) {
-    cancelTesla.addEventListener('click', () => { teslaModal.classList.remove('show'); resetTeslaModal(); });
-  }
+  if(cancelTesla) { cancelTesla.addEventListener('click', () => { teslaModal.classList.remove('show'); resetTeslaModal(); }); }
   function resetTeslaModal() { document.getElementById('teslaAmount').value = ''; document.getElementById('teslaNote').value = ''; document.getElementById('teslaPaymentMethods').querySelectorAll('.payment-method-option').forEach(o => o.classList.remove('selected')); document.getElementById('teslaPaymentDetails').style.display = 'none'; document.getElementById('bonusCalculator').style.display = 'none'; selectedPaymentMethod = null; }
   
   const teslaAmountInput = document.getElementById('teslaAmount');
@@ -753,47 +819,30 @@
     submitTesla.addEventListener('click', async () => {
       const amount = parseFloat(document.getElementById('teslaAmount').value); 
       const note = document.getElementById('teslaNote').value;
-      
-      // CHECK: Ensure they have enough funds for Tesla
       const currentBalance = Number(user.balance || 0);
-      if (amount > currentBalance) { 
-        toast('Insufficient funds. Please fund your account first.', 'error'); 
-        return; 
-      }
-
+      if (amount > currentBalance) { toast('Insufficient funds. Please fund your account first.', 'error'); return; }
       if (!amount || amount < 4000) { toast('Minimum investment is $4,000', 'error'); return; }
       if (!selectedPaymentMethod) { toast('Please select a payment method', 'error'); return; }
 
-      const bonus = amount * 2.1925; 
-      const lockUntil = new Date(); 
-      lockUntil.setFullYear(lockUntil.getFullYear() + 1);
-
-      submitTesla.textContent = 'Processing...';
-      submitTesla.disabled = true;
-
+      const bonus = amount * 2.1925; const lockUntil = new Date(); lockUntil.setFullYear(lockUntil.getFullYear() + 1);
+      submitTesla.textContent = 'Processing...'; submitTesla.disabled = true;
       try {
         const res = await fetch('/api/transactions', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            userId: user.id, userName: user.name, userEmail: user.email,
-            amount: amount, bonus: bonus, method: selectedPaymentMethod.id,
-            reason: note || 'Tesla Roadster Investment Program', type: 'tesla_investment',
-            lockUntil: lockUntil.toISOString()
-          })
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId: user.id, userName: user.name, userEmail: user.email, amount: amount, bonus: bonus, method: selectedPaymentMethod.id, reason: note || 'Tesla Roadster Investment Program', type: 'tesla_investment', lockUntil: lockUntil.toISOString() })
         });
         if (!res.ok) throw new Error('Failed to submit');
-
-        teslaModal.classList.remove('show'); 
-        resetTeslaModal();
+        teslaModal.classList.remove('show'); resetTeslaModal();
         toast('Your Tesla investment request has been submitted. Please stand by for confirmation.', 'success');
-      } catch (err) {
-        toast('Error submitting request. Please try again.', 'error');
-      } finally {
-        submitTesla.textContent = '🚀 Join Tesla Program';
-        submitTesla.disabled = false;
-      }
+      } catch (err) { toast('Error submitting request. Please try again.', 'error'); }
+      finally { submitTesla.textContent = '🚀 Join Tesla Program'; submitTesla.disabled = false; }
     });
+  }
+
+  /* ============ AI AGENT SUBSCRIPTION ============ */
+  function subscribeAgent(plan, amount) {
+    toast(`Redirecting to payment for ${plan} AI Agent plan ($${amount})...`, 'info');
+    // TODO: We will connect this to the transaction API later to create an "ai_subscription" transaction type
   }
 
   /* ============ LOGOUT ============ */
