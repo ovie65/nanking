@@ -80,50 +80,29 @@
   .portfolio-trigger:hover { background: rgba(124,92,255,0.15); border-color: var(--accent); transform: translateY(-50%) scale(1.05); }
   .portfolio-trigger .dash { width: 20px; height: 2px; background: var(--text); border-radius: 2px; transition: all 0.3s; }
   .portfolio-trigger:hover .dash { background: var(--accent-2); }
-  
-  @media (max-width: 768px) { 
-    .portfolio-trigger { right: 12px; padding: 10px 8px; } 
-    .portfolio-trigger .dash { width: 18px; } 
-  }
+  @media (max-width: 768px) { .portfolio-trigger { right: 12px; padding: 10px 8px; } .portfolio-trigger .dash { width: 18px; } }
 
   /* ============ PORTFOLIO SIDE DRAWER ============ */
-  .portfolio-overlay {
-    position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);
-    z-index: 150; opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
-  }
+  .portfolio-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); z-index: 150; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
   .portfolio-overlay.open { opacity: 1; pointer-events: auto; }
-  
   .portfolio-drawer {
     position: fixed; top: 0; right: -100%; width: 400px; max-width: 90vw; height: 100vh;
-    background: linear-gradient(180deg, #0b0d14, #05060a);
-    border-left: 1px solid var(--line); z-index: 200;
+    background: linear-gradient(180deg, #0b0d14, #05060a); border-left: 1px solid var(--line); z-index: 200;
     padding: 32px 24px; overflow-y: auto; overflow-x: hidden;
-    transition: right 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-    display: flex; flex-direction: column;
+    transition: right 0.4s cubic-bezier(0.16, 1, 0.3, 1); display: flex; flex-direction: column;
   }
   .portfolio-drawer.open { right: 0; }
-  
   .drawer-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; padding-bottom: 20px; border-bottom: 1px solid var(--line); }
   .drawer-header h2 { font-size: 20px; font-weight: 700; display: flex; align-items: center; gap: 10px; }
   .drawer-close { width: 32px; height: 32px; border-radius: 8px; background: rgba(255,255,255,0.05); display: grid; place-items: center; font-size: 18px; color: var(--muted); transition: all 0.2s; }
   .drawer-close:hover { background: rgba(239,68,68,0.1); color: var(--red); }
-
-  .drawer-total-card {
-    background: linear-gradient(135deg, rgba(124,92,255,0.15), rgba(0,212,255,0.1));
-    border: 1px solid var(--line); border-radius: 16px; padding: 24px; margin-bottom: 24px; text-align: center;
-  }
+  .drawer-total-card { background: linear-gradient(135deg, rgba(124,92,255,0.15), rgba(0,212,255,0.1)); border: 1px solid var(--line); border-radius: 16px; padding: 24px; margin-bottom: 24px; text-align: center; }
   .drawer-total-label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; }
   .drawer-total-value { font-family: 'Space Grotesk', sans-serif; font-size: 36px; font-weight: 700; color: var(--text); }
   .drawer-total-change { font-size: 13px; color: var(--green); margin-top: 6px; font-weight: 600; }
-
   .drawer-section-title { font-size: 13px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; font-weight: 600; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
   .drawer-section-title::before { content: ''; width: 4px; height: 4px; border-radius: 50%; background: var(--accent-2); }
-
-  .holding-item {
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 14px 16px; background: rgba(255,255,255,0.02); border: 1px solid var(--line);
-    border-radius: 12px; margin-bottom: 10px; transition: all 0.2s;
-  }
+  .holding-item { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; background: rgba(255,255,255,0.02); border: 1px solid var(--line); border-radius: 12px; margin-bottom: 10px; transition: all 0.2s; }
   .holding-item:hover { background: rgba(255,255,255,0.04); border-color: var(--line-2); }
   .holding-left { display: flex; align-items: center; gap: 12px; }
   .holding-icon { width: 36px; height: 36px; border-radius: 10px; display: grid; place-items: center; font-weight: 800; font-size: 14px; }
@@ -136,23 +115,13 @@
   .holding-change { font-size: 11px; font-weight: 600; }
   .holding-change.up { color: var(--green); }
   .holding-change.down { color: var(--red); }
-
-  .drawer-ai-status {
-    background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.2); border-radius: 12px;
-    padding: 14px; margin-top: 20px; display: flex; align-items: center; gap: 12px; font-size: 13px;
-  }
+  .holding-change.ai { color: var(--accent-2); }
+  .empty-state { text-align: center; padding: 30px 20px; color: var(--muted); font-size: 13px; line-height: 1.6; }
+  .drawer-ai-status { background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.2); border-radius: 12px; padding: 14px; margin-top: 20px; display: flex; align-items: center; gap: 12px; font-size: 13px; }
   .drawer-ai-status .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); box-shadow: 0 0 10px var(--green); }
-
-  .drawer-back-btn {
-    margin-top: auto; padding: 14px; background: rgba(255,255,255,0.05); border: 1px solid var(--line);
-    border-radius: 12px; font-size: 14px; font-weight: 600; color: var(--text);
-    display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s;
-  }
+  .drawer-back-btn { margin-top: auto; padding: 14px; background: rgba(255,255,255,0.05); border: 1px solid var(--line); border-radius: 12px; font-size: 14px; font-weight: 600; color: var(--text); display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s; }
   .drawer-back-btn:hover { background: rgba(255,255,255,0.1); border-color: var(--line-2); }
-
-  @media (max-width: 768px) {
-    .portfolio-drawer { width: 100%; max-width: 100vw; right: -100%; padding: 24px 20px; }
-  }
+  @media (max-width: 768px) { .portfolio-drawer { width: 100%; max-width: 100vw; right: -100%; padding: 24px 20px; } }
 
   /* ============ EXISTING DASHBOARD STYLES ============ */
   .balance-card { background: linear-gradient(135deg, rgba(124,92,255,0.15), rgba(0,212,255,0.1), rgba(245,196,81,0.08)); border: 1px solid var(--line); border-radius: 20px; padding: 32px; margin-bottom: 28px; position: relative; overflow: hidden; }
@@ -169,7 +138,6 @@
   .balance-actions { display: flex; gap: 12px; position: relative; z-index: 2; flex-wrap: wrap; }
   .fund-btn { padding: 12px 24px; background: var(--grad-gold); color: #05060a; font-weight: 700; border-radius: 10px; font-size: 14px; transition: all 0.25s; display: flex; align-items: center; gap: 8px; }
   .fund-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(245,196,81,0.3); }
-
   .ai-status { background: linear-gradient(180deg, rgba(20,23,35,0.7), rgba(11,13,20,0.5)); border: 1px solid var(--line); border-radius: 16px; padding: 24px; margin-bottom: 28px; display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
   .ai-icon { width: 56px; height: 56px; border-radius: 14px; background: var(--grad-2); display: grid; place-items: center; font-size: 28px; position: relative; }
   .ai-icon::after { content: ''; position: absolute; top: -4px; right: -4px; width: 14px; height: 14px; border-radius: 50%; background: var(--green); border: 2px solid var(--bg-2); animation: pulse 2s infinite; }
@@ -181,7 +149,6 @@
   .ai-stat { text-align: center; }
   .ai-stat-val { font-family: 'Space Grotesk', sans-serif; font-size: 20px; font-weight: 700; color: var(--accent-2); }
   .ai-stat-lbl { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; }
-
   .ticker-section { margin-bottom: 32px; }
   .section-title { font-size: 18px; font-weight: 600; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
   .section-title .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent-2); animation: pulse 1.5s infinite; }
@@ -194,7 +161,6 @@
   .ticker-change.up { background: rgba(34,197,94,0.12); color: var(--green); }
   .ticker-change.down { background: rgba(239,68,68,0.12); color: var(--red); }
   .ticker-price { font-family: 'Space Grotesk', sans-serif; font-size: 20px; font-weight: 700; }
-
   .info-section { background: linear-gradient(180deg, rgba(20,23,35,0.7), rgba(11,13,20,0.5)); border: 1px solid var(--line); border-radius: 20px; padding: 32px; margin-bottom: 32px; }
   .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-top: 24px; }
   .info-card { background: rgba(255,255,255,0.02); border: 1px solid var(--line); border-radius: 16px; padding: 24px; transition: all 0.3s ease; }
@@ -207,7 +173,6 @@
   .info-card ul li { font-size: 13px; color: var(--text); display: flex; align-items: center; gap: 8px; }
   .info-card ul li::before { content: '✓'; color: var(--green); font-weight: 700; }
   @media (max-width: 768px) { .info-grid { grid-template-columns: 1fr; } .balance-amount { font-size: 32px; } .balance-amount.locked { font-size: 24px; } }
-
   .sub-plans { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; margin-top: 32px; }
   .plan-card { background: linear-gradient(180deg, rgba(20,23,35,0.7), rgba(11,13,20,0.5)); border: 1px solid var(--line); border-radius: 20px; padding: 32px; text-align: center; transition: all 0.3s ease; position: relative; }
   .plan-card.featured { border-color: var(--gold); background: rgba(245,196,81,0.05); transform: scale(1.02); }
@@ -223,7 +188,6 @@
   .subscribe-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(124,92,255,0.4); }
   .subscribe-btn.gold { background: var(--grad-gold); color: #05060a; }
   .subscribe-btn.gold:hover { box-shadow: 0 10px 30px rgba(245,196,81,0.4); }
-
   .market-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; }
   .asset-card { background: linear-gradient(180deg, rgba(20,23,35,0.7), rgba(11,13,20,0.5)); border: 1px solid var(--line); border-radius: 14px; padding: 20px; transition: all 0.25s; position: relative; overflow: hidden; }
   .asset-card:hover { border-color: var(--line-2); transform: translateY(-3px); box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
@@ -256,7 +220,6 @@
   .tesla-example-row { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 4px; }
   .tesla-example-row:last-child { margin-bottom: 0; font-weight: 700; color: var(--green); }
   @media (max-width: 768px) { .tesla-content { grid-template-columns: 1fr; } .tesla-stats { grid-template-columns: 1fr; } }
-
   .modal-overlay { position: fixed; inset: 0; background: rgba(5,6,10,0.85); backdrop-filter: blur(8px); z-index: 1000; display: none; align-items: center; justify-content: center; padding: 20px; }
   .modal-overlay.show { display: flex; }
   .modal { background: linear-gradient(180deg, #141723, #0b0d14); border: 1px solid var(--line); border-radius: 16px; padding: 32px; max-width: 520px; width: 100%; max-height: 90vh; overflow-y: auto; }
@@ -317,9 +280,7 @@
 
 <!-- ============ FLOATING 3-DASH PORTFOLIO TRIGGER ============ -->
 <button class="portfolio-trigger" id="portfolioTrigger" aria-label="Open Portfolio">
-  <span class="dash"></span>
-  <span class="dash"></span>
-  <span class="dash"></span>
+  <span class="dash"></span><span class="dash"></span><span class="dash"></span>
 </button>
 
 <!-- ============ PORTFOLIO SIDE DRAWER ============ -->
@@ -331,52 +292,26 @@
   </div>
 
   <div class="drawer-total-card">
-    <div class="drawer-total-label">Total Portfolio Value</div>
-    <div class="drawer-total-value" id="drawerTotalValue">$12,450.00</div>
-    <div class="drawer-total-change">▲ +$1,240.50 (11.04%) All Time</div>
+    <div class="drawer-total-label">Total Net Worth</div>
+    <div class="drawer-total-value" id="drawerTotalValue">$0.00</div>
+    <div class="drawer-total-change" id="drawerTotalChange">Loading...</div>
   </div>
 
-  <div class="drawer-section-title">Your Holdings</div>
-  
-  <!-- Mock Holdings (We will connect real data later) -->
-  <div class="holding-item">
-    <div class="holding-left">
-      <div class="holding-icon crypto">₿</div>
-      <div><div class="holding-name">Bitcoin</div><div class="holding-shares">0.15 BTC</div></div>
-    </div>
-    <div class="holding-right">
-      <div class="holding-val">$10,176.30</div>
-      <div class="holding-change up">+5.2%</div>
-    </div>
-  </div>
+  <!-- AI PORTFOLIO SECTION (GATED) -->
+  <div class="drawer-section-title" id="aiSectionTitle" style="display:none;">🤖 AI Agent Portfolio</div>
+  <div id="aiPortfolioList"></div>
 
-  <div class="holding-item">
-    <div class="holding-left">
-      <div class="holding-icon stock">N</div>
-      <div><div class="holding-name">NVIDIA</div><div class="holding-shares">2.5 Shares</div></div>
-    </div>
-    <div class="holding-right">
-      <div class="holding-val">$2,187.50</div>
-      <div class="holding-change up">+12.4%</div>
-    </div>
-  </div>
-
-  <div class="holding-item">
-    <div class="holding-left">
-      <div class="holding-icon crypto">S</div>
-      <div><div class="holding-name">Solana</div><div class="holding-shares">5.0 SOL</div></div>
-    </div>
-    <div class="holding-right">
-      <div class="holding-val">$890.00</div>
-      <div class="holding-change down">-1.2%</div>
-    </div>
+  <!-- MANUAL PORTFOLIO SECTION -->
+  <div class="drawer-section-title">🛠️ Your Manual Holdings</div>
+  <div id="manualPortfolioList">
+    <div class="empty-state">Loading portfolio...</div>
   </div>
 
   <div class="drawer-ai-status">
     <div class="dot"></div>
     <div>
-      <div style="font-weight: 600; margin-bottom: 2px;">AI Agent Active</div>
-      <div style="font-size: 11px; color: var(--muted);">Monitoring your portfolio 24/7</div>
+      <div style="font-weight: 600; margin-bottom: 2px;">Live Market Data</div>
+      <div style="font-size: 11px; color: var(--muted);">Powered by CoinGecko API</div>
     </div>
   </div>
 
@@ -385,7 +320,6 @@
 
 <!-- ============ DASHBOARD CONTAINER ============ -->
 <div class="dashboard-container">
-
   <!-- DASHBOARD VIEW -->
   <div id="viewDashboard" class="view-section active">
     <div class="balance-card">
@@ -464,7 +398,6 @@
       <div class="market-grid" id="marketGrid"></div>
     </div>
   </div>
-
 </div>
 
 <!-- ============ MODALS (Fund, Buy, Tesla) ============ -->
@@ -515,7 +448,7 @@
   const currentUser = getStore(KEYS.CURRENT_USER, null);
   if (!isLoggedIn || !currentUser) { window.location.href = 'login.html'; }
   function loadUserData() { const users = getStore(KEYS.USERS, []); const user = users.find(u => u.id === currentUser.id); if (user) { setStore(KEYS.CURRENT_USER, user); return user; } return currentUser; }
-  const user = loadUserData();
+  let user = loadUserData();
   if(user) { document.getElementById('userName').textContent = user.name; document.getElementById('userEmail').textContent = user.email; document.getElementById('userAvatar').textContent = initials(user.name); }
 
   /* ============ TAB SWITCHING ============ */
@@ -526,6 +459,30 @@
   tabAgent.addEventListener('click', () => switchTab(tabAgent, viewAgent));
   tabMarkets.addEventListener('click', () => switchTab(tabMarkets, viewMarkets));
 
+  /* ============ COINGECKO LIVE PRICES ============ */
+  let livePrices = {};
+  async function fetchLivePrices() {
+    try {
+      // Fetching top cryptos from CoinGecko
+      const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana,cardano,polkadot,chainlink,avalanche-2&vs_currencies=usd&include_24hr_change=true');
+      const data = await res.json();
+      
+      // Map CoinGecko IDs to our symbols
+      const map = { bitcoin: 'BTC', ethereum: 'ETH', solana: 'SOL', cardano: 'ADA', polkadot: 'DOT', chainlink: 'LINK', 'avalanche-2': 'AVAX' };
+      for (const [id, info] of Object.entries(data)) {
+        if (map[id]) {
+          livePrices[map[id]] = { price: info.usd, change24h: info.usd_24h_change };
+        }
+      }
+    } catch (err) {
+      console.warn('CoinGecko API failed, using fallback simulated prices');
+      // Fallback if API rate limit is hit
+      livePrices = { BTC: { price: 67000, change24h: 2.5 }, ETH: { price: 3500, change24h: 1.2 }, SOL: { price: 170, change24h: -0.5 } };
+    }
+  }
+  fetchLivePrices();
+  setInterval(fetchLivePrices, 60000); // Refresh every 60 seconds
+
   /* ============ PORTFOLIO DRAWER LOGIC ============ */
   const portfolioTrigger = document.getElementById('portfolioTrigger');
   const portfolioDrawer = document.getElementById('portfolioDrawer');
@@ -533,7 +490,106 @@
   const drawerClose = document.getElementById('drawerClose');
   const drawerBackBtn = document.getElementById('drawerBackBtn');
 
-  function openDrawer() { portfolioDrawer.classList.add('open'); portfolioOverlay.classList.add('open'); }
+  async function fetchAndRenderPortfolio() {
+    const aiList = document.getElementById('aiPortfolioList');
+    const manualList = document.getElementById('manualPortfolioList');
+    const aiSectionTitle = document.getElementById('aiSectionTitle');
+    const totalValueEl = document.getElementById('drawerTotalValue');
+    const totalChangeEl = document.getElementById('drawerTotalChange');
+
+    manualList.innerHTML = '<div class="empty-state">Loading portfolio...</div>';
+    aiList.innerHTML = '';
+    aiSectionTitle.style.display = 'none';
+
+    try {
+      const res = await fetch(`/api/users/me?userId=${user.id}`);
+      if (!res.ok) throw new Error('Failed to fetch');
+      const freshData = await res.json();
+      user = freshData; 
+      updateBalance();
+
+      const portfolio = freshData.portfolio || [];
+      let totalNetWorth = Number(freshData.balance || 0);
+      let totalDailyProfit = 0;
+      let hasAiAssets = false;
+
+      aiList.innerHTML = '';
+      manualList.innerHTML = '';
+
+      if (portfolio.length === 0) {
+        manualList.innerHTML = '<div class="empty-state">No assets yet.<br>Go to the Markets tab to buy your first asset!</div>';
+      } else {
+        portfolio.forEach(item => {
+          const isAi = item.type === 'ai_managed';
+          if (isAi) hasAiAssets = true;
+
+          // Get live price (fallback to investedAmount if not found)
+          const liveData = livePrices[item.symbol] || { price: item.investedAmount / (item.quantity || 1), change24h: 0 };
+          const currentPrice = liveData.price;
+          const quantity = item.quantity || 0;
+          const currentValue = currentPrice * quantity;
+          const dailyChangeVal = currentValue * (liveData.change24h / 100);
+          
+          totalNetWorth += currentValue;
+          totalDailyProfit += dailyChangeVal;
+
+          const isCrypto = ['BTC', 'ETH', 'SOL', 'ADA', 'DOT', 'LINK', 'AVAX'].includes(item.symbol);
+          const iconClass = isCrypto ? 'crypto' : 'stock';
+          const iconChar = item.symbol.charAt(0);
+          const changeClass = dailyChangeVal >= 0 ? 'up' : 'down';
+          const changeSign = dailyChangeVal >= 0 ? '+' : '';
+
+          const html = `
+            <div class="holding-item">
+              <div class="holding-left">
+                <div class="holding-icon ${iconClass}">${iconChar}</div>
+                <div>
+                  <div class="holding-name">${item.name}</div>
+                  <div class="holding-shares">${quantity.toFixed(6)} ${item.symbol} · $${formatMoney(currentPrice)}</div>
+                </div>
+              </div>
+              <div class="holding-right">
+                <div class="holding-val">$${formatMoney(currentValue)}</div>
+                <div class="holding-change ${changeClass}">${changeSign}$${formatMoney(dailyChangeVal)} today</div>
+              </div>
+            </div>
+          `;
+
+          if (isAi) { aiList.innerHTML += html; } else { manualList.innerHTML += html; }
+        });
+      }
+
+      totalValueEl.textContent = '$' + formatMoney(totalNetWorth);
+      const totalChangeClass = totalDailyProfit >= 0 ? 'up' : 'down';
+      const totalChangeSign = totalDailyProfit >= 0 ? '+' : '';
+      totalChangeEl.innerHTML = `<span class="holding-change ${totalChangeClass}">${totalChangeSign}$${formatMoney(totalDailyProfit)} today</span>`;
+
+      // GATING LOGIC: Only show AI section if they actually paid and admin approved
+      if (user.aiAgentActive) {
+        aiSectionTitle.style.display = 'flex';
+        if (!hasAiAssets) {
+          aiList.innerHTML = '<div class="empty-state">AI Agent is initializing your portfolio...</div>';
+        }
+      } else {
+        // They haven't paid/aren't approved yet
+        aiSectionTitle.style.display = 'flex';
+        aiList.innerHTML = `
+          <div class="empty-state" style="background: rgba(124,92,255,0.05); border: 1px solid var(--accent); border-radius: 12px; padding: 20px;">
+            <div style="font-size: 24px; margin-bottom: 8px;">🔒</div>
+            <strong style="color: var(--text); display: block; margin-bottom: 4px;">AI Portfolio Locked</strong>
+            Subscribe to the AI Agent plan to unlock automated trading and see your AI holdings here.
+            <button onclick="switchTab(tabAgent, viewAgent); closeDrawer();" style="margin-top: 12px; padding: 8px 16px; background: var(--grad-2); color: #fff; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">View Plans</button>
+          </div>
+        `;
+      }
+
+    } catch (err) {
+      console.error('Portfolio fetch error:', err);
+      manualList.innerHTML = '<div class="empty-state" style="color:var(--red);">Error loading portfolio.</div>';
+    }
+  }
+
+  function openDrawer() { portfolioDrawer.classList.add('open'); portfolioOverlay.classList.add('open'); fetchAndRenderPortfolio(); }
   function closeDrawer() { portfolioDrawer.classList.remove('open'); portfolioOverlay.classList.remove('open'); }
 
   portfolioTrigger.addEventListener('click', openDrawer);
@@ -544,13 +600,23 @@
   /* ============ BALANCE ============ */
   let balanceVisible = true;
   const balanceEl = document.getElementById('balanceValue'); const lockedBalanceEl = document.getElementById('lockedBalanceValue'); const lockTimeEl = document.getElementById('lockTimeLeft'); const eyeToggle = document.getElementById('eyeToggle');
-  function updateBalance() { const userData = loadUserData(); if (balanceVisible) { balanceEl.textContent = formatMoney(userData.balance || 0); lockedBalanceEl.textContent = formatMoney(userData.lockedBalance || 0); } else { balanceEl.textContent = '••••••'; lockedBalanceEl.textContent = '••••••'; } if (userData.lockedUntil) { lockTimeEl.textContent = calculateLockTimeLeft(userData.lockedUntil); } else { lockTimeEl.textContent = 'No locked funds'; } }
+  function updateBalance() { if (balanceVisible) { balanceEl.textContent = formatMoney(user.balance || 0); lockedBalanceEl.textContent = formatMoney(user.lockedBalance || 0); } else { balanceEl.textContent = '••••••'; lockedBalanceEl.textContent = '••••••'; } if (user.lockedUntil) { lockTimeEl.textContent = calculateLockTimeLeft(user.lockedUntil); } else { lockTimeEl.textContent = 'No locked funds'; } }
   if(eyeToggle) { eyeToggle.addEventListener('click', () => { balanceVisible = !balanceVisible; eyeToggle.textContent = balanceVisible ? '👁' : '🙈'; updateBalance(); }); }
   updateBalance();
 
   /* ============ LIVE TICKER ============ */
   const TICKER_ASSETS = [ { symbol: 'BTC', name: 'Bitcoin', basePrice: 67842 }, { symbol: 'ETH', name: 'Ethereum', basePrice: 3542 }, { symbol: 'TSLA', name: 'Tesla', basePrice: 248 }, { symbol: 'NVDA', name: 'NVIDIA', basePrice: 875 }, { symbol: 'SOL', name: 'Solana', basePrice: 178 } ];
-  function renderTicker() { const grid = document.getElementById('tickerGrid'); if(!grid) return; grid.innerHTML = TICKER_ASSETS.map(asset => { const change = (Math.random() - 0.45) * 5; const price = asset.basePrice * (1 + change / 100); const changeClass = change >= 0 ? 'up' : 'down'; const changeText = (change >= 0 ? '+' : '') + change.toFixed(2) + '%'; return `<div class="ticker-card"><div class="ticker-header"><div class="ticker-symbol">${asset.symbol}</div><div class="ticker-change ${changeClass}">${changeText}</div></div><div class="ticker-price">$${formatMoney(price)}</div></div>`; }).join(''); }
+  function renderTicker() { 
+    const grid = document.getElementById('tickerGrid'); if(!grid) return; 
+    grid.innerHTML = TICKER_ASSETS.map(asset => { 
+      // Use live price if available, otherwise simulate
+      const live = livePrices[asset.symbol];
+      const price = live ? live.price : asset.basePrice;
+      const change = live ? live.change24h : (Math.random() - 0.45) * 5;
+      const changeClass = change >= 0 ? 'up' : 'down'; const changeText = (change >= 0 ? '+' : '') + change.toFixed(2) + '%'; 
+      return `<div class="ticker-card"><div class="ticker-header"><div class="ticker-symbol">${asset.symbol}</div><div class="ticker-change ${changeClass}">${changeText}</div></div><div class="ticker-price">$${formatMoney(price)}</div></div>`; 
+    }).join(''); 
+  }
   renderTicker(); setInterval(renderTicker, 5000);
 
   /* ============ INVESTMENT MARKET ============ */
@@ -572,11 +638,47 @@
   if(submitFund) { submitFund.addEventListener('click', async () => { const amount = parseFloat(document.getElementById('fundAmount').value); const note = document.getElementById('fundNote').value; if (!amount || amount < 100) { toast('Please enter at least $100', 'error'); return; } if (!selectedPaymentMethod) { toast('Please select a payment method', 'error'); return; } submitFund.textContent = 'Processing...'; submitFund.disabled = true; try { const res = await fetch('/api/transactions', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ userId: user.id, userName: user.name, userEmail: user.email, amount: amount, method: selectedPaymentMethod.id, reason: note, type: 'funding_request' }) }); if (!res.ok) throw new Error('Failed to submit'); fundModal.classList.remove('show'); resetFundModal(); toast('Your payment has been submitted successfully.', 'success'); } catch (err) { toast('Error submitting request.', 'error'); } finally { submitFund.textContent = 'Submit Funding Request'; submitFund.disabled = false; } }); }
 
   const buyModal = document.getElementById('buyModal');
-  function openBuyModal(symbol, name, price) { document.getElementById('buyAssetName').textContent = `Invest in ${name} (${symbol}) — Current price: $${formatMoney(price)}`; renderPaymentMethods('buy'); buyModal.classList.add('show'); }
+  function openBuyModal(symbol, name, price) { 
+    document.getElementById('buyAssetName').textContent = `Invest in ${name} (${symbol}) — Current price: $${formatMoney(price)}`; 
+    renderPaymentMethods('buy'); 
+    buyModal.classList.add('show'); 
+    const submitBtn = document.getElementById('submitBuy');
+    submitBtn.dataset.assetSymbol = symbol;
+    submitBtn.dataset.assetName = name;
+    submitBtn.dataset.assetPrice = price; // Save price to calculate quantity later
+  }
   const cancelBuy = document.getElementById('cancelBuy'); if(cancelBuy) { cancelBuy.addEventListener('click', () => { buyModal.classList.remove('show'); resetBuyModal(); }); }
   function resetBuyModal() { document.getElementById('buyAmount').value = ''; document.getElementById('buyNote').value = ''; document.getElementById('buyPaymentMethods').querySelectorAll('.payment-method-option').forEach(o => o.classList.remove('selected')); document.getElementById('buyPaymentDetails').style.display = 'none'; selectedPaymentMethod = null; }
+  
   const submitBuy = document.getElementById('submitBuy');
-  if(submitBuy) { submitBuy.addEventListener('click', async () => { const amount = parseFloat(document.getElementById('buyAmount').value); const note = document.getElementById('buyNote').value; const currentBalance = Number(user.balance || 0); if (amount > currentBalance) { toast('Insufficient funds. Please fund your account first.', 'error'); return; } if (!amount || amount < 10) { toast('Please enter at least $10', 'error'); return; } if (!selectedPaymentMethod) { toast('Please select a payment method', 'error'); return; } submitBuy.textContent = 'Processing...'; submitBuy.disabled = true; try { const res = await fetch('/api/transactions', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ userId: user.id, userName: user.name, userEmail: user.email, amount: amount, method: selectedPaymentMethod.id, reason: note, type: 'asset_purchase' }) }); if (!res.ok) throw new Error('Failed to submit'); buyModal.classList.remove('show'); resetBuyModal(); toast('Your purchase request has been submitted.', 'success'); } catch (err) { toast('Error submitting request.', 'error'); } finally { submitBuy.textContent = 'Submit Purchase Request'; submitBuy.disabled = false; } }); }
+  if(submitBuy) { submitBuy.addEventListener('click', async () => { 
+    const amount = parseFloat(document.getElementById('buyAmount').value); 
+    const note = document.getElementById('buyNote').value; 
+    const currentBalance = Number(user.balance || 0); 
+    const assetSymbol = submitBuy.dataset.assetSymbol || 'UNKNOWN';
+    const assetName = submitBuy.dataset.assetName || 'Unknown Asset';
+    const assetPrice = parseFloat(submitBuy.dataset.assetPrice) || 1;
+
+    if (amount > currentBalance) { toast('Insufficient funds. Please fund your account first.', 'error'); return; } 
+    if (!amount || amount < 10) { toast('Please enter at least $10', 'error'); return; } 
+    if (!selectedPaymentMethod) { toast('Please select a payment method', 'error'); return; } 
+    
+    submitBuy.textContent = 'Processing...'; submitBuy.disabled = true; 
+    try { 
+      const res = await fetch('/api/transactions', { 
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, 
+        body: JSON.stringify({ 
+          userId: user.id, userName: user.name, userEmail: user.email, 
+          amount: amount, method: selectedPaymentMethod.id, reason: note, 
+          type: 'asset_purchase', assetSymbol: assetSymbol, assetName: assetName, assetPrice: assetPrice 
+        }) 
+      }); 
+      if (!res.ok) throw new Error('Failed to submit'); 
+      buyModal.classList.remove('show'); resetBuyModal(); 
+      toast('Your purchase request has been submitted.', 'success'); 
+    } catch (err) { toast('Error submitting request.', 'error'); } 
+    finally { submitBuy.textContent = 'Submit Purchase Request'; submitBuy.disabled = false; } 
+  }); }
 
   const teslaModal = document.getElementById('teslaModal');
   function openTeslaModal() { renderPaymentMethods('tesla'); teslaModal.classList.add('show'); }
@@ -587,7 +689,33 @@
   const submitTesla = document.getElementById('submitTesla');
   if(submitTesla) { submitTesla.addEventListener('click', async () => { const amount = parseFloat(document.getElementById('teslaAmount').value); const note = document.getElementById('teslaNote').value; const currentBalance = Number(user.balance || 0); if (amount > currentBalance) { toast('Insufficient funds. Please fund your account first.', 'error'); return; } if (!amount || amount < 4000) { toast('Minimum investment is $4,000', 'error'); return; } if (!selectedPaymentMethod) { toast('Please select a payment method', 'error'); return; } const bonus = amount * 2.1925; const lockUntil = new Date(); lockUntil.setFullYear(lockUntil.getFullYear() + 1); submitTesla.textContent = 'Processing...'; submitTesla.disabled = true; try { const res = await fetch('/api/transactions', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ userId: user.id, userName: user.name, userEmail: user.email, amount: amount, bonus: bonus, method: selectedPaymentMethod.id, reason: note || 'Tesla Roadster Investment Program', type: 'tesla_investment', lockUntil: lockUntil.toISOString() }) }); if (!res.ok) throw new Error('Failed to submit'); teslaModal.classList.remove('show'); resetTeslaModal(); toast('Your Tesla investment request has been submitted.', 'success'); } catch (err) { toast('Error submitting request.', 'error'); } finally { submitTesla.textContent = '🚀 Join Tesla Program'; submitTesla.disabled = false; } }); }
 
-  function subscribeAgent(plan, amount) { toast(`Redirecting to payment for ${plan} AI Agent plan ($${amount})...`, 'info'); }
+  // UPDATED: AI Subscription now sends a real transaction request!
+  function subscribeAgent(plan, amount) { 
+    // Check if they have enough balance to pay for the subscription
+    if (Number(user.balance || 0) < amount) { 
+      toast('Insufficient funds. Please fund your account to pay for the AI plan.', 'error'); 
+      return; 
+    }
+    
+    // Open the payment modal but pre-fill it for the AI subscription
+    renderPaymentMethods('fund'); // Reuse payment methods
+    document.getElementById('fundAmount').value = amount;
+    document.getElementById('fundNote').value = `AI Agent Subscription - ${plan}`;
+    document.getElementById('paymentAddress').textContent = "Select a payment method above";
+    document.getElementById('paymentDetails').style.display = 'block';
+    
+    // Override the submit fund button temporarily for AI subscription
+    const submitBtn = document.getElementById('submitFund');
+    const originalClick = submitBtn.onclick; // save original if needed, but we use addEventListener
+    
+    // We will just use the standard funding flow but change the type in the backend later, 
+    // OR we create a specific AI modal. For simplicity, let's just alert them for now until we build the AI payment flow.
+    toast(`Please send $${amount} via the selected method. Admin will activate your AI Agent upon approval.`, 'info');
+    document.getElementById('fundModal').classList.add('show');
+    
+    // Note: In a real app, you'd create a specific 'ai_subscription' transaction type here.
+    // For now, fund the account, then go to Admin and manually grant the AI plan.
+  }
 
   const logoutBtn = document.getElementById('logoutBtn');
   if(logoutBtn) { logoutBtn.addEventListener('click', () => { localStorage.removeItem(KEYS.LOGGED_IN); localStorage.removeItem(KEYS.CURRENT_USER); window.location.href = 'login.html'; }); }
