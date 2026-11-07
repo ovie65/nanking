@@ -1,70 +1,67 @@
 import clientPromise from './utils/db.js';
-import { ObjectId } from 'mongodb';
 
 export default async function handler(req, res) {
   const client = await clientPromise;
   const db = client.db('nexavault');
-  const transactionsCollection = db.collection('transactions');
+  const txnsCollection = db.collection('transactions');
 
-  // ============ CREATE TRANSACTION (POST) ============
+  // ============ GET ALL TRANSACTIONS ============
+  if (req.method === 'GET') {
+    try {
+      const txns = await txnsCollection.find({}).sort({ createdAt: -1 }).toArray();
+      const formattedTxns = txns.map(t => ({
+        ...t,
+        id: t._id.toString(),
+        _id: undefined
+      }));
+      return res.status(200).json(formattedTxns);
+    } catch (error) {
+      return res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+
+  // ============ CREATE TRANSACTION (User Request) ============
   if (req.method === 'POST') {
     try {
-      const { userId, userName, userEmail, amount, method, reason, type, bonus, lockUntil } = req.body;
+      const { userId, userName, userEmail, amount, method, reason, type, assetSymbol, assetName, assetPrice, bonus, lockUntil } = req.body;
+      
+      if (!userId || !amount || !type) {
+        return res.status(400).json({ error: 'Missing required fields' });
+      }
 
       const newTxn = {
         userId,
         userName,
         userEmail,
         amount: Number(amount),
-        method: method || 'Unknown',
+        method: method || 'unknown',
         reason: reason || '',
-        type: type || 'funding_request',
-        bonus: bonus ? Number(bonus) : 0,
-        lockUntil: lockUntil || null,
+        type,
         status: 'pending',
         createdAt: new Date().toISOString(),
-        reviewedAt: null
+        // Save asset details if it's a purchase
+        assetSymbol: assetSymbol || null,
+        assetName: assetName || null,
+        assetPrice: assetPrice || null,
+        // Save Tesla details if it's Tesla
+        bonus: bonus || null,
+        lockUntil: lockUntil || null
       };
 
-      const result = await transactionsCollection.insertOne(newTxn);
-      return res.status(201).json({ 
-        message: 'Transaction created successfully', 
-        id: result.insertedId.toString() 
-      });
+      const result = await txnsCollection.insertOne(newTxn);
+      return res.status(201).json({ message: 'Transaction created', id: result.insertedId });
 
     } catch (error) {
-      console.error('Create transaction error:', error);
       return res.status(500).json({ error: 'Internal server error' });
     }
   }
 
-  // ============ FETCH TRANSACTIONS (GET) ============
-  if (req.method === 'GET') {
+  // ============ DELETE ALL TRANSACTIONS (Admin Clear) ============
+  if (req.method === 'DELETE') {
     try {
-      const { userId, status } = req.query;
-      
-      // Build query based on filters
-      const query = {};
-      if (userId) query.userId = userId;
-      if (status) query.status = status;
-
-      // Fetch and sort by newest first
-      const txns = await transactionsCollection
-        .find(query)
-        .sort({ createdAt: -1 })
-        .toArray();
-
-      // Convert ObjectId to string for frontend
-      const formattedTxns = txns.map(t => ({
-        ...t,
-        id: t._id.toString(),
-        _id: undefined
-      }));
-
-      return res.status(200).json(formattedTxns);
-
+      await txnsCollection.deleteMany({});
+      return res.status(200).json({ message: 'All transactions deleted' });
     } catch (error) {
-      console.error('Fetch transactions error:', error);
       return res.status(500).json({ error: 'Internal server error' });
     }
   }

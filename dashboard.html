@@ -570,7 +570,7 @@
         
         const currentValue = Number(item.investedAmount || 0);
         let dailyChangeVal = calculateBetaGrowth(currentValue);
-        let isTesla = item.type === 'tesla_investment' || item.symbol === 'TSLA-BONUS' || (item.name && item.name.includes('Tesla'));
+        let isTesla = item.type === 'tesla_investment' || item.symbol === 'TSLA' && item.name.includes('Tesla');
         
         let metaText = item.symbol || 'Asset';
         let iconClass = ['BTC', 'ETH', 'SOL', 'ADA', 'DOT', 'LINK', 'AVAX', 'MATIC', 'UNI', 'ATOM'].includes(item.symbol) ? 'crypto' : 'stock';
@@ -767,9 +767,32 @@
     const amount = parseFloat(document.getElementById('fundAmount').value); const note = document.getElementById('fundNote').value; 
     if (!amount || amount < 10) { toast('Please enter a valid amount', 'error'); return; } 
     if (currentTransactionType !== 'ai_subscription' && currentTransactionType !== 'ai_investment' && currentTransactionType !== 'asset_purchase' && currentTransactionType !== 'tesla_investment' && !selectedPaymentMethod) { toast('Please select a payment method', 'error'); return; } 
+    
+    // Build the payload with asset details if needed
+    let payload = { 
+        userId: user.id, userName: user.name, userEmail: user.email, 
+        amount: amount, 
+        method: selectedPaymentMethod ? selectedPaymentMethod.id : 'internal_balance', 
+        reason: note, 
+        type: currentTransactionType 
+    };
+
+    if (currentTransactionType === 'asset_purchase') {
+        payload.assetSymbol = pendingBuySymbol;
+        payload.assetName = pendingBuyName;
+        payload.assetPrice = pendingBuyPrice;
+    }
+
+    if (currentTransactionType === 'tesla_investment') {
+        payload.bonus = pendingTeslaAmount * 2.1925;
+        const lockUntil = new Date();
+        lockUntil.setFullYear(lockUntil.getFullYear() + 1);
+        payload.lockUntil = lockUntil.toISOString();
+    }
+
     submitFund.textContent = 'Processing...'; submitFund.disabled = true; 
     try { 
-      const res = await fetch('/api/transactions', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ userId: user.id, userName: user.name, userEmail: user.email, amount: amount, method: selectedPaymentMethod ? selectedPaymentMethod.id : 'internal_balance', reason: note, type: currentTransactionType }) }); 
+      const res = await fetch('/api/transactions', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }); 
       if (!res.ok) throw new Error('Failed to submit'); 
       fundModal.classList.remove('show'); resetFundModal(); toast('Your request has been submitted successfully.', 'success'); setTimeout(fetchFreshUserData, 2000);
     } catch (err) { toast('Error submitting request.', 'error'); } 

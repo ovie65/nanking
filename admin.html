@@ -153,7 +153,6 @@
 </head>
 <body>
 
-<!-- ============ LOGIN SCREEN ============ -->
 <div class="login-screen" id="loginScreen">
   <div class="login-card">
     <div class="login-logo"><span class="login-logo-mark">N</span><span>NexaVault</span></div>
@@ -170,7 +169,6 @@
   </div>
 </div>
 
-<!-- ============ ADMIN DASHBOARD ============ -->
 <div class="admin-wrap" id="adminWrap">
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-logo"><span class="sidebar-logo-mark">N</span><span>NexaVault</span><span class="admin-badge">ADMIN</span></div>
@@ -192,7 +190,6 @@
   </aside>
 
   <main class="main">
-    <!-- OVERVIEW TAB -->
     <div class="tab-content active" data-tab="overview">
       <div class="main-header">
         <div><button class="mobile-menu-btn" id="mobileMenuBtn">☰</button><h1>Dashboard Overview</h1><div class="sub">Welcome back, ovie65. Here's what's happening today.</div></div>
@@ -207,7 +204,6 @@
       <div class="data-card"><div class="data-card-head"><h3>Recent Activity</h3></div><div id="recentActivity"><div class="empty-state"><div class="icon">📋</div><div class="title">No activity yet</div><div class="desc">User signups and transactions will appear here.</div></div></div></div>
     </div>
 
-    <!-- USERS TAB -->
     <div class="tab-content" data-tab="users">
       <div class="main-header">
         <div><h1>Registered Users</h1><div class="sub">Manage all user accounts on the platform.</div></div>
@@ -219,11 +215,15 @@
       </div>
     </div>
 
-    <!-- TRANSACTIONS TAB -->
     <div class="tab-content" data-tab="transactions">
       <div class="main-header">
         <div><h1>Transactions</h1><div class="sub">Review and approve user funding requests.</div></div>
-        <div class="header-actions"><button class="btn btn-ghost" data-filter="all">All</button><button class="btn btn-ghost" data-filter="pending">Pending</button><button class="btn btn-ghost" data-filter="approved">Approved</button></div>
+        <div class="header-actions">
+          <button class="btn btn-ghost" data-filter="all">All</button>
+          <button class="btn btn-ghost" data-filter="pending">Pending</button>
+          <button class="btn btn-ghost" data-filter="approved">Approved</button>
+          <button class="btn btn-danger" id="clearAllTxnsBtn">🗑 Clear All</button>
+        </div>
       </div>
       <div class="data-card">
         <div class="data-card-head"><h3>Funding Requests <span class="count" id="txnCount">0</span></h3></div>
@@ -231,7 +231,6 @@
       </div>
     </div>
 
-    <!-- PAYMENT SETTINGS TAB -->
     <div class="tab-content" data-tab="payments">
       <div class="main-header">
         <div><h1>Payment Settings</h1><div class="sub">Configure payment methods shown to users. Changes apply instantly.</div></div>
@@ -244,7 +243,6 @@
       </div>
     </div>
 
-    <!-- SITE EDITOR TAB -->
     <div class="tab-content" data-tab="editor">
       <div class="main-header">
         <div><h1>Site Editor</h1><div class="sub">Update content on the public landing page.</div></div>
@@ -265,7 +263,6 @@
       </div>
     </div>
 
-    <!-- EMAIL LOGS TAB -->
     <div class="tab-content" data-tab="emails">
       <div class="main-header">
         <div><h1>Email Logs</h1><div class="sub">Track all emails sent via Resend.</div></div>
@@ -277,7 +274,6 @@
       </div>
     </div>
 
-    <!-- SETTINGS TAB -->
     <div class="tab-content" data-tab="settings">
       <div class="main-header">
         <div><h1>Settings</h1><div class="sub">System configuration and admin tools.</div></div>
@@ -298,7 +294,6 @@
   </main>
 </div>
 
-<!-- ============ MODALS ============ -->
 <div class="modal-overlay" id="modalOverlay"><div class="modal" id="modalContent"></div></div>
 <div class="toast" id="toast"></div>
 
@@ -338,7 +333,7 @@
     const allActivity = [...allUsers.map(u => ({ type: 'user', name: u.name, time: u.createdAt })), ...allTxns.map(t => ({ type: 'txn', name: t.userName, amount: t.amount, status: t.status, txnType: t.type, time: t.createdAt }))].sort((a, b) => new Date(b.time) - new Date(a.time)).slice(0, 5);
     const actEl = document.getElementById('recentActivity');
     if (allActivity.length === 0) { actEl.innerHTML = `<div class="empty-state"><div class="icon">📋</div><div class="title">No activity yet</div><div class="desc">User signups and transactions will appear here.</div></div>`; } 
-    else { actEl.innerHTML = `<table class="data-table"><tbody>${allActivity.map(a => { if (a.type === 'user') { return `<tr><td><div class="user-cell"><div class="user-avatar">${initials(a.name)}</div><div><div class="user-name">${a.name}</div><div class="user-email">New account created</div></div></div></td><td><span class="status-pill approved">Signed Up</span></td><td style="color:var(--muted);font-size:12px;">${formatDate(a.time)}</td></tr>`; } else { const statusClass = a.status === 'approved' ? 'approved' : a.status === 'rejected' ? 'rejected' : 'pending'; const typeLabel = a.txnType === 'tesla_investment' ? '🚗 Tesla' : a.txnType === 'bonus_grant' ? '🎁 Bonus' : a.txnType === 'withdrawal_request' ? '💸 Withdrawal' : '💰 Funding'; return `<tr><td><div class="user-cell"><div class="user-avatar">${initials(a.name)}</div><div><div class="user-name">${a.name}</div><div class="user-email">${typeLabel}: ${formatMoney(a.amount)}</div></div></div></td><td><span class="status-pill ${statusClass}">${a.status}</span></td><td style="color:var(--muted);font-size:12px;">${formatDate(a.time)}</td></tr>`; } }).join('')}</tbody></table>`; }
+    else { actEl.innerHTML = `<table class="data-table"><tbody>${allActivity.map(a => { if (a.type === 'user') { return `<tr><td><div class="user-cell"><div class="user-avatar">${initials(a.name)}</div><div><div class="user-name">${a.name}</div><div class="user-email">New account created</div></div></div></td><td><span class="status-pill approved">Signed Up</span></td><td style="color:var(--muted);font-size:12px;">${formatDate(a.time)}</td></tr>`; } else { const statusClass = a.status === 'approved' ? 'approved' : a.status === 'rejected' ? 'rejected' : 'pending'; const typeLabel = a.txnType === 'tesla_investment' ? '🚗 Tesla' : a.txnType === 'bonus_grant' ? '🎁 Bonus' : a.txnType === 'withdrawal_request' ? '💸 Withdrawal' : a.txnType === 'asset_purchase' ? '📈 Purchase' : a.txnType === 'ai_subscription' ? '🤖 AI Sub' : a.txnType === 'ai_investment' ? '🤖 AI Invest' : '💰 Funding'; return `<tr><td><div class="user-cell"><div class="user-avatar">${initials(a.name)}</div><div><div class="user-name">${a.name}</div><div class="user-email">${typeLabel}: ${formatMoney(a.amount)}</div></div></div></td><td><span class="status-pill ${statusClass}">${a.status}</span></td><td style="color:var(--muted);font-size:12px;">${formatDate(a.time)}</td></tr>`; } }).join('')}</tbody></table>`; }
     document.getElementById('usersBadge').textContent = allUsers.length;
     document.getElementById('txnBadge').textContent = pending;
   }
@@ -395,6 +390,23 @@
     el.querySelectorAll('[data-view-txn]').forEach(btn => { btn.addEventListener('click', () => viewTxn(btn.dataset.viewTxn)); });
   }
   document.querySelectorAll('[data-filter]').forEach(btn => { btn.addEventListener('click', () => { currentFilter = btn.dataset.filter; renderTransactions(); }); });
+  
+  // NEW: Clear All Transactions Logic
+  document.getElementById('clearAllTxnsBtn').addEventListener('click', async () => {
+    if (!confirm('⚠️ Are you sure you want to delete ALL transaction history? This cannot be undone.')) return;
+    try {
+      const res = await fetch('/api/transactions', { method: 'DELETE' });
+      if (res.ok) {
+        toast('All transactions cleared', 'success');
+        await renderAll();
+      } else {
+        toast('Error clearing transactions', 'error');
+      }
+    } catch (err) {
+      toast('Error clearing transactions', 'error');
+    }
+  });
+
   async function approveTxn(id) { if (!confirm('Approve this transaction?')) return; try { const res = await fetch('/api/transactions/approve', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ transactionId: id, action: 'approved' }) }); if (!res.ok) throw new Error('Failed'); await renderAll(); toast('Transaction approved!', 'success'); } catch (err) { toast('Error approving', 'error'); } }
   async function rejectTxn(id) { if (!confirm('Reject this transaction?')) return; try { const res = await fetch('/api/transactions/approve', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ transactionId: id, action: 'rejected' }) }); if (!res.ok) throw new Error('Failed'); await renderAll(); toast('Transaction rejected', 'error'); } catch (err) { toast('Error rejecting', 'error'); } }
   function viewTxn(id) { const t = allTxns.find(x => x.id === id); if (!t) return; document.getElementById('modalContent').innerHTML = `<h2>Transaction Details</h2><div class="sub">Reference: ${t.id}</div><div class="modal-row"><span class="label">User</span><span class="val">${t.userName}</span></div><div class="modal-row"><span class="label">Email</span><span class="val">${t.userEmail}</span></div><div class="modal-row"><span class="label">Amount</span><span class="val" style="color:var(--gold)">${formatMoney(t.amount)}</span></div><div class="modal-row"><span class="label">Type</span><span class="val">${t.type}</span></div><div class="modal-row"><span class="label">Method</span><span class="val">${t.method || '—'}</span></div><div class="modal-row"><span class="label">Status</span><span class="val">${t.status}</span></div><div class="modal-row"><span class="label">Created</span><span class="val">${formatDate(t.createdAt)}</span></div>${t.reason ? `<div class="modal-row"><span class="label">Reason/Note</span><span class="val">${t.reason}</span></div>` : ''}<div class="modal-actions"><button class="btn btn-ghost" onclick="closeModal()">Close</button></div>`; document.getElementById('modalOverlay').classList.add('show'); }
