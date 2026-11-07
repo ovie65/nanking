@@ -516,6 +516,17 @@
     return portfolioBalance * (dailyPercent / 100);
   }
 
+  // THE 7 BETA ASSETS THE AI PICKS
+  const BETA_AI_ASSETS = [
+    { symbol: 'BTC', name: 'Bitcoin', type: 'crypto', allocation: 0.30 },
+    { symbol: 'ETH', name: 'Ethereum', type: 'crypto', allocation: 0.20 },
+    { symbol: 'SOL', name: 'Solana', type: 'crypto', allocation: 0.10 },
+    { symbol: 'NVDA', name: 'NVIDIA', type: 'stock', allocation: 0.15 },
+    { symbol: 'AAPL', name: 'Apple', type: 'stock', allocation: 0.10 },
+    { symbol: 'TSLA', name: 'Tesla', type: 'stock', allocation: 0.10 },
+    { symbol: 'LINK', name: 'Chainlink', type: 'crypto', allocation: 0.05 }
+  ];
+
   const portfolioTrigger = document.getElementById('portfolioTrigger'); const portfolioDrawer = document.getElementById('portfolioDrawer'); const portfolioOverlay = document.getElementById('portfolioOverlay'); const drawerClose = document.getElementById('drawerClose'); const drawerBackBtn = document.getElementById('drawerBackBtn');
   
   function toggleDetails(sectionId) {
@@ -530,35 +541,102 @@
       const res = await fetch(`/api/users/me?userId=${user.id}`); if (!res.ok) throw new Error('Failed to fetch'); const freshData = await res.json(); user = freshData; updateBalance();
       const portfolio = freshData.portfolio || []; let totalNetWorth = Number(freshData.balance || 0); let totalDailyProfit = 0; let hasAiAssets = false; let aiPortfolioBalance = Number(freshData.aiPortfolioBalance || 0); let aiTotalValue = 0; let aiTotalProfit = 0; let manualTotalValue = 0; let manualTotalProfit = 0;
       const aiAssets = []; const manualAssets = [];
-      if (portfolio.length === 0 && aiPortfolioBalance === 0) { manualPortfolioSummary.innerHTML = '<div class="empty-state">No assets yet.<br>Go to the Markets tab to buy your first asset!</div>'; } 
-      else {
-        portfolio.forEach(item => {
-          const isAi = item.type === 'ai_managed'; if (isAi) hasAiAssets = true;
-          const currentValue = Number(item.investedAmount || 0); const dailyChangeVal = calculateBetaGrowth(currentValue);
-          totalNetWorth += currentValue; totalDailyProfit += dailyChangeVal;
-          const iconClass = isAi ? 'ai' : (['BTC', 'ETH', 'SOL', 'ADA', 'DOT', 'LINK', 'AVAX', 'MATIC', 'UNI', 'ATOM'].includes(item.symbol) ? 'crypto' : 'stock');
-          const iconChar = isAi ? '🤖' : item.symbol.charAt(0); const changeClass = dailyChangeVal >= 0 ? 'up' : 'down'; const changeSign = dailyChangeVal >= 0 ? '+' : '';
-          const assetData = { name: item.name, symbol: item.symbol, iconClass: iconClass, iconChar: iconChar, value: currentValue, change: dailyChangeVal, changeClass: changeClass, changeSign: changeSign };
-          if (isAi) { aiAssets.push(assetData); aiTotalValue += currentValue; aiTotalProfit += dailyChangeVal; } else { manualAssets.push(assetData); manualTotalValue += currentValue; manualTotalProfit += dailyChangeVal; }
-        });
-      }
+      
+      // Process actual database assets
+      portfolio.forEach(item => {
+        const isAi = item.type === 'ai_managed'; if (isAi) hasAiAssets = true;
+        const currentValue = Number(item.investedAmount || 0); const dailyChangeVal = calculateBetaGrowth(currentValue);
+        totalNetWorth += currentValue; totalDailyProfit += dailyChangeVal;
+        const iconClass = isAi ? 'ai' : (['BTC', 'ETH', 'SOL', 'ADA', 'DOT', 'LINK', 'AVAX', 'MATIC', 'UNI', 'ATOM'].includes(item.symbol) ? 'crypto' : 'stock');
+        const iconChar = isAi ? '🤖' : item.symbol.charAt(0); const changeClass = dailyChangeVal >= 0 ? 'up' : 'down'; const changeSign = dailyChangeVal >= 0 ? '+' : '';
+        const assetData = { name: item.name, symbol: item.symbol, iconClass: iconClass, iconChar: iconChar, value: currentValue, change: dailyChangeVal, changeClass: changeClass, changeSign: changeSign };
+        if (isAi) { aiAssets.push(assetData); aiTotalValue += currentValue; aiTotalProfit += dailyChangeVal; } else { manualAssets.push(assetData); manualTotalValue += currentValue; manualTotalProfit += dailyChangeVal; }
+      });
+
       totalValueEl.textContent = '$' + formatMoney(totalNetWorth);
       const totalChangeClass = totalDailyProfit >= 0 ? 'up' : 'down'; const totalChangeSign = totalDailyProfit >= 0 ? '+' : '';
       totalChangeEl.innerHTML = `<span class="holding-change ${totalChangeClass}">${totalChangeSign}$${formatMoney(totalDailyProfit)} today</span>`;
+      
+      // AI PORTFOLIO LOGIC (Threshold set to $100)
       if (user.aiAgentActive) {
         aiSectionTitle.style.display = 'flex'; aiInfoBox.style.display = 'block';
-        if (aiAssets.length > 0 || aiPortfolioBalance > 0) {
+        
+        if (aiPortfolioBalance >= 100) {
           const aiChangeClass = aiTotalProfit >= 0 ? 'up' : 'down'; const aiChangeSign = aiTotalProfit >= 0 ? '+' : '';
-          aiPortfolioSummary.innerHTML = `<div class="portfolio-summary-card"><div class="summary-header"><div class="summary-title">🤖 AI Agent Portfolio</div></div><div class="summary-stats"><div class="summary-stat"><div class="summary-stat-label">Total Value</div><div class="summary-stat-value">$${formatMoney(aiTotalValue)}</div></div><div class="summary-stat"><div class="summary-stat-label">Today's Profit</div><div class="summary-stat-value ${aiChangeClass}">${aiChangeSign}$${formatMoney(aiTotalProfit)}</div></div></div><button class="view-details-btn" data-toggle="aiAssetDetails" onclick="toggleDetails('aiAssetDetails')">👁 View Details</button><button class="topup-btn" onclick="openTopUpModal()">➕ Top Up Portfolio</button><div id="aiAssetDetails" class="asset-details">${aiAssets.map(asset => `<div class="asset-item"><div class="asset-left"><div class="asset-icon ${asset.iconClass}">${asset.iconChar}</div><div><div class="asset-name">${asset.name}</div><div class="asset-meta">${asset.symbol}</div></div></div><div class="asset-right"><div class="asset-value">$${formatMoney(asset.value)}</div><div class="asset-change ${asset.changeClass}">${asset.changeSign}$${formatMoney(asset.change)}</div></div></div>`).join('')}</div></div>`;
-        } else { aiPortfolioSummary.innerHTML = '<div class="empty-state">AI Agent is ready. Allocate funds above to begin trading.</div>'; }
+          
+          const betaAssetsHtml = BETA_AI_ASSETS.map(asset => {
+            const assetValue = aiPortfolioBalance * asset.allocation;
+            const assetChange = calculateBetaGrowth(assetValue);
+            const changeClass = assetChange >= 0 ? 'up' : 'down';
+            const changeSign = assetChange >= 0 ? '+' : '';
+            const iconClass = asset.type === 'crypto' ? 'crypto' : 'stock';
+            const iconChar = asset.symbol.charAt(0);
+            
+            return `<div class="asset-item">
+              <div class="asset-left">
+                <div class="asset-icon ${iconClass}">${iconChar}</div>
+                <div><div class="asset-name">${asset.name}</div><div class="asset-meta">${asset.symbol} · ${(asset.allocation * 100).toFixed(0)}% Allocation</div></div>
+              </div>
+              <div class="asset-right">
+                <div class="asset-value">$${formatMoney(assetValue)}</div>
+                <div class="asset-change ${changeClass}">${changeSign}$${formatMoney(assetChange)}</div>
+              </div>
+            </div>`;
+          }).join('');
+
+          aiPortfolioSummary.innerHTML = `
+            <div class="portfolio-summary-card">
+              <div class="summary-header"><div class="summary-title">🤖 AI Agent Portfolio</div></div>
+              <div class="summary-stats">
+                <div class="summary-stat"><div class="summary-stat-label">Total Value</div><div class="summary-stat-value">$${formatMoney(aiPortfolioBalance)}</div></div>
+                <div class="summary-stat"><div class="summary-stat-label">Today's Profit</div><div class="summary-stat-value ${aiChangeClass}">${aiChangeSign}$${formatMoney(aiTotalProfit)}</div></div>
+              </div>
+              <button class="view-details-btn" data-toggle="aiAssetDetails" onclick="toggleDetails('aiAssetDetails')">👁 View Details</button>
+              <button class="topup-btn" onclick="openTopUpModal()">➕ Top Up Portfolio</button>
+              <div id="aiAssetDetails" class="asset-details">${betaAssetsHtml}</div>
+            </div>
+          `;
+        } else if (aiPortfolioBalance > 0 && aiPortfolioBalance < 100) {
+          aiPortfolioSummary.innerHTML = '<div class="empty-state">Minimum AI allocation is $100. Please top up your portfolio to begin trading.</div>';
+        } else { 
+          aiPortfolioSummary.innerHTML = '<div class="empty-state">AI Agent is ready. Allocate funds above to begin trading.</div>'; 
+        }
       } else {
         aiSectionTitle.style.display = 'flex'; aiInfoBox.style.display = 'none';
         aiPortfolioSummary.innerHTML = `<div class="empty-state" style="background: rgba(124,92,255,0.05); border: 1px solid var(--accent); border-radius: 12px; padding: 20px;"><div style="font-size: 24px; margin-bottom: 8px;">🔒</div><strong style="color: var(--text); display: block; margin-bottom: 4px;">AI Portfolio Locked</strong>Subscribe to unlock AI-managed investments.<button onclick="switchTab(tabAgent, viewAgent); closeDrawer();" style="margin-top: 12px; padding: 8px 16px; background: var(--grad-2); color: #fff; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">View Plans</button></div>`;
       }
+      
+      // PERSONAL PORTFOLIO LOGIC (Mirrors AI Logic)
       if (manualAssets.length > 0) {
         const manualChangeClass = manualTotalProfit >= 0 ? 'up' : 'down'; const manualChangeSign = manualTotalProfit >= 0 ? '+' : '';
-        manualPortfolioSummary.innerHTML = `<div class="portfolio-summary-card"><div class="summary-header"><div class="summary-title">🛠️ Personal Holdings</div></div><div class="summary-stats"><div class="summary-stat"><div class="summary-stat-label">Total Value</div><div class="summary-stat-value">$${formatMoney(manualTotalValue)}</div></div><div class="summary-stat"><div class="summary-stat-label">Today's Profit</div><div class="summary-stat-value ${manualChangeClass}">${manualChangeSign}$${formatMoney(manualTotalProfit)}</div></div></div><button class="view-details-btn" data-toggle="manualAssetDetails" onclick="toggleDetails('manualAssetDetails')">👁 View Details</button><div id="manualAssetDetails" class="asset-details">${manualAssets.map(asset => `<div class="asset-item"><div class="asset-left"><div class="asset-icon ${asset.iconClass}">${asset.iconChar}</div><div><div class="asset-name">${asset.name}</div><div class="asset-meta">${asset.symbol}</div></div></div><div class="asset-right"><div class="asset-value">$${formatMoney(asset.value)}</div><div class="asset-change ${asset.changeClass}">${asset.changeSign}$${formatMoney(asset.change)}</div></div></div>`).join('')}</div></div>`;
+        manualPortfolioSummary.innerHTML = `
+          <div class="portfolio-summary-card">
+            <div class="summary-header"><div class="summary-title">🛠️ Personal Holdings</div></div>
+            <div class="summary-stats">
+              <div class="summary-stat"><div class="summary-stat-label">Total Value</div><div class="summary-stat-value">$${formatMoney(manualTotalValue)}</div></div>
+              <div class="summary-stat"><div class="summary-stat-label">Today's Profit</div><div class="summary-stat-value ${manualChangeClass}">${manualChangeSign}$${formatMoney(manualTotalProfit)}</div></div>
+            </div>
+            <button class="view-details-btn" data-toggle="manualAssetDetails" onclick="toggleDetails('manualAssetDetails')">👁 View Details</button>
+            <div id="manualAssetDetails" class="asset-details">
+              ${manualAssets.map(asset => `
+                <div class="asset-item">
+                  <div class="asset-left">
+                    <div class="asset-icon ${asset.iconClass}">${asset.iconChar}</div>
+                    <div><div class="asset-name">${asset.name}</div><div class="asset-meta">${asset.symbol}</div></div>
+                  </div>
+                  <div class="asset-right">
+                    <div class="asset-value">$${formatMoney(asset.value)}</div>
+                    <div class="asset-change ${asset.changeClass}">${asset.changeSign}$${formatMoney(asset.change)}</div>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      } else {
+        manualPortfolioSummary.innerHTML = '<div class="empty-state">No personal assets yet.<br>Go to the Markets tab to buy your first stock or crypto!</div>';
       }
+
     } catch (err) { console.error('Portfolio fetch error:', err); manualPortfolioSummary.innerHTML = '<div class="empty-state" style="color:var(--red);">Error loading portfolio.</div>'; }
   }
 
@@ -657,7 +735,6 @@
     renderPaymentMethods('fund'); document.getElementById('fundModal').classList.add('show');
   }
 
-  // TOP UP LOGIC
   let pendingTopUpAmount = 0;
   function openTopUpModal() { document.getElementById('topupAmount').value = ''; document.getElementById('topupModal').classList.add('show'); }
   
@@ -669,7 +746,6 @@
     
     if (Number(user.balance || 0) < amount) {
       toast(`Insufficient balance. You need $${formatMoney(amount)} but only have $${formatMoney(user.balance)}. Please fund your account first.`, 'error');
-      // Automatically open funding modal for them
       currentTransactionType = 'funding_request';
       document.getElementById('fundModalTitle').textContent = '💰 Fund Your Account'; 
       document.getElementById('fundModalSub').textContent = `Add at least $${formatMoney(amount)} to your balance to complete the top up.`;
