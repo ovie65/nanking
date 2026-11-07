@@ -9,7 +9,6 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/inter@5.0.0/index.css" />
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/space-grotesk@5.0.0/index.css" />
 <style>
-  /* ============ RESET & BASE ============ */
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   html, body { overflow-x: hidden; max-width: 100vw; }
   html { scroll-behavior: smooth; }
@@ -61,16 +60,7 @@
   .drawer-section-title::before { content: ''; width: 4px; height: 4px; border-radius: 50%; background: var(--accent-2); }
   .ai-section-title { color: var(--accent-2); border-bottom-color: rgba(0,212,255,0.2); }
   .ai-section-title::before { background: var(--gold); box-shadow: 0 0 8px var(--gold); }
-  
-  /* NEW: Collapsible Portfolio Cards */
-  .portfolio-summary-card {
-    background: linear-gradient(135deg, rgba(124,92,255,0.1), rgba(0,212,255,0.05));
-    border: 1px solid var(--line);
-    border-radius: 14px;
-    padding: 20px;
-    margin-bottom: 16px;
-    transition: all 0.3s ease;
-  }
+  .portfolio-summary-card { background: linear-gradient(135deg, rgba(124,92,255,0.1), rgba(0,212,255,0.05)); border: 1px solid var(--line); border-radius: 14px; padding: 20px; margin-bottom: 16px; transition: all 0.3s ease; }
   .portfolio-summary-card:hover { border-color: var(--line-2); }
   .summary-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
   .summary-title { font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
@@ -80,26 +70,19 @@
   .summary-stat-value { font-family: 'Space Grotesk', sans-serif; font-size: 18px; font-weight: 700; color: var(--text); }
   .summary-stat-value.up { color: var(--green); }
   .summary-stat-value.down { color: var(--red); }
-  .view-details-btn {
-    width: 100%; padding: 10px; background: rgba(255,255,255,0.05); border: 1px solid var(--line);
-    border-radius: 8px; color: var(--text); font-size: 13px; font-weight: 600; cursor: pointer;
-    transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 6px;
-  }
+  .view-details-btn { width: 100%; padding: 10px; background: rgba(255,255,255,0.05); border: 1px solid var(--line); border-radius: 8px; color: var(--text); font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 6px; margin-bottom: 8px; }
   .view-details-btn:hover { background: rgba(255,255,255,0.08); border-color: var(--line-2); }
   .view-details-btn.active { background: rgba(124,92,255,0.15); border-color: var(--accent); }
-  .asset-details {
-    display: none; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--line);
-    animation: slideDown 0.3s ease;
-  }
+  .topup-btn { width: 100%; padding: 10px; background: rgba(245,196,81,0.1); border: 1px solid rgba(245,196,81,0.3); border-radius: 8px; color: var(--gold); font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 6px; }
+  .topup-btn:hover { background: rgba(245,196,81,0.2); border-color: var(--gold); }
+  .asset-details { display: none; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--line); animation: slideDown 0.3s ease; }
   .asset-details.show { display: block; }
   @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
   .asset-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; background: rgba(255,255,255,0.02); border: 1px solid var(--line); border-radius: 10px; margin-bottom: 8px; }
   .asset-item:hover { background: rgba(255,255,255,0.04); border-color: var(--line-2); }
   .asset-left { display: flex; align-items: center; gap: 10px; }
-  .asset-icon { width: 32px; height: 32px; border-radius: 8px; display: grid; place-items: center; font-weight: 800; font-size: 13px; }
-  .asset-icon.crypto { background: linear-gradient(135deg, #f7931a, #ffb84d); color: #05060a; }
-  .asset-icon.stock { background: linear-gradient(135deg, #00d4ff, #7c5cff); color: #fff; }
-  .asset-icon.ai { background: linear-gradient(135deg, #7c5cff, #00d4ff); color: #fff; }
+  .asset-icon { width: 36px; height: 36px; border-radius: 50%; object-fit: contain; background: #fff; padding: 4px; }
+  .asset-icon.fallback { background: linear-gradient(135deg, #7c5cff, #00d4ff); display: grid; place-items: center; color: #fff; font-weight: 800; font-size: 14px; padding: 0; }
   .asset-name { font-size: 13px; font-weight: 600; }
   .asset-meta { font-size: 10px; color: var(--muted); }
   .asset-right { text-align: right; }
@@ -107,7 +90,6 @@
   .asset-change { font-size: 10px; font-weight: 600; }
   .asset-change.up { color: var(--green); }
   .asset-change.down { color: var(--red); }
-  
   .empty-state { text-align: center; padding: 24px 16px; color: var(--muted); font-size: 12px; line-height: 1.6; }
   .ai-info-box { background: linear-gradient(135deg, rgba(124,92,255,0.08), rgba(0,212,255,0.05)); border: 1px solid rgba(0,212,255,0.2); border-radius: 12px; padding: 16px; margin-bottom: 16px; }
   .ai-info-box h4 { font-size: 13px; font-weight: 700; color: var(--accent-2); margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
@@ -198,10 +180,8 @@
   .asset-card:hover { border-color: var(--line-2); transform: translateY(-3px); box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
   .asset-card.tesla-special { background: linear-gradient(135deg, rgba(232,33,39,0.15), rgba(255,68,68,0.1)); border-color: rgba(232,33,39,0.3); grid-column: 1 / -1; }
   .asset-card.tesla-special::before { content: '⭐ BONUS PROGRAM'; position: absolute; top: 12px; right: 12px; font-size: 10px; padding: 4px 10px; background: var(--grad-tesla); color: #fff; border-radius: 100px; font-weight: 700; letter-spacing: 0.1em; }
-  .asset-icon { width: 44px; height: 44px; border-radius: 11px; display: grid; place-items: center; font-size: 20px; font-weight: 800; margin-bottom: 14px; }
-  .asset-icon.crypto { background: linear-gradient(135deg, #f7931a, #ffb84d); color: #05060a; }
-  .asset-icon.stock { background: linear-gradient(135deg, #00d4ff, #7c5cff); color: #fff; }
-  .asset-icon.tesla { background: #000; border: 2px solid var(--tesla-red); color: var(--tesla-red); font-size: 24px; font-weight: 900; }
+  .asset-icon-lg { width: 48px; height: 48px; border-radius: 50%; object-fit: contain; background: #fff; padding: 6px; margin-bottom: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+  .asset-icon-lg.fallback { background: linear-gradient(135deg, #00d4ff, #7c5cff); display: grid; place-items: center; color: #fff; font-weight: 800; font-size: 18px; padding: 0; box-shadow: none; }
   .asset-name { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
   .asset-type { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 12px; }
   .asset-price { font-family: 'Space Grotesk', sans-serif; font-size: 20px; font-weight: 700; margin-bottom: 4px; }
@@ -297,7 +277,6 @@
     <div class="drawer-total-change" id="drawerTotalChange">Loading...</div>
   </div>
   
-  <!-- AI PORTFOLIO SECTION -->
   <div class="drawer-section-title ai-section-title" id="aiSectionTitle" style="display:none;">🤖 AI Agent Managed Portfolio</div>
   <div id="aiInfoBox" style="display:none;">
     <div class="win-rate-badge">85% AI Win Rate</div>
@@ -312,10 +291,8 @@
     </div>
   </div>
   
-  <!-- AI Portfolio Summary Card -->
   <div id="aiPortfolioSummary" style="display:none;"></div>
   
-  <!-- Manual Portfolio Summary Card -->
   <div class="drawer-section-title">🛠️ Your Personal Holdings</div>
   <div id="manualPortfolioSummary"></div>
 
@@ -323,7 +300,7 @@
     <div class="dot"></div>
     <div>
       <div style="font-weight: 600; margin-bottom: 2px;">Live Market Data</div>
-      <div style="font-size: 11px; color: var(--muted);">Powered by CoinGecko API</div>
+      <div style="font-size: 11px; color: var(--muted);">Powered by CoinGecko & Finnhub</div>
     </div>
   </div>
 
@@ -351,7 +328,7 @@
       </div>
     </div>
     <div class="ai-status">
-      <div class="ai-icon"></div>
+      <div class="ai-icon">🤖</div>
       <div class="ai-info"><div class="ai-title">Your AI Mini-Worker is Active</div><div class="ai-desc">Autonomous agent monitoring markets 24/7 and optimizing your portfolio</div></div>
       <div class="ai-stats"><div class="ai-stat"><div class="ai-stat-val">2,847</div><div class="ai-stat-lbl">Signals/Day</div></div><div class="ai-stat"><div class="ai-stat-val">99.8%</div><div class="ai-stat-lbl">Uptime</div></div></div>
     </div>
@@ -406,7 +383,6 @@
   </div>
 </div>
 
-<!-- ============ MODALS ============ -->
 <div class="modal-overlay" id="fundModal"><div class="modal">
   <h2 id="fundModalTitle">💰 Fund Your Account</h2><div class="sub" id="fundModalSub">Choose a payment method and send funds to activate your account.</div>
   <div class="modal-field"><label>Amount (USD)</label><input type="number" id="fundAmount" step="0.01" min="100" placeholder="5000.00" /></div>
@@ -419,7 +395,7 @@
 <div class="modal-overlay" id="withdrawModal"><div class="modal">
   <h2>💸 Withdraw Funds</h2><div class="sub">Request a withdrawal to your external wallet or bank account.</div>
   <div class="modal-field"><label>Withdrawal Amount (USD)</label><input type="number" id="withdrawAmount" step="0.01" min="50" placeholder="1000.00" /></div>
-  <div class="modal-field"><label>Withdrawal Method</label><select id="withdrawMethod"><option value="btc"> Bitcoin (BTC)</option><option value="bank">🏦 Bank Transfer</option></select></div>
+  <div class="modal-field"><label>Withdrawal Method</label><select id="withdrawMethod"><option value="btc">₿ Bitcoin (BTC)</option><option value="bank">🏦 Bank Transfer</option></select></div>
   <div class="modal-field"><label id="withdrawDestLabel">Your Bitcoin Address</label><textarea id="withdrawDestination" placeholder="Enter your BTC wallet address..."></textarea></div>
   <div class="modal-field"><label>Reference Note (optional)</label><textarea id="withdrawNote" placeholder="Add a note for your records..."></textarea></div>
   <div class="modal-actions"><button class="btn btn-ghost" id="cancelWithdraw">Cancel</button><button class="btn btn-primary" id="submitWithdraw">Submit Withdrawal</button></div>
@@ -457,6 +433,24 @@
   </div>
 </div>
 
+<div class="modal-overlay" id="topupModal"><div class="modal">
+  <h2>➕ Top Up AI Portfolio</h2><div class="sub">Enter the amount you want to add to your AI Agent portfolio.</div>
+  <div class="modal-field"><label>Top Up Amount (USD)</label><input type="number" id="topupAmount" step="0.01" min="100" placeholder="2000.00" /></div>
+  <div class="modal-actions"><button class="btn btn-ghost" onclick="document.getElementById('topupModal').classList.remove('show')">Cancel</button><button class="btn btn-primary" onclick="processTopUpChoice()">Continue</button></div>
+</div></div>
+
+<div class="modal-overlay" id="topupChoiceModal">
+  <div class="modal" style="text-align: center;">
+    <h2>How would you like to top up?</h2>
+    <div class="sub">Adding <span id="topupChoiceAmount" style="color: var(--text);">$2000</span> to your AI Portfolio</div>
+    <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 20px;">
+      <button class="btn btn-primary" style="width: 100%; padding: 14px; justify-content: center;" onclick="confirmTopUpBalance()">💳 Use Main Balance</button>
+      <button class="btn btn-ghost" style="width: 100%; padding: 14px; justify-content: center;" onclick="chooseFundForTopUp()">💰 Fund Account First</button>
+    </div>
+    <div class="modal-actions" style="justify-content: center; margin-top: 20px;"><button class="btn btn-ghost" onclick="document.getElementById('topupChoiceModal').classList.remove('show')">Cancel</button></div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -487,8 +481,27 @@
   tabMarkets.addEventListener('click', () => switchTab(tabMarkets, viewMarkets));
 
   let livePrices = {};
+  const FINNHUB_API_KEY = 'dbnhuehr01qpqmfjuc6gdbnhuehr01qpqmfjuc70';
+  
   async function fetchLivePrices() {
-    try { const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana,cardano,polkadot,chainlink,avalanche-2&vs_currencies=usd&include_24hr_change=true'); const data = await res.json(); const map = { bitcoin: 'BTC', ethereum: 'ETH', solana: 'SOL', cardano: 'ADA', polkadot: 'DOT', chainlink: 'LINK', 'avalanche-2': 'AVAX' }; for (const [id, info] of Object.entries(data)) { if (map[id]) { livePrices[map[id]] = { price: info.usd, change24h: info.usd_24h_change }; } } } catch (err) { livePrices = { BTC: { price: 67000, change24h: 2.5 }, ETH: { price: 3500, change24h: 1.2 }, SOL: { price: 170, change24h: -0.5 } }; }
+    try {
+      const cryptoRes = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana,cardano,polkadot,chainlink,avalanche-2,polygon,uniswap,cosmos&vs_currencies=usd&include_24hr_change=true');
+      const cryptoData = await cryptoRes.json();
+      const cryptoMap = { bitcoin: 'BTC', ethereum: 'ETH', solana: 'SOL', cardano: 'ADA', polkadot: 'DOT', chainlink: 'LINK', 'avalanche-2': 'AVAX', polygon: 'MATIC', uniswap: 'UNI', cosmos: 'ATOM' };
+      for (const [id, info] of Object.entries(cryptoData)) { if (cryptoMap[id]) { livePrices[cryptoMap[id]] = { price: info.usd, change24h: info.usd_24h_change }; } }
+    } catch (err) { console.warn('CoinGecko API failed', err); }
+
+    try {
+      const stockSymbols = ['TSLA', 'NVDA', 'AAPL', 'MSFT', 'AMZN', 'GOOGL', 'META', 'NFLX', 'AMD'];
+      const stockPromises = stockSymbols.map(sym => fetch(`https://finnhub.io/api/v1/quote?symbol=${sym}&token=${FINNHUB_API_KEY}`).then(res => res.json()));
+      const stockResults = await Promise.all(stockPromises);
+      stockSymbols.forEach((sym, index) => {
+        const data = stockResults[index];
+        if (data && data.c > 0) { livePrices[sym] = { price: data.c, change24h: data.dp }; } 
+        else { const fallbacks = { TSLA: 248, NVDA: 875, AAPL: 189, MSFT: 412, AMZN: 178, GOOGL: 142, META: 485, NFLX: 623, AMD: 168 }; livePrices[sym] = { price: fallbacks[sym], change24h: (Math.random() - 0.5) * 2 }; }
+      });
+    } catch (err) { console.warn('Finnhub API failed', err); }
+    renderTicker(); renderMarket();
   }
   fetchLivePrices(); setInterval(fetchLivePrices, 60000); 
 
@@ -502,209 +515,52 @@
   const portfolioTrigger = document.getElementById('portfolioTrigger'); const portfolioDrawer = document.getElementById('portfolioDrawer'); const portfolioOverlay = document.getElementById('portfolioOverlay'); const drawerClose = document.getElementById('drawerClose'); const drawerBackBtn = document.getElementById('drawerBackBtn');
   
   function toggleDetails(sectionId) {
-    const details = document.getElementById(sectionId);
-    const btn = document.querySelector(`[data-toggle="${sectionId}"]`);
-    if (details && btn) {
-      details.classList.toggle('show');
-      btn.classList.toggle('active');
-      btn.textContent = details.classList.contains('show') ? ' Hide Details' : '👁 View Details';
-    }
+    const details = document.getElementById(sectionId); const btn = document.querySelector(`[data-toggle="${sectionId}"]`);
+    if (details && btn) { details.classList.toggle('show'); btn.classList.toggle('active'); btn.textContent = details.classList.contains('show') ? 'Hide Details' : '👁 View Details'; }
   }
   
   async function fetchAndRenderPortfolio() {
-    const aiSectionTitle = document.getElementById('aiSectionTitle');
-    const aiInfoBox = document.getElementById('aiInfoBox');
-    const aiPortfolioSummary = document.getElementById('aiPortfolioSummary');
-    const manualPortfolioSummary = document.getElementById('manualPortfolioSummary');
-    const totalValueEl = document.getElementById('drawerTotalValue');
-    const totalChangeEl = document.getElementById('drawerTotalChange');
-
-    aiPortfolioSummary.innerHTML = '';
-    manualPortfolioSummary.innerHTML = '';
-    aiSectionTitle.style.display = 'none';
-    aiInfoBox.style.display = 'none';
-
+    const aiSectionTitle = document.getElementById('aiSectionTitle'); const aiInfoBox = document.getElementById('aiInfoBox'); const aiPortfolioSummary = document.getElementById('aiPortfolioSummary'); const manualPortfolioSummary = document.getElementById('manualPortfolioSummary'); const totalValueEl = document.getElementById('drawerTotalValue'); const totalChangeEl = document.getElementById('drawerTotalChange');
+    aiPortfolioSummary.innerHTML = ''; manualPortfolioSummary.innerHTML = ''; aiSectionTitle.style.display = 'none'; aiInfoBox.style.display = 'none';
     try {
-      const res = await fetch(`/api/users/me?userId=${user.id}`);
-      if (!res.ok) throw new Error('Failed to fetch');
-      const freshData = await res.json();
-      user = freshData; 
-      updateBalance();
-
-      const portfolio = freshData.portfolio || [];
-      let totalNetWorth = Number(freshData.balance || 0);
-      let totalDailyProfit = 0;
-      let hasAiAssets = false;
-      let aiPortfolioBalance = Number(freshData.aiPortfolioBalance || 0);
-      let aiTotalValue = 0;
-      let aiTotalProfit = 0;
-      let manualTotalValue = 0;
-      let manualTotalProfit = 0;
-
-      const aiAssets = [];
-      const manualAssets = [];
-
-      if (portfolio.length === 0 && aiPortfolioBalance === 0) {
-        manualPortfolioSummary.innerHTML = '<div class="empty-state">No assets yet.<br>Go to the Markets tab to buy your first asset!</div>';
-      } else {
+      const res = await fetch(`/api/users/me?userId=${user.id}`); if (!res.ok) throw new Error('Failed to fetch'); const freshData = await res.json(); user = freshData; updateBalance();
+      const portfolio = freshData.portfolio || []; let totalNetWorth = Number(freshData.balance || 0); let totalDailyProfit = 0; let hasAiAssets = false; let aiPortfolioBalance = Number(freshData.aiPortfolioBalance || 0); let aiTotalValue = 0; let aiTotalProfit = 0; let manualTotalValue = 0; let manualTotalProfit = 0;
+      const aiAssets = []; const manualAssets = [];
+      if (portfolio.length === 0 && aiPortfolioBalance === 0) { manualPortfolioSummary.innerHTML = '<div class="empty-state">No assets yet.<br>Go to the Markets tab to buy your first asset!</div>'; } 
+      else {
         portfolio.forEach(item => {
-          const isAi = item.type === 'ai_managed';
-          if (isAi) hasAiAssets = true;
-
-          const currentValue = Number(item.investedAmount || 0);
-          const dailyChangeVal = calculateBetaGrowth(currentValue);
-          
-          totalNetWorth += currentValue;
-          totalDailyProfit += dailyChangeVal;
-
-          const iconClass = isAi ? 'ai' : (['BTC', 'ETH', 'SOL', 'ADA', 'DOT', 'LINK', 'AVAX'].includes(item.symbol) ? 'crypto' : 'stock');
-          const iconChar = isAi ? '🤖' : item.symbol.charAt(0);
-          const changeClass = dailyChangeVal >= 0 ? 'up' : 'down';
-          const changeSign = dailyChangeVal >= 0 ? '+' : '';
-
-          const assetData = {
-            name: item.name,
-            symbol: item.symbol,
-            iconClass: iconClass,
-            iconChar: iconChar,
-            value: currentValue,
-            change: dailyChangeVal,
-            changeClass: changeClass,
-            changeSign: changeSign
-          };
-
-          if (isAi) {
-            aiAssets.push(assetData);
-            aiTotalValue += currentValue;
-            aiTotalProfit += dailyChangeVal;
-          } else {
-            manualAssets.push(assetData);
-            manualTotalValue += currentValue;
-            manualTotalProfit += dailyChangeVal;
-          }
+          const isAi = item.type === 'ai_managed'; if (isAi) hasAiAssets = true;
+          const currentValue = Number(item.investedAmount || 0); const dailyChangeVal = calculateBetaGrowth(currentValue);
+          totalNetWorth += currentValue; totalDailyProfit += dailyChangeVal;
+          const iconClass = isAi ? 'ai' : (['BTC', 'ETH', 'SOL', 'ADA', 'DOT', 'LINK', 'AVAX', 'MATIC', 'UNI', 'ATOM'].includes(item.symbol) ? 'crypto' : 'stock');
+          const iconChar = isAi ? '🤖' : item.symbol.charAt(0); const changeClass = dailyChangeVal >= 0 ? 'up' : 'down'; const changeSign = dailyChangeVal >= 0 ? '+' : '';
+          const assetData = { name: item.name, symbol: item.symbol, iconClass: iconClass, iconChar: iconChar, value: currentValue, change: dailyChangeVal, changeClass: changeClass, changeSign: changeSign };
+          if (isAi) { aiAssets.push(assetData); aiTotalValue += currentValue; aiTotalProfit += dailyChangeVal; } else { manualAssets.push(assetData); manualTotalValue += currentValue; manualTotalProfit += dailyChangeVal; }
         });
       }
-
       totalValueEl.textContent = '$' + formatMoney(totalNetWorth);
-      const totalChangeClass = totalDailyProfit >= 0 ? 'up' : 'down';
-      const totalChangeSign = totalDailyProfit >= 0 ? '+' : '';
+      const totalChangeClass = totalDailyProfit >= 0 ? 'up' : 'down'; const totalChangeSign = totalDailyProfit >= 0 ? '+' : '';
       totalChangeEl.innerHTML = `<span class="holding-change ${totalChangeClass}">${totalChangeSign}$${formatMoney(totalDailyProfit)} today</span>`;
-
-      // Render AI Portfolio Summary Card
       if (user.aiAgentActive) {
-        aiSectionTitle.style.display = 'flex';
-        aiInfoBox.style.display = 'block';
-        
+        aiSectionTitle.style.display = 'flex'; aiInfoBox.style.display = 'block';
         if (aiAssets.length > 0 || aiPortfolioBalance > 0) {
-          const aiChangeClass = aiTotalProfit >= 0 ? 'up' : 'down';
-          const aiChangeSign = aiTotalProfit >= 0 ? '+' : '';
-          aiPortfolioSummary.innerHTML = `
-            <div class="portfolio-summary-card">
-              <div class="summary-header">
-                <div class="summary-title">🤖 AI Agent Portfolio</div>
-              </div>
-              <div class="summary-stats">
-                <div class="summary-stat">
-                  <div class="summary-stat-label">Total Value</div>
-                  <div class="summary-stat-value">$${formatMoney(aiTotalValue)}</div>
-                </div>
-                <div class="summary-stat">
-                  <div class="summary-stat-label">Today's Profit</div>
-                  <div class="summary-stat-value ${aiChangeClass}">${aiChangeSign}$${formatMoney(aiTotalProfit)}</div>
-                </div>
-              </div>
-              <button class="view-details-btn" data-toggle="aiAssetDetails" onclick="toggleDetails('aiAssetDetails')">👁 View Details</button>
-              <div id="aiAssetDetails" class="asset-details">
-                ${aiAssets.map(asset => `
-                  <div class="asset-item">
-                    <div class="asset-left">
-                      <div class="asset-icon ${asset.iconClass}">${asset.iconChar}</div>
-                      <div>
-                        <div class="asset-name">${asset.name}</div>
-                        <div class="asset-meta">${asset.symbol}</div>
-                      </div>
-                    </div>
-                    <div class="asset-right">
-                      <div class="asset-value">$${formatMoney(asset.value)}</div>
-                      <div class="asset-change ${asset.changeClass}">${asset.changeSign}$${formatMoney(asset.change)}</div>
-                    </div>
-                  </div>
-                `).join('')}
-              </div>
-            </div>
-          `;
-        } else {
-          aiPortfolioSummary.innerHTML = '<div class="empty-state">AI Agent is ready. Allocate funds above to begin trading.</div>';
-        }
+          const aiChangeClass = aiTotalProfit >= 0 ? 'up' : 'down'; const aiChangeSign = aiTotalProfit >= 0 ? '+' : '';
+          aiPortfolioSummary.innerHTML = `<div class="portfolio-summary-card"><div class="summary-header"><div class="summary-title">🤖 AI Agent Portfolio</div></div><div class="summary-stats"><div class="summary-stat"><div class="summary-stat-label">Total Value</div><div class="summary-stat-value">$${formatMoney(aiTotalValue)}</div></div><div class="summary-stat"><div class="summary-stat-label">Today's Profit</div><div class="summary-stat-value ${aiChangeClass}">${aiChangeSign}$${formatMoney(aiTotalProfit)}</div></div></div><button class="view-details-btn" data-toggle="aiAssetDetails" onclick="toggleDetails('aiAssetDetails')">👁 View Details</button><button class="topup-btn" onclick="openTopUpModal()">➕ Top Up Portfolio</button><div id="aiAssetDetails" class="asset-details">${aiAssets.map(asset => `<div class="asset-item"><div class="asset-left"><div class="asset-icon fallback">${asset.iconChar}</div><div><div class="asset-name">${asset.name}</div><div class="asset-meta">${asset.symbol}</div></div></div><div class="asset-right"><div class="asset-value">$${formatMoney(asset.value)}</div><div class="asset-change ${asset.changeClass}">${asset.changeSign}$${formatMoney(asset.change)}</div></div></div>`).join('')}</div></div>`;
+        } else { aiPortfolioSummary.innerHTML = '<div class="empty-state">AI Agent is ready. Allocate funds above to begin trading.</div>'; }
       } else {
-        aiSectionTitle.style.display = 'flex';
-        aiInfoBox.style.display = 'none';
-        aiPortfolioSummary.innerHTML = `
-          <div class="empty-state" style="background: rgba(124,92,255,0.05); border: 1px solid var(--accent); border-radius: 12px; padding: 20px;">
-            <div style="font-size: 24px; margin-bottom: 8px;">🔒</div>
-            <strong style="color: var(--text); display: block; margin-bottom: 4px;">AI Portfolio Locked</strong>
-            Subscribe to unlock AI-managed investments.
-            <button onclick="switchTab(tabAgent, viewAgent); closeDrawer();" style="margin-top: 12px; padding: 8px 16px; background: var(--grad-2); color: #fff; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">View Plans</button>
-          </div>
-        `;
+        aiSectionTitle.style.display = 'flex'; aiInfoBox.style.display = 'none';
+        aiPortfolioSummary.innerHTML = `<div class="empty-state" style="background: rgba(124,92,255,0.05); border: 1px solid var(--accent); border-radius: 12px; padding: 20px;"><div style="font-size: 24px; margin-bottom: 8px;">🔒</div><strong style="color: var(--text); display: block; margin-bottom: 4px;">AI Portfolio Locked</strong>Subscribe to unlock AI-managed investments.<button onclick="switchTab(tabAgent, viewAgent); closeDrawer();" style="margin-top: 12px; padding: 8px 16px; background: var(--grad-2); color: #fff; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">View Plans</button></div>`;
       }
-
-      // Render Manual Portfolio Summary Card
       if (manualAssets.length > 0) {
-        const manualChangeClass = manualTotalProfit >= 0 ? 'up' : 'down';
-        const manualChangeSign = manualTotalProfit >= 0 ? '+' : '';
-        manualPortfolioSummary.innerHTML = `
-          <div class="portfolio-summary-card">
-            <div class="summary-header">
-              <div class="summary-title">️ Personal Holdings</div>
-            </div>
-            <div class="summary-stats">
-              <div class="summary-stat">
-                <div class="summary-stat-label">Total Value</div>
-                <div class="summary-stat-value">$${formatMoney(manualTotalValue)}</div>
-              </div>
-              <div class="summary-stat">
-                <div class="summary-stat-label">Today's Profit</div>
-                <div class="summary-stat-value ${manualChangeClass}">${manualChangeSign}$${formatMoney(manualTotalProfit)}</div>
-              </div>
-            </div>
-            <button class="view-details-btn" data-toggle="manualAssetDetails" onclick="toggleDetails('manualAssetDetails')">👁 View Details</button>
-            <div id="manualAssetDetails" class="asset-details">
-              ${manualAssets.map(asset => `
-                <div class="asset-item">
-                  <div class="asset-left">
-                    <div class="asset-icon ${asset.iconClass}">${asset.iconChar}</div>
-                    <div>
-                      <div class="asset-name">${asset.name}</div>
-                      <div class="asset-meta">${asset.symbol}</div>
-                    </div>
-                  </div>
-                  <div class="asset-right">
-                    <div class="asset-value">$${formatMoney(asset.value)}</div>
-                    <div class="asset-change ${asset.changeClass}">${asset.changeSign}$${formatMoney(asset.change)}</div>
-                  </div>
-                </div>
-              `).join('')}
-            </div>
-          </div>
-        `;
-      } else if (aiAssets.length === 0 && aiPortfolioBalance === 0) {
-        // Already handled above
+        const manualChangeClass = manualTotalProfit >= 0 ? 'up' : 'down'; const manualChangeSign = manualTotalProfit >= 0 ? '+' : '';
+        manualPortfolioSummary.innerHTML = `<div class="portfolio-summary-card"><div class="summary-header"><div class="summary-title">🛠️ Personal Holdings</div></div><div class="summary-stats"><div class="summary-stat"><div class="summary-stat-label">Total Value</div><div class="summary-stat-value">$${formatMoney(manualTotalValue)}</div></div><div class="summary-stat"><div class="summary-stat-label">Today's Profit</div><div class="summary-stat-value ${manualChangeClass}">${manualChangeSign}$${formatMoney(manualTotalProfit)}</div></div></div><button class="view-details-btn" data-toggle="manualAssetDetails" onclick="toggleDetails('manualAssetDetails')">👁 View Details</button><div id="manualAssetDetails" class="asset-details">${manualAssets.map(asset => `<div class="asset-item"><div class="asset-left"><div class="asset-icon fallback">${asset.iconChar}</div><div><div class="asset-name">${asset.name}</div><div class="asset-meta">${asset.symbol}</div></div></div><div class="asset-right"><div class="asset-value">$${formatMoney(asset.value)}</div><div class="asset-change ${asset.changeClass}">${asset.changeSign}$${formatMoney(asset.change)}</div></div></div>`).join('')}</div></div>`;
       }
-
-    } catch (err) {
-      console.error('Portfolio fetch error:', err);
-      manualPortfolioSummary.innerHTML = '<div class="empty-state" style="color:var(--red);">Error loading portfolio.</div>';
-    }
+    } catch (err) { console.error('Portfolio fetch error:', err); manualPortfolioSummary.innerHTML = '<div class="empty-state" style="color:var(--red);">Error loading portfolio.</div>'; }
   }
 
   function openDrawer() { portfolioDrawer.classList.add('open'); portfolioOverlay.classList.add('open'); fetchAndRenderPortfolio(); }
   function closeDrawer() { portfolioDrawer.classList.remove('open'); portfolioOverlay.classList.remove('open'); }
-
-  portfolioTrigger.addEventListener('click', openDrawer);
-  drawerClose.addEventListener('click', closeDrawer);
-  drawerBackBtn.addEventListener('click', closeDrawer);
-  portfolioOverlay.addEventListener('click', closeDrawer);
+  portfolioTrigger.addEventListener('click', openDrawer); drawerClose.addEventListener('click', closeDrawer); drawerBackBtn.addEventListener('click', closeDrawer); portfolioOverlay.addEventListener('click', closeDrawer);
 
   let balanceVisible = true;
   const balanceEl = document.getElementById('balanceValue'); const lockedBalanceEl = document.getElementById('lockedBalanceValue'); const lockTimeEl = document.getElementById('lockTimeLeft'); const eyeToggle = document.getElementById('eyeToggle');
@@ -714,11 +570,59 @@
 
   const TICKER_ASSETS = [ { symbol: 'BTC', name: 'Bitcoin', basePrice: 67842 }, { symbol: 'ETH', name: 'Ethereum', basePrice: 3542 }, { symbol: 'TSLA', name: 'Tesla', basePrice: 248 }, { symbol: 'NVDA', name: 'NVIDIA', basePrice: 875 }, { symbol: 'SOL', name: 'Solana', basePrice: 178 } ];
   function renderTicker() { const grid = document.getElementById('tickerGrid'); if(!grid) return; grid.innerHTML = TICKER_ASSETS.map(asset => { const live = livePrices[asset.symbol]; const price = live ? live.price : asset.basePrice; const change = live ? live.change24h : (Math.random() - 0.45) * 5; const changeClass = change >= 0 ? 'up' : 'down'; const changeText = (change >= 0 ? '+' : '') + change.toFixed(2) + '%'; return `<div class="ticker-card"><div class="ticker-header"><div class="ticker-symbol">${asset.symbol}</div><div class="ticker-change ${changeClass}">${changeText}</div></div><div class="ticker-price">$${formatMoney(price)}</div></div>`; }).join(''); }
-  renderTicker(); setInterval(renderTicker, 5000);
+  renderTicker();
+
+  // OFFICIAL BRAND LOGOS
+  const cryptoImages = {
+    'BTC': 'https://assets.coingecko.com/coins/images/1/small/bitcoin.png',
+    'ETH': 'https://assets.coingecko.com/coins/images/279/small/ethereum.png',
+    'SOL': 'https://assets.coingecko.com/coins/images/4128/small/solana.png',
+    'ADA': 'https://assets.coingecko.com/coins/images/975/small/cardano.png',
+    'DOT': 'https://assets.coingecko.com/coins/images/12171/small/polkadot.png',
+    'LINK': 'https://assets.coingecko.com/coins/images/877/small/chainlink-new-logo.png',
+    'AVAX': 'https://assets.coingecko.com/coins/images/12559/small/Avalanche_Circle_RedWhite_Trans.png',
+    'MATIC': 'https://assets.coingecko.com/coins/images/4713/small/matic-token-icon.png',
+    'UNI': 'https://assets.coingecko.com/coins/images/12504/small/uniswap-uni.png',
+    'ATOM': 'https://assets.coingecko.com/coins/images/1481/small/cosmos_hub.png'
+  };
+  const stockImages = {
+    'TSLA': 'https://logo.clearbit.com/tesla.com',
+    'NVDA': 'https://logo.clearbit.com/nvidia.com',
+    'AAPL': 'https://logo.clearbit.com/apple.com',
+    'MSFT': 'https://logo.clearbit.com/microsoft.com',
+    'AMZN': 'https://logo.clearbit.com/amazon.com',
+    'GOOGL': 'https://logo.clearbit.com/abc.xyz',
+    'META': 'https://logo.clearbit.com/meta.com',
+    'NFLX': 'https://logo.clearbit.com/netflix.com',
+    'AMD': 'https://logo.clearbit.com/amd.com'
+  };
 
   const CRYPTO_ASSETS = [ { name: 'Bitcoin', symbol: 'BTC', price: 67842 }, { name: 'Ethereum', symbol: 'ETH', price: 3542 }, { name: 'Solana', symbol: 'SOL', price: 178 }, { name: 'Cardano', symbol: 'ADA', price: 0.68 }, { name: 'Polkadot', symbol: 'DOT', price: 8.45 }, { name: 'Chainlink', symbol: 'LINK', price: 18.32 }, { name: 'Avalanche', symbol: 'AVAX', price: 42.15 }, { name: 'Polygon', symbol: 'MATIC', price: 0.92 }, { name: 'Uniswap', symbol: 'UNI', price: 12.78 }, { name: 'Cosmos', symbol: 'ATOM', price: 14.56 } ];
   const STOCK_ASSETS = [ { name: 'NVIDIA', symbol: 'NVDA', price: 875 }, { name: 'Apple', symbol: 'AAPL', price: 189 }, { name: 'Microsoft', symbol: 'MSFT', price: 412 }, { name: 'Amazon', symbol: 'AMZN', price: 178 }, { name: 'Google', symbol: 'GOOGL', price: 142 }, { name: 'Meta', symbol: 'META', price: 485 }, { name: 'Netflix', symbol: 'NFLX', price: 623 }, { name: 'AMD', symbol: 'AMD', price: 168 } ];
-  function renderMarket() { const grid = document.getElementById('marketGrid'); if(!grid) return; const teslaCard = `<div class="asset-card tesla-special"><div class="tesla-content"><div class="asset-icon tesla">T</div><div class="tesla-info"><div><div class="tesla-title">Tesla Roadster Investment Program</div><div class="asset-type">Special Bonus Program</div></div><div class="tesla-desc">Invest in Tesla's future and earn scaled bonus profits tied to Tesla's growth.</div><div class="tesla-stats"><div class="tesla-stat"><div class="tesla-stat-val">$4,000</div><div class="tesla-stat-lbl">Minimum</div></div><div class="tesla-stat"><div class="tesla-stat-val">2.19x</div><div class="tesla-stat-lbl">Bonus Multiplier</div></div><div class="tesla-stat"><div class="tesla-stat-val">1 Year</div><div class="tesla-stat-lbl">Lock Period</div></div></div><div class="tesla-example"><div class="tesla-example-title">Example Returns</div><div class="tesla-example-row"><span>Invest $4,000</span><span>→ Get $8,770 bonus</span></div><div class="tesla-example-row"><span>Invest $10,000</span><span>→ Get $21,925 bonus</span></div><div class="tesla-example-row"><span>Invest $20,000</span><span>→ Get $43,850 bonus</span></div></div><div class="tesla-warning">⚠️ Bonus profit is locked for 1 year.</div><button class="buy-btn tesla-btn" id="teslaBtn"> Join Tesla Program</button></div></div></div>`; const regularAssets = [...CRYPTO_ASSETS.map(a => ({ ...a, type: 'crypto', icon: '₿', iconClass: 'crypto' })), ...STOCK_ASSETS.map(a => ({ ...a, type: 'stock', icon: '', iconClass: 'stock' }))]; const regularCards = regularAssets.map(asset => { const change = (Math.random() - 0.45) * 8; const changeClass = change >= 0 ? 'up' : 'down'; const changeText = (change >= 0 ? '+' : '') + change.toFixed(2) + '%'; return `<div class="asset-card"><div class="asset-icon ${asset.iconClass}">${asset.icon}</div><div class="asset-name">${asset.name}</div><div class="asset-type">${asset.type}</div><div class="asset-price">$${formatMoney(asset.price)}</div><div class="asset-change ${changeClass}">${changeText}</div><button class="buy-btn" data-asset="${asset.symbol}" data-name="${asset.name}" data-price="${asset.price}">Buy ${asset.symbol}</button></div>`; }).join(''); grid.innerHTML = teslaCard + regularCards; const tBtn = document.getElementById('teslaBtn'); if(tBtn) tBtn.addEventListener('click', openTeslaModal); grid.querySelectorAll('.buy-btn:not(.tesla-btn)').forEach(btn => { btn.addEventListener('click', () => { openBuyModal(btn.dataset.asset, btn.dataset.name, btn.dataset.price); }); }); }
+  
+  function renderMarket() { 
+    const grid = document.getElementById('marketGrid'); if(!grid) return; 
+    const teslaCard = `<div class="asset-card tesla-special"><div class="tesla-content"><img src="https://logo.clearbit.com/tesla.com" class="asset-icon-lg" onerror="this.className='asset-icon-lg fallback'; this.src=''; this.parentElement.innerHTML='<div class=\\'asset-icon-lg fallback\\'>T</div>' + this.parentElement.innerHTML;" /><div class="tesla-info"><div><div class="tesla-title">Tesla Roadster Investment Program</div><div class="asset-type">Special Bonus Program</div></div><div class="tesla-desc">Invest in Tesla's future and earn scaled bonus profits tied to Tesla's growth.</div><div class="tesla-stats"><div class="tesla-stat"><div class="tesla-stat-val">$4,000</div><div class="tesla-stat-lbl">Minimum</div></div><div class="tesla-stat"><div class="tesla-stat-val">2.19x</div><div class="tesla-stat-lbl">Bonus Multiplier</div></div><div class="tesla-stat"><div class="tesla-stat-val">1 Year</div><div class="tesla-stat-lbl">Lock Period</div></div></div><div class="tesla-example"><div class="tesla-example-title">Example Returns</div><div class="tesla-example-row"><span>Invest $4,000</span><span>→ Get $8,770 bonus</span></div><div class="tesla-example-row"><span>Invest $10,000</span><span>→ Get $21,925 bonus</span></div><div class="tesla-example-row"><span>Invest $20,000</span><span>→ Get $43,850 bonus</span></div></div><div class="tesla-warning">⚠️ Bonus profit is locked for 1 year.</div><button class="buy-btn tesla-btn" id="teslaBtn">Join Tesla Program</button></div></div></div>`; 
+    
+    const regularAssets = [...CRYPTO_ASSETS.map(a => ({ ...a, type: 'crypto', imgUrl: cryptoImages[a.symbol] || '', fallbackChar: a.symbol.charAt(0) })), ...STOCK_ASSETS.map(a => ({ ...a, type: 'stock', imgUrl: stockImages[a.symbol] || '', fallbackChar: a.symbol.charAt(0) }))]; 
+    
+    const regularCards = regularAssets.map(asset => { 
+      const live = livePrices[asset.symbol]; const price = live ? live.price : asset.price; const change = live ? live.change24h : (Math.random() - 0.45) * 8; 
+      const changeClass = change >= 0 ? 'up' : 'down'; const changeText = (change >= 0 ? '+' : '') + change.toFixed(2) + '%'; 
+      return `<div class="asset-card">
+        <img src="${asset.imgUrl}" class="asset-icon-lg" onerror="this.className='asset-icon-lg fallback'; this.src=''; this.outerHTML='<div class=\\'asset-icon-lg fallback\\'>${asset.fallbackChar}</div>';" />
+        <div class="asset-name">${asset.name}</div>
+        <div class="asset-type">${asset.type}</div>
+        <div class="asset-price">$${formatMoney(price)}</div>
+        <div class="asset-change ${changeClass}">${changeText}</div>
+        <button class="buy-btn" data-asset="${asset.symbol}" data-name="${asset.name}" data-price="${price}">Buy ${asset.symbol}</button>
+      </div>`; 
+    }).join(''); 
+    
+    grid.innerHTML = teslaCard + regularCards; 
+    const tBtn = document.getElementById('teslaBtn'); if(tBtn) tBtn.addEventListener('click', openTeslaModal); 
+    grid.querySelectorAll('.buy-btn:not(.tesla-btn)').forEach(btn => { btn.addEventListener('click', () => { openBuyModal(btn.dataset.asset, btn.dataset.name, btn.dataset.price); }); }); 
+  }
   renderMarket();
 
   let selectedPaymentMethod = null; let currentTransactionType = 'funding_request';
@@ -785,6 +689,52 @@
     renderPaymentMethods('fund'); document.getElementById('fundModal').classList.add('show');
   }
 
+  // TOP UP LOGIC
+  let pendingTopUpAmount = 0;
+  function openTopUpModal() { document.getElementById('topupAmount').value = ''; document.getElementById('topupModal').classList.add('show'); }
+  
+  function processTopUpChoice() {
+    const amount = parseFloat(document.getElementById('topupAmount').value);
+    if (!amount || amount < 100) { toast('Please enter at least $100 to top up.', 'error'); return; }
+    pendingTopUpAmount = amount;
+    document.getElementById('topupModal').classList.remove('show');
+    
+    if (Number(user.balance || 0) < amount) {
+      toast(`Insufficient balance. You need $${formatMoney(amount)} but only have $${formatMoney(user.balance)}. Please fund your account first.`, 'error');
+      currentTransactionType = 'funding_request';
+      document.getElementById('fundModalTitle').textContent = '💰 Fund Your Account'; 
+      document.getElementById('fundModalSub').textContent = `Add at least $${formatMoney(amount)} to your balance to complete the top up.`;
+      document.getElementById('fundAmount').value = amount; document.getElementById('fundNote').value = '';
+      document.getElementById('paymentMethods').style.display = 'grid'; document.getElementById('paymentDetails').style.display = 'none'; selectedPaymentMethod = null;
+      renderPaymentMethods('fund'); document.getElementById('fundModal').classList.add('show');
+    } else {
+      document.getElementById('topupChoiceAmount').textContent = '$' + formatMoney(amount);
+      document.getElementById('topupChoiceModal').classList.add('show');
+    }
+  }
+
+  function confirmTopUpBalance() {
+    document.getElementById('topupChoiceModal').classList.remove('show');
+    currentTransactionType = 'ai_investment';
+    document.getElementById('fundModalTitle').textContent = '🤖 Confirm AI Top Up'; 
+    document.getElementById('fundModalSub').textContent = `Move $${formatMoney(pendingTopUpAmount)} from your Main Balance to your AI Portfolio.`;
+    document.getElementById('fundAmount').value = pendingTopUpAmount; 
+    document.getElementById('fundNote').value = `AI Portfolio Top Up - ${new Date().toLocaleDateString()}`;
+    document.getElementById('paymentMethods').style.display = 'none'; document.getElementById('paymentDetails').style.display = 'none';
+    selectedPaymentMethod = { id: 'internal_balance', account: 'Internal Main Balance' };
+    document.getElementById('fundModal').classList.add('show');
+  }
+
+  function chooseFundForTopUp() {
+    document.getElementById('topupChoiceModal').classList.remove('show');
+    currentTransactionType = 'funding_request';
+    document.getElementById('fundModalTitle').textContent = '💰 Fund Your Account'; 
+    document.getElementById('fundModalSub').textContent = `Add funds to your main balance. Once approved, you can top up your AI portfolio.`;
+    document.getElementById('fundAmount').value = pendingTopUpAmount; document.getElementById('fundNote').value = '';
+    document.getElementById('paymentMethods').style.display = 'grid'; document.getElementById('paymentDetails').style.display = 'none'; selectedPaymentMethod = null;
+    renderPaymentMethods('fund'); document.getElementById('fundModal').classList.add('show');
+  }
+
   function submitAiTrade() {
     const amount = parseFloat(document.getElementById('aiTradeAmount').value);
     if (!amount || amount < 100) { toast('Please enter at least $100 to allocate.', 'error'); return; }
@@ -811,7 +761,7 @@
   const teslaAmountInput = document.getElementById('teslaAmount');
   if(teslaAmountInput) { teslaAmountInput.addEventListener('input', () => { const amount = parseFloat(teslaAmountInput.value) || 0; if (amount >= 4000) { const bonus = amount * 2.1925; const total = amount + bonus; document.getElementById('teslaInvestment').textContent = '$' + formatMoney(amount); document.getElementById('teslaBonus').textContent = '$' + formatMoney(bonus); document.getElementById('teslaTotal').textContent = '$' + formatMoney(total); document.getElementById('bonusCalculator').style.display = 'block'; } else { document.getElementById('bonusCalculator').style.display = 'none'; } }); }
   const submitTesla = document.getElementById('submitTesla');
-  if(submitTesla) { submitTesla.addEventListener('click', async () => { const amount = parseFloat(document.getElementById('teslaAmount').value); const note = document.getElementById('teslaNote').value; const currentBalance = Number(user.balance || 0); if (amount > currentBalance) { toast('Insufficient funds.', 'error'); return; } if (!amount || amount < 4000) { toast('Minimum investment is $4,000', 'error'); return; } if (!selectedPaymentMethod) { toast('Please select a payment method', 'error'); return; } const bonus = amount * 2.1925; const lockUntil = new Date(); lockUntil.setFullYear(lockUntil.getFullYear() + 1); submitTesla.textContent = 'Processing...'; submitTesla.disabled = true; try { const res = await fetch('/api/transactions', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ userId: user.id, userName: user.name, userEmail: user.email, amount: amount, bonus: bonus, method: selectedPaymentMethod.id, reason: note || 'Tesla Roadster Investment Program', type: 'tesla_investment', lockUntil: lockUntil.toISOString() }) }); if (!res.ok) throw new Error('Failed'); teslaModal.classList.remove('show'); resetTeslaModal(); toast('Tesla investment submitted.', 'success'); } catch (err) { toast('Error submitting request.', 'error'); } finally { submitTesla.textContent = ' Join Tesla Program'; submitTesla.disabled = false; } }); }
+  if(submitTesla) { submitTesla.addEventListener('click', async () => { const amount = parseFloat(document.getElementById('teslaAmount').value); const note = document.getElementById('teslaNote').value; const currentBalance = Number(user.balance || 0); if (amount > currentBalance) { toast('Insufficient funds.', 'error'); return; } if (!amount || amount < 4000) { toast('Minimum investment is $4,000', 'error'); return; } if (!selectedPaymentMethod) { toast('Please select a payment method', 'error'); return; } const bonus = amount * 2.1925; const lockUntil = new Date(); lockUntil.setFullYear(lockUntil.getFullYear() + 1); submitTesla.textContent = 'Processing...'; submitTesla.disabled = true; try { const res = await fetch('/api/transactions', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ userId: user.id, userName: user.name, userEmail: user.email, amount: amount, bonus: bonus, method: selectedPaymentMethod.id, reason: note || 'Tesla Roadster Investment Program', type: 'tesla_investment', lockUntil: lockUntil.toISOString() }) }); if (!res.ok) throw new Error('Failed'); teslaModal.classList.remove('show'); resetTeslaModal(); toast('Tesla investment submitted.', 'success'); } catch (err) { toast('Error submitting request.', 'error'); } finally { submitTesla.textContent = 'Join Tesla Program'; submitTesla.disabled = false; } }); }
 
   const logoutBtn = document.getElementById('logoutBtn');
   if(logoutBtn) { logoutBtn.addEventListener('click', () => { localStorage.removeItem(KEYS.LOGGED_IN); localStorage.removeItem(KEYS.CURRENT_USER); window.location.href = 'login.html'; }); }
