@@ -9,6 +9,7 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/inter@5.0.0/index.css" />
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/space-grotesk@5.0.0/index.css" />
 <style>
+  /* [KEEP ALL YOUR EXISTING CSS EXACTLY AS IT WAS] */
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   html, body { overflow-x: hidden; max-width: 100vw; }
   html { scroll-behavior: smooth; }
@@ -255,6 +256,7 @@
 </head>
 <body>
 
+<!-- [KEEP ALL YOUR EXISTING HTML BODY CONTENT EXACTLY AS IT WAS] -->
 <nav class="top-nav">
   <a href="index.html" class="nav-logo"><span class="nav-logo-mark">N</span><span>NexaVault</span></a>
   <div class="nav-user">
@@ -468,7 +470,12 @@
   function toast(msg, type) { const t = document.getElementById('toast'); t.textContent = msg; t.className = 'toast show ' + (type || ''); clearTimeout(window._tt); window._tt = setTimeout(() => t.classList.remove('show'), 3000); }
   function formatMoney(n) { return Number(n || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
   function initials(name) { return (name || '?').split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2); }
-  function calculateLockTimeLeft(lockDate) { if (!lockDate) return 'No locked funds'; const now = new Date(); const lock = new Date(lockDate); const diff = lock - now; if (diff <= 0) return 'Unlocked'; const months = Math.floor(diff / (1000 * 60 * 60 * 24 * 30)); const days = Math.floor((diff % (1000 * 60 * 60 * 24 * 30)) / (1000 * 60 * 60 * 24)); if (months > 0) return `${months} month${months > 1 ? 's' : ''} left`; return `${days} day${days > 1 ? 's' : ''} left`; }
+  
+  // NEW: Calculate days between two dates
+  function getDaysDifference(date1, date2) {
+    const oneDay = 24 * 60 * 60 * 1000;
+    return Math.round(Math.abs((date2 - date1) / oneDay));
+  }
 
   const isLoggedIn = localStorage.getItem(KEYS.LOGGED_IN) === 'true';
   const currentUser = getStore(KEYS.CURRENT_USER, null);
@@ -536,6 +543,34 @@
     if (details && btn) { details.classList.toggle('show'); btn.classList.toggle('active'); btn.textContent = details.classList.contains('show') ? 'Hide Details' : '👁 View Details'; }
   }
   
+  // NEW: Calculate Accrued Tesla Balance
+  function getAccruedTeslaData(portfolio) {
+    let totalAccrued = 0;
+    let maxDaysLeft = 0;
+    const now = new Date();
+
+    if (portfolio && portfolio.length > 0) {
+        portfolio.forEach(item => {
+            if (item.type === 'tesla_investment') {
+                const startDate = new Date(item.dateAdded);
+                const daysPassed = Math.floor((now - startDate) / (1000 * 60 * 60 * 24));
+                const totalDays = 365;
+                const daysRemaining = Math.max(0, totalDays - daysPassed);
+
+                const principal = Number(item.investedAmount || 0);
+                const totalBonus = Number(item.bonusAmount || (principal * 2.1925));
+                const dailyBonus = totalBonus / totalDays;
+
+                const accruedBonus = Math.min(dailyBonus * daysPassed, totalBonus);
+                totalAccrued += principal + accruedBonus;
+
+                if (daysRemaining > maxDaysLeft) maxDaysLeft = daysRemaining;
+            }
+        });
+    }
+    return { totalAccrued, maxDaysLeft };
+  }
+
   async function fetchAndRenderPortfolio() {
     const aiSectionTitle = document.getElementById('aiSectionTitle'); 
     const aiPortfolioSummary = document.getElementById('aiPortfolioSummary'); 
@@ -567,21 +602,14 @@
       
       portfolio.forEach(item => {
         if (item.type === 'ai_managed') return;
+        if (item.type === 'tesla_investment') return; // Handled separately in accrued logic
         
         const currentValue = Number(item.investedAmount || 0);
         let dailyChangeVal = calculateBetaGrowth(currentValue);
-        let isTesla = item.type === 'tesla_investment' || item.symbol === 'TSLA' && item.name.includes('Tesla');
         
         let metaText = item.symbol || 'Asset';
         let iconClass = ['BTC', 'ETH', 'SOL', 'ADA', 'DOT', 'LINK', 'AVAX', 'MATIC', 'UNI', 'ATOM'].includes(item.symbol) ? 'crypto' : 'stock';
         let iconChar = item.symbol ? item.symbol.charAt(0) : 'A';
-        
-        if (isTesla) {
-          const expectedTotal = currentValue + (currentValue * 2.1925);
-          metaText = `Expected in 1 Year: $${formatMoney(expectedTotal)}`;
-          iconClass = 'ai';
-          iconChar = '🚗';
-        }
 
         totalNetWorth += currentValue; 
         totalDailyProfit += dailyChangeVal;
@@ -589,20 +617,17 @@
         const changeSign = dailyChangeVal >= 0 ? '+' : '';
         
         manualAssets.push({ 
-          name: item.name, 
-          symbol: item.symbol, 
-          iconClass: iconClass, 
-          iconChar: iconChar, 
-          value: currentValue, 
-          change: dailyChangeVal, 
-          changeClass: changeClass, 
-          changeSign: changeSign,
-          metaText: metaText,
-          isTesla: isTesla
+          name: item.name, symbol: item.symbol, iconClass: iconClass, iconChar: iconChar, 
+          value: currentValue, change: dailyChangeVal, changeClass: changeClass, changeSign: changeSign,
+          metaText: metaText, isTesla: false
         });
         manualTotalValue += currentValue; 
         manualTotalProfit += dailyChangeVal;
       });
+
+      // Add Accrued Tesla to Net Worth
+      const teslaData = getAccruedTeslaData(portfolio);
+      totalNetWorth += teslaData.totalAccrued;
 
       if (aiPortfolioBalance >= 100) {
         const aiDailyProfit = calculateBetaGrowth(aiPortfolioBalance);
@@ -622,29 +647,12 @@
       const isFunded = aiPortfolioBalance >= 100;
       
       if (!isSubscribed) {
-        aiPortfolioSummary.innerHTML = `
-          <div class="locked-state">
-            <div class="lock-icon">🔒</div>
-            <div class="lock-title">AI Portfolio Locked</div>
-            <div class="lock-desc">Subscribe to the AI Agent plan to unlock automated trading with 85% win rate.</div>
-            <button onclick="switchTab(tabAgent, viewAgent); closeDrawer();">View Subscription Plans</button>
-          </div>
-        `;
+        aiPortfolioSummary.innerHTML = `<div class="locked-state"><div class="lock-icon">🔒</div><div class="lock-title">AI Portfolio Locked</div><div class="lock-desc">Subscribe to the AI Agent plan to unlock automated trading with 85% win rate.</div><button onclick="switchTab(tabAgent, viewAgent); closeDrawer();">View Subscription Plans</button></div>`;
       } else if (!isFunded) {
-        aiPortfolioSummary.innerHTML = `
-          <div class="locked-state">
-            <div class="lock-icon">🔒</div>
-            <div class="lock-title">AI Portfolio Not Funded</div>
-            <div class="lock-desc">You've activated AI Agent! Allocate at least $100 from your main balance to begin trading.</div>
-            <button class="gold" onclick="openTopUpModal()">Fund AI Portfolio</button>
-          </div>
-        `;
+        aiPortfolioSummary.innerHTML = `<div class="locked-state"><div class="lock-icon">🔒</div><div class="lock-title">AI Portfolio Not Funded</div><div class="lock-desc">You've activated AI Agent! Allocate at least $100 from your main balance to begin trading.</div><button class="gold" onclick="openTopUpModal()">Fund AI Portfolio</button></div>`;
       } else {
         aiUnlockedContent.style.display = 'block';
-        
-        const aiChangeClass = aiTotalProfit >= 0 ? 'up' : 'down'; 
-        const aiChangeSign = aiTotalProfit >= 0 ? '+' : '';
-        
+        const aiChangeClass = aiTotalProfit >= 0 ? 'up' : 'down'; const aiChangeSign = aiTotalProfit >= 0 ? '+' : '';
         const betaAssetsHtml = BETA_AI_ASSETS.map(asset => {
           const assetValue = aiPortfolioBalance * asset.allocation;
           const assetChange = calculateBetaGrowth(assetValue);
@@ -652,63 +660,14 @@
           const changeSign = assetChange >= 0 ? '+' : '';
           const iconClass = asset.type === 'crypto' ? 'crypto' : 'stock';
           const iconChar = asset.symbol.charAt(0);
-          
-          return `<div class="asset-item">
-            <div class="asset-left">
-              <div class="asset-icon ${iconClass}">${iconChar}</div>
-              <div><div class="asset-name">${asset.name}</div><div class="asset-meta">${asset.symbol} · ${(asset.allocation * 100).toFixed(0)}% Allocation</div></div>
-            </div>
-            <div class="asset-right">
-              <div class="asset-value">$${formatMoney(assetValue)}</div>
-              <div class="asset-change ${changeClass}">${changeSign}$${formatMoney(assetChange)}</div>
-            </div>
-          </div>`;
+          return `<div class="asset-item"><div class="asset-left"><div class="asset-icon ${iconClass}">${iconChar}</div><div><div class="asset-name">${asset.name}</div><div class="asset-meta">${asset.symbol} · ${(asset.allocation * 100).toFixed(0)}% Allocation</div></div></div><div class="asset-right"><div class="asset-value">$${formatMoney(assetValue)}</div><div class="asset-change ${changeClass}">${changeSign}$${formatMoney(assetChange)}</div></div></div>`;
         }).join('');
-
-        aiPortfolioSummary.innerHTML = `
-          <div class="portfolio-summary-card">
-            <div class="summary-header"><div class="summary-title">🤖 AI Agent Portfolio</div></div>
-            <div class="summary-stats">
-              <div class="summary-stat"><div class="summary-stat-label">Total Value</div><div class="summary-stat-value">$${formatMoney(aiPortfolioBalance)}</div></div>
-              <div class="summary-stat"><div class="summary-stat-label">Today's Profit</div><div class="summary-stat-value ${aiChangeClass}">${aiChangeSign}$${formatMoney(aiTotalProfit)}</div></div>
-            </div>
-            <button class="view-details-btn" data-toggle="aiAssetDetails" onclick="toggleDetails('aiAssetDetails')">👁 View Details</button>
-            <button class="topup-btn" onclick="openTopUpModal()">➕ Top Up Portfolio</button>
-            <div id="aiAssetDetails" class="asset-details">${betaAssetsHtml}</div>
-          </div>
-        `;
+        aiPortfolioSummary.innerHTML = `<div class="portfolio-summary-card"><div class="summary-header"><div class="summary-title">🤖 AI Agent Portfolio</div></div><div class="summary-stats"><div class="summary-stat"><div class="summary-stat-label">Total Value</div><div class="summary-stat-value">$${formatMoney(aiPortfolioBalance)}</div></div><div class="summary-stat"><div class="summary-stat-label">Today's Profit</div><div class="summary-stat-value ${aiChangeClass}">${aiChangeSign}$${formatMoney(aiTotalProfit)}</div></div></div><button class="view-details-btn" data-toggle="aiAssetDetails" onclick="toggleDetails('aiAssetDetails')">👁 View Details</button><button class="topup-btn" onclick="openTopUpModal()">➕ Top Up Portfolio</button><div id="aiAssetDetails" class="asset-details">${betaAssetsHtml}</div></div>`;
       }
       
       if (manualAssets.length > 0) {
-        const manualChangeClass = manualTotalProfit >= 0 ? 'up' : 'down'; 
-        const manualChangeSign = manualTotalProfit >= 0 ? '+' : '';
-        manualPortfolioSummary.innerHTML = `
-          <div class="portfolio-summary-card">
-            <div class="summary-header"><div class="summary-title">🛠️ Personal Holdings</div></div>
-            <div class="summary-stats">
-              <div class="summary-stat"><div class="summary-stat-label">Total Value</div><div class="summary-stat-value">$${formatMoney(manualTotalValue)}</div></div>
-              <div class="summary-stat"><div class="summary-stat-label">Today's Profit</div><div class="summary-stat-value ${manualChangeClass}">${manualChangeSign}$${formatMoney(manualTotalProfit)}</div></div>
-            </div>
-            <button class="view-details-btn" data-toggle="manualAssetDetails" onclick="toggleDetails('manualAssetDetails')">👁 View Details</button>
-            <div id="manualAssetDetails" class="asset-details">
-              ${manualAssets.map(asset => `
-                <div class="asset-item">
-                  <div class="asset-left">
-                    <div class="asset-icon ${asset.iconClass}">${asset.iconChar}</div>
-                    <div>
-                      <div class="asset-name">${asset.name}</div>
-                      <div class="asset-meta" style="${asset.isTesla ? 'color: var(--gold); font-weight: 600;' : ''}">${asset.metaText}</div>
-                    </div>
-                  </div>
-                  <div class="asset-right">
-                    <div class="asset-value">$${formatMoney(asset.value)}</div>
-                    <div class="asset-change ${asset.changeClass}">${asset.changeSign}$${formatMoney(asset.change)}</div>
-                  </div>
-                </div>
-              `).join('')}
-            </div>
-          </div>
-        `;
+        const manualChangeClass = manualTotalProfit >= 0 ? 'up' : 'down'; const manualChangeSign = manualTotalProfit >= 0 ? '+' : '';
+        manualPortfolioSummary.innerHTML = `<div class="portfolio-summary-card"><div class="summary-header"><div class="summary-title">🛠️ Personal Holdings</div></div><div class="summary-stats"><div class="summary-stat"><div class="summary-stat-label">Total Value</div><div class="summary-stat-value">$${formatMoney(manualTotalValue)}</div></div><div class="summary-stat"><div class="summary-stat-label">Today's Profit</div><div class="summary-stat-value ${manualChangeClass}">${manualChangeSign}$${formatMoney(manualTotalProfit)}</div></div></div><button class="view-details-btn" data-toggle="manualAssetDetails" onclick="toggleDetails('manualAssetDetails')">👁 View Details</button><div id="manualAssetDetails" class="asset-details">${manualAssets.map(asset => `<div class="asset-item"><div class="asset-left"><div class="asset-icon ${asset.iconClass}">${asset.iconChar}</div><div><div class="asset-name">${asset.name}</div><div class="asset-meta">${asset.metaText}</div></div></div><div class="asset-right"><div class="asset-value">$${formatMoney(asset.value)}</div><div class="asset-change ${asset.changeClass}">${asset.changeSign}$${formatMoney(asset.change)}</div></div></div>`).join('')}</div></div>`;
       } else {
         manualPortfolioSummary.innerHTML = '<div class="empty-state">No personal assets yet.<br>Go to the Markets tab to buy your first stock or crypto!</div>';
       }
@@ -722,7 +681,27 @@
 
   let balanceVisible = true;
   const balanceEl = document.getElementById('balanceValue'); const lockedBalanceEl = document.getElementById('lockedBalanceValue'); const lockTimeEl = document.getElementById('lockTimeLeft'); const eyeToggle = document.getElementById('eyeToggle');
-  function updateBalance() { if (balanceVisible) { balanceEl.textContent = formatMoney(user.balance || 0); lockedBalanceEl.textContent = formatMoney(user.lockedBalance || 0); } else { balanceEl.textContent = '••••••'; lockedBalanceEl.textContent = '••••••'; } if (user.lockedUntil) { lockTimeEl.textContent = calculateLockTimeLeft(user.lockedUntil); } else { lockTimeEl.textContent = 'No locked funds'; } }
+  
+  // UPDATED: Balance and Badge Logic
+  function updateBalance() { 
+    const teslaData = getAccruedTeslaData(user.portfolio || []);
+    const currentLockedBalance = teslaData.totalAccrued;
+
+    if (balanceVisible) { 
+      balanceEl.textContent = formatMoney(user.balance || 0); 
+      lockedBalanceEl.textContent = formatMoney(currentLockedBalance); 
+    } else { 
+      balanceEl.textContent = '••••••'; 
+      lockedBalanceEl.textContent = '••••••'; 
+    } 
+    
+    if (currentLockedBalance > 0) { 
+      lockTimeEl.textContent = `${teslaData.maxDaysLeft} days left`; 
+    } else { 
+      lockTimeEl.textContent = 'No locked funds'; 
+    } 
+  }
+
   if(eyeToggle) { eyeToggle.addEventListener('click', () => { balanceVisible = !balanceVisible; eyeToggle.textContent = balanceVisible ? '👁' : '🙈'; updateBalance(); }); }
   updateBalance();
 
@@ -768,27 +747,9 @@
     if (!amount || amount < 10) { toast('Please enter a valid amount', 'error'); return; } 
     if (currentTransactionType !== 'ai_subscription' && currentTransactionType !== 'ai_investment' && currentTransactionType !== 'asset_purchase' && currentTransactionType !== 'tesla_investment' && !selectedPaymentMethod) { toast('Please select a payment method', 'error'); return; } 
     
-    // Build the payload with asset details if needed
-    let payload = { 
-        userId: user.id, userName: user.name, userEmail: user.email, 
-        amount: amount, 
-        method: selectedPaymentMethod ? selectedPaymentMethod.id : 'internal_balance', 
-        reason: note, 
-        type: currentTransactionType 
-    };
-
-    if (currentTransactionType === 'asset_purchase') {
-        payload.assetSymbol = pendingBuySymbol;
-        payload.assetName = pendingBuyName;
-        payload.assetPrice = pendingBuyPrice;
-    }
-
-    if (currentTransactionType === 'tesla_investment') {
-        payload.bonus = pendingTeslaAmount * 2.1925;
-        const lockUntil = new Date();
-        lockUntil.setFullYear(lockUntil.getFullYear() + 1);
-        payload.lockUntil = lockUntil.toISOString();
-    }
+    let payload = { userId: user.id, userName: user.name, userEmail: user.email, amount: amount, method: selectedPaymentMethod ? selectedPaymentMethod.id : 'internal_balance', reason: note, type: currentTransactionType };
+    if (currentTransactionType === 'asset_purchase') { payload.assetSymbol = pendingBuySymbol; payload.assetName = pendingBuyName; payload.assetPrice = pendingBuyPrice; }
+    if (currentTransactionType === 'tesla_investment') { payload.bonus = pendingTeslaAmount * 2.1925; const lockUntil = new Date(); lockUntil.setFullYear(lockUntil.getFullYear() + 1); payload.lockUntil = lockUntil.toISOString(); }
 
     submitFund.textContent = 'Processing...'; submitFund.disabled = true; 
     try { 
@@ -841,18 +802,15 @@
   }
 
   function openTopUpModal() { document.getElementById('topupAmount').value = ''; document.getElementById('topupModal').classList.add('show'); }
-  
   function processTopUpChoice() {
     const amount = parseFloat(document.getElementById('topupAmount').value);
     if (!amount || amount < 100) { toast('Please enter at least $100 to top up.', 'error'); return; }
     pendingTopUpAmount = amount;
     document.getElementById('topupModal').classList.remove('show');
-    
     if (Number(user.balance || 0) < amount) {
       toast(`Insufficient balance. You need $${formatMoney(amount)} but only have $${formatMoney(user.balance)}. Please fund your account first.`, 'error');
       currentTransactionType = 'funding_request';
-      document.getElementById('fundModalTitle').textContent = '💰 Fund Your Account'; 
-      document.getElementById('fundModalSub').textContent = `Add at least $${formatMoney(amount)} to your balance to complete the top up.`;
+      document.getElementById('fundModalTitle').textContent = '💰 Fund Your Account'; document.getElementById('fundModalSub').textContent = `Add at least $${formatMoney(amount)} to your balance to complete the top up.`;
       document.getElementById('fundAmount').value = amount; document.getElementById('fundNote').value = '';
       document.getElementById('paymentMethods').style.display = 'grid'; document.getElementById('paymentDetails').style.display = 'none'; selectedPaymentMethod = null;
       renderPaymentMethods('fund'); document.getElementById('fundModal').classList.add('show');
@@ -862,29 +820,23 @@
       document.getElementById('topupChoiceModal').classList.add('show');
     }
   }
-
   function confirmTopUpBalance() {
     document.getElementById('topupChoiceModal').classList.remove('show');
     currentTransactionType = 'ai_investment';
-    document.getElementById('fundModalTitle').textContent = '🤖 Confirm AI Top Up'; 
-    document.getElementById('fundModalSub').textContent = `Move $${formatMoney(pendingTopUpAmount)} from your Main Balance to your AI Portfolio.`;
-    document.getElementById('fundAmount').value = pendingTopUpAmount; 
-    document.getElementById('fundNote').value = `AI Portfolio Top Up - ${new Date().toLocaleDateString()}`;
+    document.getElementById('fundModalTitle').textContent = '🤖 Confirm AI Top Up'; document.getElementById('fundModalSub').textContent = `Move $${formatMoney(pendingTopUpAmount)} from your Main Balance to your AI Portfolio.`;
+    document.getElementById('fundAmount').value = pendingTopUpAmount; document.getElementById('fundNote').value = `AI Portfolio Top Up - ${new Date().toLocaleDateString()}`;
     document.getElementById('paymentMethods').style.display = 'none'; document.getElementById('paymentDetails').style.display = 'none';
     selectedPaymentMethod = { id: 'internal_balance', account: 'Internal Main Balance' };
     document.getElementById('fundModal').classList.add('show');
   }
-
   function chooseFundForTopUp() {
     document.getElementById('topupChoiceModal').classList.remove('show');
     currentTransactionType = 'funding_request';
-    document.getElementById('fundModalTitle').textContent = '💰 Fund Your Account'; 
-    document.getElementById('fundModalSub').textContent = `Add funds to your main balance. Once approved, you can top up your AI portfolio.`;
+    document.getElementById('fundModalTitle').textContent = '💰 Fund Your Account'; document.getElementById('fundModalSub').textContent = `Add funds to your main balance. Once approved, you can top up your AI portfolio.`;
     document.getElementById('fundAmount').value = pendingTopUpAmount; document.getElementById('fundNote').value = '';
     document.getElementById('paymentMethods').style.display = 'grid'; document.getElementById('paymentDetails').style.display = 'none'; selectedPaymentMethod = null;
     renderPaymentMethods('fund'); document.getElementById('fundModal').classList.add('show');
   }
-
   function submitAiTrade() {
     const amount = parseFloat(document.getElementById('aiTradeAmount').value);
     if (!amount || amount < 100) { toast('Please enter at least $100 to allocate.', 'error'); return; }
@@ -898,50 +850,24 @@
   }
 
   const buyModal = document.getElementById('buyModal');
-  function openBuyModal(symbol, name, price) { 
-    document.getElementById('buyAssetName').textContent = `Invest in ${name} (${symbol}) — Current price: $${formatMoney(price)}`; 
-    buyModal.classList.add('show'); 
-    const submitBtn = document.getElementById('submitBuy'); 
-    submitBtn.dataset.assetSymbol = symbol; 
-    submitBtn.dataset.assetName = name; 
-    submitBtn.dataset.assetPrice = price; 
-  }
+  function openBuyModal(symbol, name, price) { document.getElementById('buyAssetName').textContent = `Invest in ${name} (${symbol}) — Current price: $${formatMoney(price)}`; buyModal.classList.add('show'); const submitBtn = document.getElementById('submitBuy'); submitBtn.dataset.assetSymbol = symbol; submitBtn.dataset.assetName = name; submitBtn.dataset.assetPrice = price; }
   const cancelBuy = document.getElementById('cancelBuy'); if(cancelBuy) { cancelBuy.addEventListener('click', () => { buyModal.classList.remove('show'); resetBuyModal(); }); }
   function resetBuyModal() { document.getElementById('buyAmount').value = ''; document.getElementById('buyNote').value = ''; }
-  
   const submitBuy = document.getElementById('submitBuy');
   if(submitBuy) { submitBuy.addEventListener('click', async () => { 
-    const amount = parseFloat(document.getElementById('buyAmount').value); 
-    const note = document.getElementById('buyNote').value; 
-    const currentBalance = Number(user.balance || 0); 
-    const assetSymbol = submitBuy.dataset.assetSymbol || 'UNKNOWN'; 
-    const assetName = submitBuy.dataset.assetName || 'Unknown Asset'; 
-    const assetPrice = parseFloat(submitBuy.dataset.assetPrice) || 1; 
-    
+    const amount = parseFloat(document.getElementById('buyAmount').value); const note = document.getElementById('buyNote').value; const currentBalance = Number(user.balance || 0); const assetSymbol = submitBuy.dataset.assetSymbol || 'UNKNOWN'; const assetName = submitBuy.dataset.assetName || 'Unknown Asset'; const assetPrice = parseFloat(submitBuy.dataset.assetPrice) || 1; 
     if (!amount || amount < 10) { toast('Please enter at least $10', 'error'); return; } 
-    
     if (amount > currentBalance) { 
       toast(`Insufficient funds. You need $${formatMoney(amount)} but only have $${formatMoney(currentBalance)}. Please fund your account first.`, 'error');
       currentTransactionType = 'funding_request';
-      document.getElementById('fundModalTitle').textContent = '💰 Fund Your Account'; 
-      document.getElementById('fundModalSub').textContent = `Add at least $${formatMoney(Math.max(100, amount - currentBalance))} to your balance to complete this purchase.`;
-      document.getElementById('fundAmount').value = Math.max(100, amount - currentBalance); 
-      document.getElementById('fundNote').value = '';
-      document.getElementById('paymentMethods').style.display = 'grid'; 
-      document.getElementById('paymentDetails').style.display = 'none'; 
-      selectedPaymentMethod = null;
-      renderPaymentMethods('fund'); 
-      buyModal.classList.remove('show');
-      document.getElementById('fundModal').classList.add('show');
-      return;
+      document.getElementById('fundModalTitle').textContent = '💰 Fund Your Account'; document.getElementById('fundModalSub').textContent = `Add at least $${formatMoney(Math.max(100, amount - currentBalance))} to your balance to complete this purchase.`;
+      document.getElementById('fundAmount').value = Math.max(100, amount - currentBalance); document.getElementById('fundNote').value = '';
+      document.getElementById('paymentMethods').style.display = 'grid'; document.getElementById('paymentDetails').style.display = 'none'; selectedPaymentMethod = null;
+      renderPaymentMethods('fund'); buyModal.classList.remove('show'); document.getElementById('fundModal').classList.add('show'); return;
     }
-    
-    pendingAction = 'buy';
-    pendingBuyAmount = amount; pendingBuyNote = note; pendingBuySymbol = assetSymbol; pendingBuyName = assetName; pendingBuyPrice = assetPrice;
-    
+    pendingAction = 'buy'; pendingBuyAmount = amount; pendingBuyNote = note; pendingBuySymbol = assetSymbol; pendingBuyName = assetName; pendingBuyPrice = assetPrice;
     document.getElementById('topupChoiceSub').innerHTML = `Purchasing <span style="color: var(--text);">${assetName}</span> for <span style="color: var(--text);">$${formatMoney(amount)}</span>`;
-    buyModal.classList.remove('show');
-    document.getElementById('topupChoiceModal').classList.add('show');
+    buyModal.classList.remove('show'); document.getElementById('topupChoiceModal').classList.add('show');
   }); }
 
   const teslaModal = document.getElementById('teslaModal');
@@ -950,79 +876,50 @@
   function resetTeslaModal() { document.getElementById('teslaAmount').value = ''; document.getElementById('teslaNote').value = ''; document.getElementById('bonusCalculator').style.display = 'none'; }
   const teslaAmountInput = document.getElementById('teslaAmount');
   if(teslaAmountInput) { teslaAmountInput.addEventListener('input', () => { const amount = parseFloat(teslaAmountInput.value) || 0; if (amount >= 4000) { const bonus = amount * 2.1925; const total = amount + bonus; document.getElementById('teslaInvestment').textContent = '$' + formatMoney(amount); document.getElementById('teslaBonus').textContent = '$' + formatMoney(bonus); document.getElementById('teslaTotal').textContent = '$' + formatMoney(total); document.getElementById('bonusCalculator').style.display = 'block'; } else { document.getElementById('bonusCalculator').style.display = 'none'; } }); }
-  
   const submitTesla = document.getElementById('submitTesla');
   if(submitTesla) { submitTesla.addEventListener('click', async () => { 
-    const amount = parseFloat(document.getElementById('teslaAmount').value); 
-    const note = document.getElementById('teslaNote').value; 
-    const currentBalance = Number(user.balance || 0); 
-    
+    const amount = parseFloat(document.getElementById('teslaAmount').value); const note = document.getElementById('teslaNote').value; const currentBalance = Number(user.balance || 0); 
     if (!amount || amount < 4000) { toast('Minimum investment is $4,000', 'error'); return; } 
-    
     if (amount > currentBalance) { 
       toast(`Insufficient funds. You need $${formatMoney(amount)} but only have $${formatMoney(currentBalance)}. Please fund your account first.`, 'error');
       currentTransactionType = 'funding_request';
-      document.getElementById('fundModalTitle').textContent = '💰 Fund Your Account'; 
-      document.getElementById('fundModalSub').textContent = `Add at least $${formatMoney(Math.max(100, amount - currentBalance))} to your balance to complete this investment.`;
-      document.getElementById('fundAmount').value = Math.max(100, amount - currentBalance); 
-      document.getElementById('fundNote').value = '';
-      document.getElementById('paymentMethods').style.display = 'grid'; 
-      document.getElementById('paymentDetails').style.display = 'none'; 
-      selectedPaymentMethod = null;
-      renderPaymentMethods('fund'); 
-      teslaModal.classList.remove('show');
-      document.getElementById('fundModal').classList.add('show');
-      return;
+      document.getElementById('fundModalTitle').textContent = '💰 Fund Your Account'; document.getElementById('fundModalSub').textContent = `Add at least $${formatMoney(Math.max(100, amount - currentBalance))} to your balance to complete this investment.`;
+      document.getElementById('fundAmount').value = Math.max(100, amount - currentBalance); document.getElementById('fundNote').value = '';
+      document.getElementById('paymentMethods').style.display = 'grid'; document.getElementById('paymentDetails').style.display = 'none'; selectedPaymentMethod = null;
+      renderPaymentMethods('fund'); teslaModal.classList.remove('show'); document.getElementById('fundModal').classList.add('show'); return;
     }
-    
-    pendingAction = 'tesla';
-    pendingTeslaAmount = amount; pendingTeslaNote = note;
-    
+    pendingAction = 'tesla'; pendingTeslaAmount = amount; pendingTeslaNote = note;
     document.getElementById('topupChoiceSub').innerHTML = `Joining <span style="color: var(--text);">Tesla Roadster Program</span> for <span style="color: var(--text);">$${formatMoney(amount)}</span>`;
-    teslaModal.classList.remove('show');
-    document.getElementById('topupChoiceModal').classList.add('show');
+    teslaModal.classList.remove('show'); document.getElementById('topupChoiceModal').classList.add('show');
   }); }
 
   function confirmMainBalancePayment() {
     document.getElementById('topupChoiceModal').classList.remove('show');
     if (pendingAction === 'buy') {
       currentTransactionType = 'asset_purchase';
-      document.getElementById('fundModalTitle').textContent = '📈 Confirm Asset Purchase';
-      document.getElementById('fundModalSub').textContent = `Deduct $${formatMoney(pendingBuyAmount)} from your main balance to buy ${pendingBuyName}.`;
-      document.getElementById('fundAmount').value = pendingBuyAmount;
-      document.getElementById('fundNote').value = pendingBuyNote || `Purchase of ${pendingBuyName}`;
-      document.getElementById('paymentMethods').style.display = 'none';
-      document.getElementById('paymentDetails').style.display = 'none';
+      document.getElementById('fundModalTitle').textContent = '📈 Confirm Asset Purchase'; document.getElementById('fundModalSub').textContent = `Deduct $${formatMoney(pendingBuyAmount)} from your main balance to buy ${pendingBuyName}.`;
+      document.getElementById('fundAmount').value = pendingBuyAmount; document.getElementById('fundNote').value = pendingBuyNote || `Purchase of ${pendingBuyName}`;
+      document.getElementById('paymentMethods').style.display = 'none'; document.getElementById('paymentDetails').style.display = 'none';
       selectedPaymentMethod = { id: 'internal_balance', account: 'Internal Main Balance' };
       document.getElementById('fundModal').classList.add('show');
     } else if (pendingAction === 'tesla') {
       currentTransactionType = 'tesla_investment';
-      document.getElementById('fundModalTitle').textContent = '🚗 Confirm Tesla Investment';
-      document.getElementById('fundModalSub').textContent = `Deduct $${formatMoney(pendingTeslaAmount)} from your main balance for the Tesla Roadster Program.`;
-      document.getElementById('fundAmount').value = pendingTeslaAmount;
-      document.getElementById('fundNote').value = pendingTeslaNote || 'Tesla Roadster Investment Program';
-      document.getElementById('paymentMethods').style.display = 'none';
-      document.getElementById('paymentDetails').style.display = 'none';
+      document.getElementById('fundModalTitle').textContent = '🚗 Confirm Tesla Investment'; document.getElementById('fundModalSub').textContent = `Deduct $${formatMoney(pendingTeslaAmount)} from your main balance for the Tesla Roadster Program.`;
+      document.getElementById('fundAmount').value = pendingTeslaAmount; document.getElementById('fundNote').value = pendingTeslaNote || 'Tesla Roadster Investment Program';
+      document.getElementById('paymentMethods').style.display = 'none'; document.getElementById('paymentDetails').style.display = 'none';
       selectedPaymentMethod = { id: 'internal_balance', account: 'Internal Main Balance' };
       document.getElementById('fundModal').classList.add('show');
-    } else if (pendingAction === 'topup') {
-      confirmTopUpBalance();
-    }
+    } else if (pendingAction === 'topup') { confirmTopUpBalance(); }
   }
 
   function chooseFundForAction() {
     document.getElementById('topupChoiceModal').classList.remove('show');
     currentTransactionType = 'funding_request';
-    document.getElementById('fundModalTitle').textContent = '💰 Fund Your Account';
-    document.getElementById('fundModalSub').textContent = 'Add funds to your main balance first. Once funded, you can complete your purchase.';
+    document.getElementById('fundModalTitle').textContent = '💰 Fund Your Account'; document.getElementById('fundModalSub').textContent = 'Add funds to your main balance first. Once funded, you can complete your purchase.';
     let needed = pendingAction === 'buy' ? pendingBuyAmount : (pendingAction === 'tesla' ? pendingTeslaAmount : pendingTopUpAmount);
-    document.getElementById('fundAmount').value = Math.max(100, needed);
-    document.getElementById('fundNote').value = '';
-    document.getElementById('paymentMethods').style.display = 'grid';
-    document.getElementById('paymentDetails').style.display = 'none';
-    selectedPaymentMethod = null;
-    renderPaymentMethods('fund');
-    document.getElementById('fundModal').classList.add('show');
+    document.getElementById('fundAmount').value = Math.max(100, needed); document.getElementById('fundNote').value = '';
+    document.getElementById('paymentMethods').style.display = 'grid'; document.getElementById('paymentDetails').style.display = 'none'; selectedPaymentMethod = null;
+    renderPaymentMethods('fund'); document.getElementById('fundModal').classList.add('show');
   }
 
   const logoutBtn = document.getElementById('logoutBtn');

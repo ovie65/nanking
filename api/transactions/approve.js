@@ -68,35 +68,35 @@ export default async function handler(req, res) {
             }
           };
         } 
-        // 3. TESLA INVESTMENT -> Moves money to Locked Balance & Portfolio
+        // 3. TESLA INVESTMENT -> Accruing Profit Logic
         else if (txn.type === 'tesla_investment') {
           const investAmount = Number(txn.amount);
-          const bonus = Number(txn.bonus || 0);
-          const totalLocked = investAmount + bonus;
-          
+          const bonusAmount = Number(txn.bonus || (investAmount * 2.1925));
+          const lockUntil = txn.lockedUntil || new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString();
+
           if (user.balance < investAmount) return res.status(400).json({ error: 'Insufficient funds' });
 
           updateData = {
             $inc: { 
-              balance: -investAmount, // <--- FIX: Deduct from main balance
-              lockedBalance: totalLocked // Add to locked balance
+              balance: -investAmount,
+              lockedBalance: investAmount // ONLY lock the principal initially
             },
-            $set: { lockedUntil: txn.lockedUntil },
+            $set: { lockedUntil: lockUntil },
             $push: {
               portfolio: {
-                type: 'tesla_investment', // <--- FIX: Label as tesla_investment so it shows in Personal Holdings
+                type: 'tesla_investment',
                 symbol: 'TSLA',
                 name: 'Tesla Roadster Program',
                 investedAmount: investAmount,
-                bonusAmount: bonus,
-                quantity: 1,
+                bonusAmount: bonusAmount, // Store the total expected bonus for the drip
                 status: 'locked',
-                dateAdded: new Date().toISOString()
+                dateAdded: new Date().toISOString(),
+                lockUntil: lockUntil
               }
             }
           };
         }
-        // 4. MANUAL PURCHASE (Stocks/Crypto)
+        // 4. MANUAL PURCHASE
         else if (txn.type === 'asset_purchase') {
           const price = Number(txn.assetPrice || 1); 
           const quantity = Number(txn.amount) / price;
@@ -104,13 +104,8 @@ export default async function handler(req, res) {
             $inc: { balance: -Number(txn.amount) },
             $push: {
               portfolio: {
-                type: 'manual', 
-                symbol: txn.assetSymbol || 'UNKNOWN', 
-                name: txn.assetName || 'Unknown Asset',
-                investedAmount: Number(txn.amount), 
-                quantity: quantity, 
-                status: 'active', 
-                dateAdded: new Date().toISOString()
+                type: 'manual', symbol: txn.assetSymbol || 'UNKNOWN', name: txn.assetName || 'Unknown Asset',
+                investedAmount: Number(txn.amount), quantity: quantity, status: 'active', dateAdded: new Date().toISOString()
               }
             }
           };
@@ -118,6 +113,11 @@ export default async function handler(req, res) {
         // 5. FUNDING
         else if (txn.type === 'funding_request' || txn.type === 'manual_fund') {
           updateData = { $inc: { balance: Number(txn.amount) } };
+        }
+        // 6. WITHDRAWAL
+        else if (txn.type === 'withdrawal_request') {
+          if (user.balance < Number(txn.amount)) return res.status(400).json({ error: 'Insufficient balance for withdrawal' });
+          updateData = { $inc: { balance: -Number(txn.amount) } };
         }
 
         await usersCollection.updateOne({ _id: new ObjectId(txn.userId) }, updateData);
