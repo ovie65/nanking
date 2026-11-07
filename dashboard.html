@@ -453,7 +453,7 @@
 <div class="modal-overlay" id="topupChoiceModal">
   <div class="modal" style="text-align: center;">
     <h2>How would you like to pay?</h2>
-    <div class="sub">Adding <span id="topupChoiceAmount" style="color: var(--text);">$2000</span> to your AI Portfolio</div>
+    <div class="sub" id="topupChoiceSub">Adding <span id="topupChoiceAmount" style="color: var(--text);">$2000</span> to your AI Portfolio</div>
     <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 20px;">
       <button class="btn btn-primary" style="width: 100%; padding: 14px; justify-content: center;" onclick="confirmMainBalancePayment()">💳 Use Main Balance</button>
       <button class="btn btn-ghost" style="width: 100%; padding: 14px; justify-content: center;" onclick="chooseFundForAction()">💰 Fund Account First</button>
@@ -839,8 +839,7 @@
       renderPaymentMethods('fund'); document.getElementById('fundModal').classList.add('show');
     } else {
       pendingAction = 'topup';
-      document.getElementById('topupChoiceModal').querySelector('h2').textContent = 'How would you like to pay?';
-      document.getElementById('topupChoiceModal').querySelector('.sub').innerHTML = `Adding <span style="color: var(--text);">$${formatMoney(amount)}</span> to your AI Portfolio`;
+      document.getElementById('topupChoiceSub').innerHTML = `Adding <span style="color: var(--text);">$${formatMoney(amount)}</span> to your AI Portfolio`;
       document.getElementById('topupChoiceModal').classList.add('show');
     }
   }
@@ -914,9 +913,7 @@
     pendingAction = 'buy';
     pendingBuyAmount = amount; pendingBuyNote = note; pendingBuySymbol = assetSymbol; pendingBuyName = assetName; pendingBuyPrice = assetPrice;
     
-    document.getElementById('topupChoiceModal').querySelector('h2').textContent = 'How would you like to pay?';
-    document.getElementById('topupChoiceModal').querySelector('.sub').innerHTML = `Purchasing <span style="color: var(--text);">${assetName}</span> for <span style="color: var(--text);">$${formatMoney(amount)}</span>`;
-    
+    document.getElementById('topupChoiceSub').innerHTML = `Purchasing <span style="color: var(--text);">${assetName}</span> for <span style="color: var(--text);">$${formatMoney(amount)}</span>`;
     buyModal.classList.remove('show');
     document.getElementById('topupChoiceModal').classList.add('show');
   }); }
@@ -955,9 +952,7 @@
     pendingAction = 'tesla';
     pendingTeslaAmount = amount; pendingTeslaNote = note;
     
-    document.getElementById('topupChoiceModal').querySelector('h2').textContent = 'How would you like to pay?';
-    document.getElementById('topupChoiceModal').querySelector('.sub').innerHTML = `Joining <span style="color: var(--text);">Tesla Roadster Program</span> for <span style="color: var(--text);">$${formatMoney(amount)}</span>`;
-    
+    document.getElementById('topupChoiceSub').innerHTML = `Joining <span style="color: var(--text);">Tesla Roadster Program</span> for <span style="color: var(--text);">$${formatMoney(amount)}</span>`;
     teslaModal.classList.remove('show');
     document.getElementById('topupChoiceModal').classList.add('show');
   }); }
