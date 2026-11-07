@@ -415,8 +415,6 @@
 <div class="modal-overlay" id="buyModal"><div class="modal">
   <h2>📈 Buy Asset</h2><div class="sub" id="buyAssetName">—</div>
   <div class="modal-field"><label>Investment Amount (USD)</label><input type="number" id="buyAmount" step="0.01" min="10" placeholder="1000.00" /></div>
-  <div class="modal-field"><label>Select Payment Method</label><div class="payment-methods" id="buyPaymentMethods"></div></div>
-  <div class="payment-details" id="buyPaymentDetails" style="display:none;"><div class="payment-details-title">Send Payment To</div><div class="payment-details-value" id="buyPaymentAddress">—</div></div>
   <div class="modal-field"><label>Reference Note (optional)</label><textarea id="buyNote" placeholder="Add a note for your records..."></textarea></div>
   <div class="modal-actions"><button class="btn btn-ghost" id="cancelBuy">Cancel</button><button class="btn btn-primary" id="submitBuy">Submit Purchase Request</button></div>
 </div></div>
@@ -425,8 +423,6 @@
   <h2>🚗 Tesla Roadster Investment Program</h2><div class="sub">Join the exclusive Tesla growth program and earn scaled bonus profits.</div>
   <div class="modal-field"><label>Investment Amount (USD) — Minimum $4,000</label><input type="number" id="teslaAmount" step="0.01" min="4000" placeholder="10000.00" /></div>
   <div class="bonus-calculator" id="bonusCalculator" style="display:none;"><div class="bonus-calculator-title">Your Bonus Breakdown</div><div class="bonus-row"><span>Your Investment</span><span id="teslaInvestment">$0.00</span></div><div class="bonus-row"><span>Bonus Profit (2.19x)</span><span id="teslaBonus">$0.00</span></div><div class="bonus-row"><span>Total After 1 Year</span><span id="teslaTotal">$0.00</span></div></div>
-  <div class="modal-field"><label>Select Payment Method</label><div class="payment-methods" id="teslaPaymentMethods"></div></div>
-  <div class="payment-details" id="teslaPaymentDetails" style="display:none;"><div class="payment-details-title">Send Payment To</div><div class="payment-details-value" id="teslaPaymentAddress">—</div></div>
   <div class="modal-field"><label>Reference Note (optional)</label><textarea id="teslaNote" placeholder="Add a note for your records..."></textarea></div>
   <div style="background:rgba(245,196,81,0.08);border:1px solid rgba(245,196,81,0.25);border-radius:10px;padding:14px;margin:16px 0;font-size:12px;color:var(--gold);line-height:1.6;">⚠️ <strong>Important:</strong> Bonus profit is locked for 1 year and cannot be withdrawn until the lock period ends.</div>
   <div class="modal-actions"><button class="btn btn-ghost" id="cancelTesla">Cancel</button><button class="btn btn-tesla" id="submitTesla">🚀 Join Tesla Program</button></div>
@@ -879,9 +875,16 @@
   }
 
   const buyModal = document.getElementById('buyModal');
-  function openBuyModal(symbol, name, price) { document.getElementById('buyAssetName').textContent = `Invest in ${name} (${symbol}) — Current price: $${formatMoney(price)}`; renderPaymentMethods('buy'); buyModal.classList.add('show'); const submitBtn = document.getElementById('submitBuy'); submitBtn.dataset.assetSymbol = symbol; submitBtn.dataset.assetName = name; submitBtn.dataset.assetPrice = price; }
+  function openBuyModal(symbol, name, price) { 
+    document.getElementById('buyAssetName').textContent = `Invest in ${name} (${symbol}) — Current price: $${formatMoney(price)}`; 
+    buyModal.classList.add('show'); 
+    const submitBtn = document.getElementById('submitBuy'); 
+    submitBtn.dataset.assetSymbol = symbol; 
+    submitBtn.dataset.assetName = name; 
+    submitBtn.dataset.assetPrice = price; 
+  }
   const cancelBuy = document.getElementById('cancelBuy'); if(cancelBuy) { cancelBuy.addEventListener('click', () => { buyModal.classList.remove('show'); resetBuyModal(); }); }
-  function resetBuyModal() { document.getElementById('buyAmount').value = ''; document.getElementById('buyNote').value = ''; document.getElementById('buyPaymentMethods').querySelectorAll('.payment-method-option').forEach(o => o.classList.remove('selected')); document.getElementById('buyPaymentDetails').style.display = 'none'; selectedPaymentMethod = null; }
+  function resetBuyModal() { document.getElementById('buyAmount').value = ''; document.getElementById('buyNote').value = ''; }
   
   const submitBuy = document.getElementById('submitBuy');
   if(submitBuy) { submitBuy.addEventListener('click', async () => { 
@@ -919,9 +922,9 @@
   }); }
 
   const teslaModal = document.getElementById('teslaModal');
-  function openTeslaModal() { renderPaymentMethods('tesla'); teslaModal.classList.add('show'); }
+  function openTeslaModal() { teslaModal.classList.add('show'); }
   const cancelTesla = document.getElementById('cancelTesla'); if(cancelTesla) { cancelTesla.addEventListener('click', () => { teslaModal.classList.remove('show'); resetTeslaModal(); }); }
-  function resetTeslaModal() { document.getElementById('teslaAmount').value = ''; document.getElementById('teslaNote').value = ''; document.getElementById('teslaPaymentMethods').querySelectorAll('.payment-method-option').forEach(o => o.classList.remove('selected')); document.getElementById('teslaPaymentDetails').style.display = 'none'; document.getElementById('bonusCalculator').style.display = 'none'; selectedPaymentMethod = null; }
+  function resetTeslaModal() { document.getElementById('teslaAmount').value = ''; document.getElementById('teslaNote').value = ''; document.getElementById('bonusCalculator').style.display = 'none'; }
   const teslaAmountInput = document.getElementById('teslaAmount');
   if(teslaAmountInput) { teslaAmountInput.addEventListener('input', () => { const amount = parseFloat(teslaAmountInput.value) || 0; if (amount >= 4000) { const bonus = amount * 2.1925; const total = amount + bonus; document.getElementById('teslaInvestment').textContent = '$' + formatMoney(amount); document.getElementById('teslaBonus').textContent = '$' + formatMoney(bonus); document.getElementById('teslaTotal').textContent = '$' + formatMoney(total); document.getElementById('bonusCalculator').style.display = 'block'; } else { document.getElementById('bonusCalculator').style.display = 'none'; } }); }
   
