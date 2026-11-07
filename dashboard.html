@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 <title>Dashboard — NexaVault</title>
 <meta name="robots" content="noindex, nofollow" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
@@ -10,9 +10,11 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/space-grotesk@5.0.0/index.css" />
 
 <style>
+  /* ============ RESET & BASE ============ */
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { overflow-x: hidden; max-width: 100vw; }
   html { scroll-behavior: smooth; }
-  body { font-family: 'Inter', system-ui, sans-serif; background: #05060a; color: #e7e9ee; min-height: 100vh; overflow-x: hidden; line-height: 1.6; -webkit-font-smoothing: antialiased; }
+  body { font-family: 'Inter', system-ui, sans-serif; background: #05060a; color: #e7e9ee; min-height: 100vh; line-height: 1.6; -webkit-font-smoothing: antialiased; }
   h1, h2, h3, h4 { font-family: 'Space Grotesk', sans-serif; letter-spacing: -0.02em; }
   a { color: inherit; text-decoration: none; }
   button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; }
@@ -27,167 +29,27 @@
     --grad-tesla: linear-gradient(135deg, #e82127 0%, #ff4444 100%);
   }
 
-  /* ============ LEFT SIDEBAR ============ */
-  .sidebar {
-    position: fixed;
-    left: 0; top: 0; bottom: 0;
-    width: 260px;
-    background: linear-gradient(180deg, #0a0c14, #05060a);
-    border-right: 1px solid var(--line);
-    z-index: 100;
-    display: flex;
-    flex-direction: column;
-    padding: 24px 0;
-  }
-  
-  .sidebar-logo {
-    display: flex; align-items: center; gap: 10px;
-    padding: 0 24px 24px;
-    border-bottom: 1px solid var(--line);
-    margin-bottom: 20px;
-    font-family: 'Space Grotesk', sans-serif;
-    font-weight: 700;
-    font-size: 17px;
-  }
-  .sidebar-logo-mark {
-    width: 32px; height: 32px;
-    border-radius: 8px;
-    background: var(--grad-gold);
-    display: grid;
-    place-items: center;
-    color: #05060a;
-    font-weight: 800;
-    font-size: 16px;
-  }
-
-  .sidebar-nav {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    padding: 0 12px;
-    flex: 1;
-  }
-  
-  .nav-item {
-    display: flex; align-items: center; gap: 12px;
-    padding: 12px 16px;
-    border-radius: 10px;
-    font-size: 14px;
-    color: var(--muted);
-    cursor: pointer;
-    transition: all 0.2s;
-    position: relative;
-  }
-  .nav-item:hover { background: rgba(255,255,255,0.03); color: var(--text); }
-  .nav-item.active { background: rgba(124,92,255,0.1); color: var(--accent-2); }
-  .nav-item.active::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 3px;
-    height: 24px;
-    background: var(--accent-2);
-    border-radius: 0 3px 3px 0;
-  }
-  .nav-item .icon { font-size: 18px; width: 22px; text-align: center; }
-  
-  .sidebar-portfolio-btn {
-    margin: 16px 12px;
-    padding: 14px;
-    background: var(--grad-2);
-    color: #fff;
-    border-radius: 12px;
-    font-weight: 600;
-    font-size: 14px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    cursor: pointer;
-    transition: all 0.25s;
-    box-shadow: 0 4px 15px rgba(124,92,255,0.3);
-  }
-  .sidebar-portfolio-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(124,92,255,0.5); }
-
-  .sidebar-footer {
-    padding: 16px 12px;
-    border-top: 1px solid var(--line);
-    margin-top: auto;
-  }
-  .sidebar-user {
-    display: flex; align-items: center; gap: 10px;
-    padding: 10px 12px;
-    border-radius: 9px;
-    background: rgba(255,255,255,0.02);
-    margin-bottom: 8px;
-  }
-  .sidebar-user .avatar {
-    width: 32px; height: 32px;
-    border-radius: 50%;
-    background: var(--grad-gold);
-    display: grid;
-    place-items: center;
-    color: #05060a;
-    font-weight: 700;
-    font-size: 13px;
-  }
-  .sidebar-user .info { flex: 1; min-width: 0; }
-  .sidebar-user .name { font-size: 13px; font-weight: 600; }
-  .sidebar-user .role { font-size: 11px; color: var(--muted); }
-  .logout-btn {
-    width: 100%;
-    padding: 9px;
-    background: rgba(239,68,68,0.06);
-    border: 1px solid rgba(239,68,68,0.2);
-    color: var(--red);
-    border-radius: 8px;
-    font-size: 12px;
-    font-weight: 600;
-    transition: all 0.2s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-  }
-  .logout-btn:hover { background: rgba(239,68,68,0.12); }
-
-  @media (max-width: 960px) {
-    .sidebar { left: -280px; transition: left 0.3s ease; }
-    .sidebar.open { left: 0; }
-    .main-wrapper { margin-left: 0 !important; }
-    .mobile-menu-btn { display: inline-flex !important; }
-  }
-
-  /* ============ MAIN WRAPPER ============ */
-  .main-wrapper {
-    margin-left: 260px;
-    min-height: 100vh;
-    background: #05060a;
-  }
-
   /* ============ TOP NAV ============ */
-  .top-nav {
-    position: sticky; top: 0; z-index: 50;
-    background: rgba(5,6,10,0.95); backdrop-filter: blur(14px);
-    border-bottom: 1px solid var(--line); padding: 14px 32px;
-    display: flex; justify-content: space-between; align-items: center;
-  }
-  .mobile-menu-btn { display: none; padding: 8px 12px; background: rgba(255,255,255,0.03); border: 1px solid var(--line); border-radius: 8px; font-size: 18px; }
+  .top-nav { position: sticky; top: 0; z-index: 100; background: rgba(5,6,10,0.95); backdrop-filter: blur(14px); border-bottom: 1px solid var(--line); padding: 14px 32px; display: flex; justify-content: space-between; align-items: center; }
+  .nav-logo { display: flex; align-items: center; gap: 10px; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 18px; }
+  .nav-logo-mark { width: 32px; height: 32px; border-radius: 8px; background: var(--grad); display: grid; place-items: center; color: #05060a; font-weight: 800; font-size: 16px; }
   .nav-user { display: flex; align-items: center; gap: 16px; }
   .nav-user-info { text-align: right; }
   .nav-user-name { font-size: 14px; font-weight: 600; }
   .nav-user-email { font-size: 11px; color: var(--muted); }
   .nav-avatar { width: 38px; height: 38px; border-radius: 50%; background: var(--grad-2); display: grid; place-items: center; color: #fff; font-weight: 700; font-size: 14px; }
+  .logout-btn { padding: 8px 14px; background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.2); color: var(--red); border-radius: 8px; font-size: 12px; font-weight: 600; transition: all 0.2s; }
+  .logout-btn:hover { background: rgba(239,68,68,0.15); }
 
   @media (max-width: 768px) {
     .top-nav { flex-wrap: wrap; padding: 12px 16px; gap: 12px; }
+    .nav-logo { flex: 1; }
     .nav-user { width: 100%; flex-wrap: wrap; justify-content: space-between; align-items: center; border-top: 1px solid var(--line); padding-top: 12px; margin-top: 4px; }
     .nav-avatar { order: 1; }
     .nav-user-info { order: 2; text-align: left; flex: 1; padding-left: 12px; }
     .nav-user-name { font-size: 13px; }
     .nav-user-email { font-size: 10px; }
+    .logout-btn { order: 3; width: 100%; margin-top: 8px; justify-content: center; padding: 10px; }
   }
 
   /* ============ TAB SWITCHER ============ */
@@ -205,8 +67,30 @@
   .view-section.active { display: block; }
   @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
+  /* ============ FLOATING 3-DASH PORTFOLIO TRIGGER ============ */
+  .portfolio-trigger {
+    position: fixed; right: 24px; top: 50%; transform: translateY(-50%);
+    background: rgba(11,13,20,0.95); backdrop-filter: blur(10px);
+    border: 1px solid var(--line); border-radius: 12px;
+    padding: 12px 10px; z-index: 90;
+    display: flex; flex-direction: column; gap: 4px;
+    transition: all 0.3s ease; cursor: pointer;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+  }
+  .portfolio-trigger:hover { background: rgba(124,92,255,0.15); border-color: var(--accent); transform: translateY(-50%) scale(1.05); }
+  .portfolio-trigger .dash { width: 20px; height: 2px; background: var(--text); border-radius: 2px; transition: all 0.3s; }
+  .portfolio-trigger:hover .dash { background: var(--accent-2); }
+  
+  @media (max-width: 768px) { 
+    .portfolio-trigger { right: 12px; padding: 10px 8px; } 
+    .portfolio-trigger .dash { width: 18px; } 
+  }
+
   /* ============ PORTFOLIO SIDE DRAWER ============ */
-  .portfolio-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); z-index: 150; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
+  .portfolio-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);
+    z-index: 150; opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+  }
   .portfolio-overlay.open { opacity: 1; pointer-events: auto; }
   
   .portfolio-drawer {
@@ -224,7 +108,10 @@
   .drawer-close { width: 32px; height: 32px; border-radius: 8px; background: rgba(255,255,255,0.05); display: grid; place-items: center; font-size: 18px; color: var(--muted); transition: all 0.2s; }
   .drawer-close:hover { background: rgba(239,68,68,0.1); color: var(--red); }
 
-  .drawer-total-card { background: linear-gradient(135deg, rgba(124,92,255,0.15), rgba(0,212,255,0.1)); border: 1px solid var(--line); border-radius: 16px; padding: 24px; margin-bottom: 24px; text-align: center; }
+  .drawer-total-card {
+    background: linear-gradient(135deg, rgba(124,92,255,0.15), rgba(0,212,255,0.1));
+    border: 1px solid var(--line); border-radius: 16px; padding: 24px; margin-bottom: 24px; text-align: center;
+  }
   .drawer-total-label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; }
   .drawer-total-value { font-family: 'Space Grotesk', sans-serif; font-size: 36px; font-weight: 700; color: var(--text); }
   .drawer-total-change { font-size: 13px; color: var(--green); margin-top: 6px; font-weight: 600; }
@@ -232,7 +119,11 @@
   .drawer-section-title { font-size: 13px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; font-weight: 600; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
   .drawer-section-title::before { content: ''; width: 4px; height: 4px; border-radius: 50%; background: var(--accent-2); }
 
-  .holding-item { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; background: rgba(255,255,255,0.02); border: 1px solid var(--line); border-radius: 12px; margin-bottom: 10px; transition: all 0.2s; }
+  .holding-item {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 14px 16px; background: rgba(255,255,255,0.02); border: 1px solid var(--line);
+    border-radius: 12px; margin-bottom: 10px; transition: all 0.2s;
+  }
   .holding-item:hover { background: rgba(255,255,255,0.04); border-color: var(--line-2); }
   .holding-left { display: flex; align-items: center; gap: 12px; }
   .holding-icon { width: 36px; height: 36px; border-radius: 10px; display: grid; place-items: center; font-weight: 800; font-size: 14px; }
@@ -246,13 +137,22 @@
   .holding-change.up { color: var(--green); }
   .holding-change.down { color: var(--red); }
 
-  .drawer-ai-status { background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.2); border-radius: 12px; padding: 14px; margin-top: 20px; display: flex; align-items: center; gap: 12px; font-size: 13px; }
+  .drawer-ai-status {
+    background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.2); border-radius: 12px;
+    padding: 14px; margin-top: 20px; display: flex; align-items: center; gap: 12px; font-size: 13px;
+  }
   .drawer-ai-status .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); box-shadow: 0 0 10px var(--green); }
 
-  .drawer-back-btn { margin-top: auto; padding: 14px; background: rgba(255,255,255,0.05); border: 1px solid var(--line); border-radius: 12px; font-size: 14px; font-weight: 600; color: var(--text); display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s; }
+  .drawer-back-btn {
+    margin-top: auto; padding: 14px; background: rgba(255,255,255,0.05); border: 1px solid var(--line);
+    border-radius: 12px; font-size: 14px; font-weight: 600; color: var(--text);
+    display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s;
+  }
   .drawer-back-btn:hover { background: rgba(255,255,255,0.1); border-color: var(--line-2); }
 
-  @media (max-width: 768px) { .portfolio-drawer { width: 100%; max-width: 100vw; right: -100%; padding: 24px 20px; } }
+  @media (max-width: 768px) {
+    .portfolio-drawer { width: 100%; max-width: 100vw; right: -100%; padding: 24px 20px; }
+  }
 
   /* ============ EXISTING DASHBOARD STYLES ============ */
   .balance-card { background: linear-gradient(135deg, rgba(124,92,255,0.15), rgba(0,212,255,0.1), rgba(245,196,81,0.08)); border: 1px solid var(--line); border-radius: 20px; padding: 32px; margin-bottom: 28px; position: relative; overflow: hidden; }
@@ -396,212 +296,175 @@
 </head>
 <body>
 
-<!-- ============ LEFT SIDEBAR ============ -->
-<aside class="sidebar" id="sidebar">
-  <div class="sidebar-logo">
-    <span class="sidebar-logo-mark">N</span>
-    <span>NexaVault</span>
+<!-- ============ TOP NAV ============ -->
+<nav class="top-nav">
+  <a href="index.html" class="nav-logo"><span class="nav-logo-mark">N</span><span>NexaVault</span></a>
+  <div class="nav-user">
+    <div class="nav-user-info"><div class="nav-user-name" id="userName">Loading...</div><div class="nav-user-email" id="userEmail">—</div></div>
+    <div class="nav-avatar" id="userAvatar">?</div>
+    <button class="logout-btn" id="logoutBtn">Sign Out</button>
   </div>
+</nav>
+
+<!-- ============ TAB SWITCHER ============ -->
+<div class="tab-switcher-container">
+  <div class="tab-switcher">
+    <button class="tab-btn active" id="tabDashboard">📊 Dashboard</button>
+    <button class="tab-btn" id="tabAgent">🤖 AI Agent</button>
+    <button class="tab-btn" id="tabMarkets">📈 Markets</button>
+  </div>
+</div>
+
+<!-- ============ FLOATING 3-DASH PORTFOLIO TRIGGER ============ -->
+<button class="portfolio-trigger" id="portfolioTrigger" aria-label="Open Portfolio">
+  <span class="dash"></span>
+  <span class="dash"></span>
+  <span class="dash"></span>
+</button>
+
+<!-- ============ PORTFOLIO SIDE DRAWER ============ -->
+<div class="portfolio-overlay" id="portfolioOverlay"></div>
+<div class="portfolio-drawer" id="portfolioDrawer">
+  <div class="drawer-header">
+    <h2>💼 My Portfolio</h2>
+    <button class="drawer-close" id="drawerClose">✕</button>
+  </div>
+
+  <div class="drawer-total-card">
+    <div class="drawer-total-label">Total Portfolio Value</div>
+    <div class="drawer-total-value" id="drawerTotalValue">$12,450.00</div>
+    <div class="drawer-total-change">▲ +$1,240.50 (11.04%) All Time</div>
+  </div>
+
+  <div class="drawer-section-title">Your Holdings</div>
   
-  <nav class="sidebar-nav">
-    <div class="nav-item active" data-tab="dashboard">
-      <span class="icon">📊</span>
-      <span>Dashboard</span>
+  <!-- Mock Holdings (We will connect real data later) -->
+  <div class="holding-item">
+    <div class="holding-left">
+      <div class="holding-icon crypto">₿</div>
+      <div><div class="holding-name">Bitcoin</div><div class="holding-shares">0.15 BTC</div></div>
     </div>
-    <div class="nav-item" data-tab="agent">
-      <span class="icon">🤖</span>
-      <span>AI Agent</span>
-    </div>
-    <div class="nav-item" data-tab="markets">
-      <span class="icon"></span>
-      <span>Markets</span>
-    </div>
-  </nav>
-
-  <div class="sidebar-portfolio-btn" id="sidebarPortfolioBtn">
-    <span>💼</span>
-    <span>Portfolio</span>
-  </div>
-
-  <div class="sidebar-footer">
-    <div class="sidebar-user">
-      <div class="avatar" id="sidebarAvatar">?</div>
-      <div class="info">
-        <div class="name" id="sidebarName">Loading...</div>
-        <div class="role">Investor</div>
-      </div>
-    </div>
-    <button class="logout-btn" id="sidebarLogout">⎋ Sign Out</button>
-  </div>
-</aside>
-
-<!-- ============ MAIN WRAPPER ============ -->
-<div class="main-wrapper">
-
-  <!-- ============ TOP NAV ============ -->
-  <nav class="top-nav">
-    <button class="mobile-menu-btn" id="mobileMenuBtn"></button>
-    <div class="nav-user">
-      <div class="nav-user-info">
-        <div class="nav-user-name" id="topUserName">Loading...</div>
-        <div class="nav-user-email" id="topUserEmail">—</div>
-      </div>
-      <div class="nav-avatar" id="topAvatar">?</div>
-    </div>
-  </nav>
-
-  <!-- ============ TAB SWITCHER ============ -->
-  <div class="tab-switcher-container">
-    <div class="tab-switcher">
-      <button class="tab-btn active" id="tabDashboard">📊 Dashboard</button>
-      <button class="tab-btn" id="tabAgent"> AI Agent</button>
-      <button class="tab-btn" id="tabMarkets">📈 Markets</button>
+    <div class="holding-right">
+      <div class="holding-val">$10,176.30</div>
+      <div class="holding-change up">+5.2%</div>
     </div>
   </div>
 
-  <!-- ============ PORTFOLIO SIDE DRAWER ============ -->
-  <div class="portfolio-overlay" id="portfolioOverlay"></div>
-  <div class="portfolio-drawer" id="portfolioDrawer">
-    <div class="drawer-header">
-      <h2>💼 My Portfolio</h2>
-      <button class="drawer-close" id="drawerClose">✕</button>
+  <div class="holding-item">
+    <div class="holding-left">
+      <div class="holding-icon stock">N</div>
+      <div><div class="holding-name">NVIDIA</div><div class="holding-shares">2.5 Shares</div></div>
     </div>
-
-    <div class="drawer-total-card">
-      <div class="drawer-total-label">Total Portfolio Value</div>
-      <div class="drawer-total-value" id="drawerTotalValue">$12,450.00</div>
-      <div class="drawer-total-change">▲ +$1,240.50 (11.04%) All Time</div>
+    <div class="holding-right">
+      <div class="holding-val">$2,187.50</div>
+      <div class="holding-change up">+12.4%</div>
     </div>
-
-    <div class="drawer-section-title">Your Holdings</div>
-    
-    <div class="holding-item">
-      <div class="holding-left">
-        <div class="holding-icon crypto">₿</div>
-        <div><div class="holding-name">Bitcoin</div><div class="holding-shares">0.15 BTC</div></div>
-      </div>
-      <div class="holding-right">
-        <div class="holding-val">$10,176.30</div>
-        <div class="holding-change up">+5.2%</div>
-      </div>
-    </div>
-
-    <div class="holding-item">
-      <div class="holding-left">
-        <div class="holding-icon stock">N</div>
-        <div><div class="holding-name">NVIDIA</div><div class="holding-shares">2.5 Shares</div></div>
-      </div>
-      <div class="holding-right">
-        <div class="holding-val">$2,187.50</div>
-        <div class="holding-change up">+12.4%</div>
-      </div>
-    </div>
-
-    <div class="holding-item">
-      <div class="holding-left">
-        <div class="holding-icon crypto">S</div>
-        <div><div class="holding-name">Solana</div><div class="holding-shares">5.0 SOL</div></div>
-      </div>
-      <div class="holding-right">
-        <div class="holding-val">$890.00</div>
-        <div class="holding-change down">-1.2%</div>
-      </div>
-    </div>
-
-    <div class="drawer-ai-status">
-      <div class="dot"></div>
-      <div>
-        <div style="font-weight: 600; margin-bottom: 2px;">AI Agent Active</div>
-        <div style="font-size: 11px; color: var(--muted);">Monitoring your portfolio 24/7</div>
-      </div>
-    </div>
-
-    <button class="drawer-back-btn" id="drawerBackBtn">← Back to Dashboard</button>
   </div>
 
-  <!-- ============ DASHBOARD CONTAINER ============ -->
-  <div class="dashboard-container">
+  <div class="holding-item">
+    <div class="holding-left">
+      <div class="holding-icon crypto">S</div>
+      <div><div class="holding-name">Solana</div><div class="holding-shares">5.0 SOL</div></div>
+    </div>
+    <div class="holding-right">
+      <div class="holding-val">$890.00</div>
+      <div class="holding-change down">-1.2%</div>
+    </div>
+  </div>
 
-    <!-- DASHBOARD VIEW -->
-    <div id="viewDashboard" class="view-section active">
-      <div class="balance-card">
-        <div class="balance-header">
-          <div class="balance-section">
-            <div class="balance-title">Available Balance</div>
-            <div class="balance-amount"><span class="currency">$</span><span id="balanceValue">0.00</span><button class="eye-toggle" id="eyeToggle">👁</button></div>
-            <div class="balance-subtitle">Ready to invest</div>
-          </div>
-          <div class="balance-section">
-            <div class="balance-title">Locked Bonus Profit</div>
-            <div class="balance-amount locked"><span class="currency">$</span><span id="lockedBalanceValue">0.00</span></div>
-            <div class="balance-subtitle"><span class="lock-badge">🔒 <span id="lockTimeLeft">No locked funds</span></span></div>
-          </div>
+  <div class="drawer-ai-status">
+    <div class="dot"></div>
+    <div>
+      <div style="font-weight: 600; margin-bottom: 2px;">AI Agent Active</div>
+      <div style="font-size: 11px; color: var(--muted);">Monitoring your portfolio 24/7</div>
+    </div>
+  </div>
+
+  <button class="drawer-back-btn" id="drawerBackBtn">← Back to Dashboard</button>
+</div>
+
+<!-- ============ DASHBOARD CONTAINER ============ -->
+<div class="dashboard-container">
+
+  <!-- DASHBOARD VIEW -->
+  <div id="viewDashboard" class="view-section active">
+    <div class="balance-card">
+      <div class="balance-header">
+        <div class="balance-section">
+          <div class="balance-title">Available Balance</div>
+          <div class="balance-amount"><span class="currency">$</span><span id="balanceValue">0.00</span><button class="eye-toggle" id="eyeToggle">👁</button></div>
+          <div class="balance-subtitle">Ready to invest</div>
         </div>
-        <div class="balance-actions"><button class="fund-btn" id="fundBtn">💰 Fund Account</button></div>
+        <div class="balance-section">
+          <div class="balance-title">Locked Bonus Profit</div>
+          <div class="balance-amount locked"><span class="currency">$</span><span id="lockedBalanceValue">0.00</span></div>
+          <div class="balance-subtitle"><span class="lock-badge">🔒 <span id="lockTimeLeft">No locked funds</span></span></div>
+        </div>
       </div>
+      <div class="balance-actions"><button class="fund-btn" id="fundBtn">💰 Fund Account</button></div>
+    </div>
 
-      <div class="ai-status">
-        <div class="ai-icon">🤖</div>
-        <div class="ai-info"><div class="ai-title">Your AI Mini-Worker is Active</div><div class="ai-desc">Autonomous agent monitoring markets 24/7 and optimizing your portfolio</div></div>
-        <div class="ai-stats"><div class="ai-stat"><div class="ai-stat-val">2,847</div><div class="ai-stat-lbl">Signals/Day</div></div><div class="ai-stat"><div class="ai-stat-val">99.8%</div><div class="ai-stat-lbl">Uptime</div></div></div>
-      </div>
+    <div class="ai-status">
+      <div class="ai-icon">🤖</div>
+      <div class="ai-info"><div class="ai-title">Your AI Mini-Worker is Active</div><div class="ai-desc">Autonomous agent monitoring markets 24/7 and optimizing your portfolio</div></div>
+      <div class="ai-stats"><div class="ai-stat"><div class="ai-stat-val">2,847</div><div class="ai-stat-lbl">Signals/Day</div></div><div class="ai-stat"><div class="ai-stat-val">99.8%</div><div class="ai-stat-lbl">Uptime</div></div></div>
+    </div>
 
-      <div class="ticker-section">
-        <div class="section-title"><span class="dot"></span><span>Live Market Preview</span></div>
-        <div class="ticker-grid" id="tickerGrid"></div>
-      </div>
+    <div class="ticker-section">
+      <div class="section-title"><span class="dot"></span><span>Live Market Preview</span></div>
+      <div class="ticker-grid" id="tickerGrid"></div>
+    </div>
 
-      <div class="info-section">
-        <div class="section-title"><span class="dot"></span><span>How Our Markets Work</span></div>
-        <p style="color: var(--muted); font-size: 15px; line-height: 1.7; max-width: 800px;">With the help of experienced financial experts, we have hand-picked <strong style="color: var(--text);">20 of the best stocks and cryptocurrencies</strong> that are certain to yield strong, consistent interest. You have two ways to invest:</p>
-        <div class="info-grid">
-          <div class="info-card">
-            <h3>🛠️ Build Your Own Portfolio</h3>
-            <p>You are free to pick your own stocks and crypto from our curated list and add them to your portfolio. Our sophisticated AI agent will still trade and handle the execution for you.</p>
-            <ul><li>Full control over asset selection</li><li>AI handles the trade execution</li><li><strong>Note:</strong> Your profit depends entirely on the combination of assets you choose.</li></ul>
-          </div>
-          <div class="info-card recommended">
-            <h3> AI Full Control (Recommended)</h3>
-            <p>We strongly recommend subscribing to let our AI Agent take full control. It will handpick the perfect combination of crypto and stocks to ensure you get the <strong style="color: var(--gold);">highest possible profit and interest</strong>, backed by tested, fail-proof strategies.</p>
-            <ul><li>AI optimizes your portfolio automatically</li><li>Maximum yield guaranteed by tested algorithms</li><li>Zero stress, fully automated management</li></ul>
-          </div>
+    <div class="info-section">
+      <div class="section-title"><span class="dot"></span><span>How Our Markets Work</span></div>
+      <p style="color: var(--muted); font-size: 15px; line-height: 1.7; max-width: 800px;">With the help of experienced financial experts, we have hand-picked <strong style="color: var(--text);">20 of the best stocks and cryptocurrencies</strong> that are certain to yield strong, consistent interest. You have two ways to invest:</p>
+      <div class="info-grid">
+        <div class="info-card">
+          <h3>🛠️ Build Your Own Portfolio</h3>
+          <p>You are free to pick your own stocks and crypto from our curated list and add them to your portfolio. Our sophisticated AI agent will still trade and handle the execution for you.</p>
+          <ul><li>Full control over asset selection</li><li>AI handles the trade execution</li><li><strong>Note:</strong> Your profit depends entirely on the combination of assets you choose.</li></ul>
+        </div>
+        <div class="info-card recommended">
+          <h3>🤖 AI Full Control (Recommended)</h3>
+          <p>We strongly recommend subscribing to let our AI Agent take full control. It will handpick the perfect combination of crypto and stocks to ensure you get the <strong style="color: var(--gold);">highest possible profit and interest</strong>, backed by tested, fail-proof strategies.</p>
+          <ul><li>AI optimizes your portfolio automatically</li><li>Maximum yield guaranteed by tested algorithms</li><li>Zero stress, fully automated management</li></ul>
         </div>
       </div>
     </div>
+  </div>
 
-    <!-- AI AGENT VIEW -->
-    <div id="viewAgent" class="view-section">
-      <div class="ticker-section">
-        <div class="section-title"><span class="dot"></span><span>AI Agent Subscription Plans</span></div>
-        <p style="color: var(--muted); font-size: 15px; line-height: 1.7; max-width: 800px; margin-bottom: 24px;">Let our sophisticated AI take the wheel. Choose a plan below to grant the AI full control over your portfolio, ensuring the highest possible returns without the guesswork.</p>
-        <div class="sub-plans">
-          <div class="plan-card">
-            <h3>Annual Plan</h3>
-            <div class="plan-price">$150<span>/year</span></div>
-            <div class="plan-desc">Perfect for getting started with AI-managed investments.</div>
-            <ul class="plan-features"><li>Full AI portfolio management</li><li>24/7 automated trading</li><li>Access to all 20 curated assets</li><li>Monthly performance reports</li></ul>
-            <button class="subscribe-btn" onclick="subscribeAgent('1 Year', 150)">Subscribe for 1 Year</button>
-          </div>
-          <div class="plan-card featured">
-            <h3>7-Year Plan</h3>
-            <div class="plan-price">$1,050<span> total</span></div>
-            <div class="plan-desc">Lock in the $150/year rate for 7 years. Maximum long-term growth.</div>
-            <ul class="plan-features"><li>Everything in the Annual Plan</li><li>7 years of uninterrupted AI management</li><li>Priority support & advanced strategies</li><li>Best long-term value</li></ul>
-            <button class="subscribe-btn gold" onclick="subscribeAgent('7 Years', 1050)">Subscribe for 7 Years</button>
-          </div>
+  <!-- AI AGENT VIEW -->
+  <div id="viewAgent" class="view-section">
+    <div class="ticker-section">
+      <div class="section-title"><span class="dot"></span><span>AI Agent Subscription Plans</span></div>
+      <p style="color: var(--muted); font-size: 15px; line-height: 1.7; max-width: 800px; margin-bottom: 24px;">Let our sophisticated AI take the wheel. Choose a plan below to grant the AI full control over your portfolio, ensuring the highest possible returns without the guesswork.</p>
+      <div class="sub-plans">
+        <div class="plan-card">
+          <h3>Annual Plan</h3>
+          <div class="plan-price">$150<span>/year</span></div>
+          <div class="plan-desc">Perfect for getting started with AI-managed investments.</div>
+          <ul class="plan-features"><li>Full AI portfolio management</li><li>24/7 automated trading</li><li>Access to all 20 curated assets</li><li>Monthly performance reports</li></ul>
+          <button class="subscribe-btn" onclick="subscribeAgent('1 Year', 150)">Subscribe for 1 Year</button>
+        </div>
+        <div class="plan-card featured">
+          <h3>7-Year Plan</h3>
+          <div class="plan-price">$1,050<span> total</span></div>
+          <div class="plan-desc">Lock in the $150/year rate for 7 years. Maximum long-term growth.</div>
+          <ul class="plan-features"><li>Everything in the Annual Plan</li><li>7 years of uninterrupted AI management</li><li>Priority support & advanced strategies</li><li>Best long-term value</li></ul>
+          <button class="subscribe-btn gold" onclick="subscribeAgent('7 Years', 1050)">Subscribe for 7 Years</button>
         </div>
       </div>
     </div>
-
-    <!-- MARKETS VIEW -->
-    <div id="viewMarkets" class="view-section">
-      <div class="ticker-section">
-        <div class="section-title"><span class="dot"></span><span>Investment Market</span></div>
-        <div class="market-grid" id="marketGrid"></div>
-      </div>
-    </div>
-
   </div>
+
+  <!-- MARKETS VIEW -->
+  <div id="viewMarkets" class="view-section">
+    <div class="ticker-section">
+      <div class="section-title"><span class="dot"></span><span>Investment Market</span></div>
+      <div class="market-grid" id="marketGrid"></div>
+    </div>
+  </div>
+
 </div>
 
 <!-- ============ MODALS (Fund, Buy, Tesla) ============ -->
@@ -653,54 +516,18 @@
   if (!isLoggedIn || !currentUser) { window.location.href = 'login.html'; }
   function loadUserData() { const users = getStore(KEYS.USERS, []); const user = users.find(u => u.id === currentUser.id); if (user) { setStore(KEYS.CURRENT_USER, user); return user; } return currentUser; }
   const user = loadUserData();
-  if(user) { 
-    document.getElementById('userName').textContent = user.name; 
-    document.getElementById('userEmail').textContent = user.email; 
-    document.getElementById('userAvatar').textContent = initials(user.name);
-    document.getElementById('sidebarName').textContent = user.name;
-    document.getElementById('sidebarAvatar').textContent = initials(user.name);
-    document.getElementById('topUserName').textContent = user.name;
-    document.getElementById('topUserEmail').textContent = user.email;
-    document.getElementById('topAvatar').textContent = initials(user.name);
-  }
+  if(user) { document.getElementById('userName').textContent = user.name; document.getElementById('userEmail').textContent = user.email; document.getElementById('userAvatar').textContent = initials(user.name); }
 
-  /* ============ SIDEBAR NAVIGATION ============ */
-  const sidebarNavItems = document.querySelectorAll('.sidebar-nav .nav-item');
-  const tabDash = document.getElementById('tabDashboard');
-  const tabAgent = document.getElementById('tabAgent');
-  const tabMarkets = document.getElementById('tabMarkets');
-  const viewDash = document.getElementById('viewDashboard');
-  const viewAgent = document.getElementById('viewAgent');
-  const viewMarkets = document.getElementById('viewMarkets');
-
-  function switchTab(activeTab, activeView, activeNavItem) {
-    [tabDash, tabAgent, tabMarkets].forEach(t => t.classList.remove('active'));
-    activeTab.classList.add('active');
-    [viewDash, viewAgent, viewMarkets].forEach(v => v.classList.remove('active'));
-    activeView.classList.add('active');
-    sidebarNavItems.forEach(item => item.classList.remove('active'));
-    if(activeNavItem) activeNavItem.classList.add('active');
-  }
-
-  tabDash.addEventListener('click', () => switchTab(tabDash, viewDash, sidebarNavItems[0]));
-  tabAgent.addEventListener('click', () => switchTab(tabAgent, viewAgent, sidebarNavItems[1]));
-  tabMarkets.addEventListener('click', () => switchTab(tabMarkets, viewMarkets, sidebarNavItems[2]));
-
-  sidebarNavItems.forEach((item, index) => {
-    item.addEventListener('click', () => {
-      const tabs = [tabDash, tabAgent, tabMarkets];
-      const views = [viewDash, viewAgent, viewMarkets];
-      switchTab(tabs[index], views[index], item);
-    });
-  });
-
-  /* ============ MOBILE MENU ============ */
-  const sidebar = document.getElementById('sidebar');
-  const mobileMenuBtn = document.getElementById('mobileMenuBtn');
-  mobileMenuBtn.addEventListener('click', () => { sidebar.classList.toggle('open'); });
+  /* ============ TAB SWITCHING ============ */
+  const tabDash = document.getElementById('tabDashboard'); const tabAgent = document.getElementById('tabAgent'); const tabMarkets = document.getElementById('tabMarkets');
+  const viewDash = document.getElementById('viewDashboard'); const viewAgent = document.getElementById('viewAgent'); const viewMarkets = document.getElementById('viewMarkets');
+  function switchTab(activeTab, activeView) { [tabDash, tabAgent, tabMarkets].forEach(t => t.classList.remove('active')); activeTab.classList.add('active'); [viewDash, viewAgent, viewMarkets].forEach(v => v.classList.remove('active')); activeView.classList.add('active'); }
+  tabDash.addEventListener('click', () => switchTab(tabDash, viewDash));
+  tabAgent.addEventListener('click', () => switchTab(tabAgent, viewAgent));
+  tabMarkets.addEventListener('click', () => switchTab(tabMarkets, viewMarkets));
 
   /* ============ PORTFOLIO DRAWER LOGIC ============ */
-  const sidebarPortfolioBtn = document.getElementById('sidebarPortfolioBtn');
+  const portfolioTrigger = document.getElementById('portfolioTrigger');
   const portfolioDrawer = document.getElementById('portfolioDrawer');
   const portfolioOverlay = document.getElementById('portfolioOverlay');
   const drawerClose = document.getElementById('drawerClose');
@@ -709,7 +536,7 @@
   function openDrawer() { portfolioDrawer.classList.add('open'); portfolioOverlay.classList.add('open'); }
   function closeDrawer() { portfolioDrawer.classList.remove('open'); portfolioOverlay.classList.remove('open'); }
 
-  sidebarPortfolioBtn.addEventListener('click', openDrawer);
+  portfolioTrigger.addEventListener('click', openDrawer);
   drawerClose.addEventListener('click', closeDrawer);
   drawerBackBtn.addEventListener('click', closeDrawer);
   portfolioOverlay.addEventListener('click', closeDrawer);
@@ -729,7 +556,7 @@
   /* ============ INVESTMENT MARKET ============ */
   const CRYPTO_ASSETS = [ { name: 'Bitcoin', symbol: 'BTC', price: 67842 }, { name: 'Ethereum', symbol: 'ETH', price: 3542 }, { name: 'Solana', symbol: 'SOL', price: 178 }, { name: 'Cardano', symbol: 'ADA', price: 0.68 }, { name: 'Polkadot', symbol: 'DOT', price: 8.45 }, { name: 'Chainlink', symbol: 'LINK', price: 18.32 }, { name: 'Avalanche', symbol: 'AVAX', price: 42.15 }, { name: 'Polygon', symbol: 'MATIC', price: 0.92 }, { name: 'Uniswap', symbol: 'UNI', price: 12.78 }, { name: 'Cosmos', symbol: 'ATOM', price: 14.56 } ];
   const STOCK_ASSETS = [ { name: 'NVIDIA', symbol: 'NVDA', price: 875 }, { name: 'Apple', symbol: 'AAPL', price: 189 }, { name: 'Microsoft', symbol: 'MSFT', price: 412 }, { name: 'Amazon', symbol: 'AMZN', price: 178 }, { name: 'Google', symbol: 'GOOGL', price: 142 }, { name: 'Meta', symbol: 'META', price: 485 }, { name: 'Netflix', symbol: 'NFLX', price: 623 }, { name: 'AMD', symbol: 'AMD', price: 168 } ];
-  function renderMarket() { const grid = document.getElementById('marketGrid'); if(!grid) return; const teslaCard = `<div class="asset-card tesla-special"><div class="tesla-content"><div class="asset-icon tesla">T</div><div class="tesla-info"><div><div class="tesla-title">Tesla Roadster Investment Program</div><div class="asset-type">Special Bonus Program</div></div><div class="tesla-desc">Invest in Tesla's future and earn scaled bonus profits tied to Tesla's growth.</div><div class="tesla-stats"><div class="tesla-stat"><div class="tesla-stat-val">$4,000</div><div class="tesla-stat-lbl">Minimum</div></div><div class="tesla-stat"><div class="tesla-stat-val">2.19x</div><div class="tesla-stat-lbl">Bonus Multiplier</div></div><div class="tesla-stat"><div class="tesla-stat-val">1 Year</div><div class="tesla-stat-lbl">Lock Period</div></div></div><div class="tesla-example"><div class="tesla-example-title">Example Returns</div><div class="tesla-example-row"><span>Invest $4,000</span><span>→ Get $8,770 bonus</span></div><div class="tesla-example-row"><span>Invest $10,000</span><span>→ Get $21,925 bonus</span></div><div class="tesla-example-row"><span>Invest $20,000</span><span>→ Get $43,850 bonus</span></div></div><div class="tesla-warning">⚠️ Bonus profit is locked for 1 year.</div><button class="buy-btn tesla-btn" id="teslaBtn"> Join Tesla Program</button></div></div></div>`; const regularAssets = [...CRYPTO_ASSETS.map(a => ({ ...a, type: 'crypto', icon: '₿', iconClass: 'crypto' })), ...STOCK_ASSETS.map(a => ({ ...a, type: 'stock', icon: '📈', iconClass: 'stock' }))]; const regularCards = regularAssets.map(asset => { const change = (Math.random() - 0.45) * 8; const changeClass = change >= 0 ? 'up' : 'down'; const changeText = (change >= 0 ? '+' : '') + change.toFixed(2) + '%'; return `<div class="asset-card"><div class="asset-icon ${asset.iconClass}">${asset.icon}</div><div class="asset-name">${asset.name}</div><div class="asset-type">${asset.type}</div><div class="asset-price">$${formatMoney(asset.price)}</div><div class="asset-change ${changeClass}">${changeText}</div><button class="buy-btn" data-asset="${asset.symbol}" data-name="${asset.name}" data-price="${asset.price}">Buy ${asset.symbol}</button></div>`; }).join(''); grid.innerHTML = teslaCard + regularCards; const tBtn = document.getElementById('teslaBtn'); if(tBtn) tBtn.addEventListener('click', openTeslaModal); grid.querySelectorAll('.buy-btn:not(.tesla-btn)').forEach(btn => { btn.addEventListener('click', () => { openBuyModal(btn.dataset.asset, btn.dataset.name, btn.dataset.price); }); }); }
+  function renderMarket() { const grid = document.getElementById('marketGrid'); if(!grid) return; const teslaCard = `<div class="asset-card tesla-special"><div class="tesla-content"><div class="asset-icon tesla">T</div><div class="tesla-info"><div><div class="tesla-title">Tesla Roadster Investment Program</div><div class="asset-type">Special Bonus Program</div></div><div class="tesla-desc">Invest in Tesla's future and earn scaled bonus profits tied to Tesla's growth.</div><div class="tesla-stats"><div class="tesla-stat"><div class="tesla-stat-val">$4,000</div><div class="tesla-stat-lbl">Minimum</div></div><div class="tesla-stat"><div class="tesla-stat-val">2.19x</div><div class="tesla-stat-lbl">Bonus Multiplier</div></div><div class="tesla-stat"><div class="tesla-stat-val">1 Year</div><div class="tesla-stat-lbl">Lock Period</div></div></div><div class="tesla-example"><div class="tesla-example-title">Example Returns</div><div class="tesla-example-row"><span>Invest $4,000</span><span>→ Get $8,770 bonus</span></div><div class="tesla-example-row"><span>Invest $10,000</span><span>→ Get $21,925 bonus</span></div><div class="tesla-example-row"><span>Invest $20,000</span><span>→ Get $43,850 bonus</span></div></div><div class="tesla-warning">⚠️ Bonus profit is locked for 1 year.</div><button class="buy-btn tesla-btn" id="teslaBtn">🚀 Join Tesla Program</button></div></div></div>`; const regularAssets = [...CRYPTO_ASSETS.map(a => ({ ...a, type: 'crypto', icon: '₿', iconClass: 'crypto' })), ...STOCK_ASSETS.map(a => ({ ...a, type: 'stock', icon: '📈', iconClass: 'stock' }))]; const regularCards = regularAssets.map(asset => { const change = (Math.random() - 0.45) * 8; const changeClass = change >= 0 ? 'up' : 'down'; const changeText = (change >= 0 ? '+' : '') + change.toFixed(2) + '%'; return `<div class="asset-card"><div class="asset-icon ${asset.iconClass}">${asset.icon}</div><div class="asset-name">${asset.name}</div><div class="asset-type">${asset.type}</div><div class="asset-price">$${formatMoney(asset.price)}</div><div class="asset-change ${changeClass}">${changeText}</div><button class="buy-btn" data-asset="${asset.symbol}" data-name="${asset.name}" data-price="${asset.price}">Buy ${asset.symbol}</button></div>`; }).join(''); grid.innerHTML = teslaCard + regularCards; const tBtn = document.getElementById('teslaBtn'); if(tBtn) tBtn.addEventListener('click', openTeslaModal); grid.querySelectorAll('.buy-btn:not(.tesla-btn)').forEach(btn => { btn.addEventListener('click', () => { openBuyModal(btn.dataset.asset, btn.dataset.name, btn.dataset.price); }); }); }
   renderMarket();
 
   /* ============ MODALS LOGIC ============ */
@@ -763,10 +590,7 @@
   function subscribeAgent(plan, amount) { toast(`Redirecting to payment for ${plan} AI Agent plan ($${amount})...`, 'info'); }
 
   const logoutBtn = document.getElementById('logoutBtn');
-  const sidebarLogout = document.getElementById('sidebarLogout');
-  function handleLogout() { localStorage.removeItem(KEYS.LOGGED_IN); localStorage.removeItem(KEYS.CURRENT_USER); window.location.href = 'login.html'; }
-  if(logoutBtn) { logoutBtn.addEventListener('click', handleLogout); }
-  if(sidebarLogout) { sidebarLogout.addEventListener('click', handleLogout); }
+  if(logoutBtn) { logoutBtn.addEventListener('click', () => { localStorage.removeItem(KEYS.LOGGED_IN); localStorage.removeItem(KEYS.CURRENT_USER); window.location.href = 'login.html'; }); }
 
   window.addEventListener('load', () => { gsap.from('.balance-card', { opacity: 0, y: 30, duration: 0.7, ease: 'power3.out' }); gsap.from('.ai-status', { opacity: 0, y: 20, duration: 0.6, delay: 0.1, ease: 'power2.out' }); gsap.from('.ticker-card', { opacity: 0, y: 20, duration: 0.5, stagger: 0.08, delay: 0.2, ease: 'power2.out' }); });
 </script>
