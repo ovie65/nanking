@@ -516,7 +516,6 @@
     return portfolioBalance * (dailyPercent / 100);
   }
 
-  // THE 7 BETA ASSETS THE AI PICKS
   const BETA_AI_ASSETS = [
     { symbol: 'BTC', name: 'Bitcoin', type: 'crypto', allocation: 0.30 },
     { symbol: 'ETH', name: 'Ethereum', type: 'crypto', allocation: 0.20 },
@@ -542,7 +541,6 @@
       const portfolio = freshData.portfolio || []; let totalNetWorth = Number(freshData.balance || 0); let totalDailyProfit = 0; let hasAiAssets = false; let aiPortfolioBalance = Number(freshData.aiPortfolioBalance || 0); let aiTotalValue = 0; let aiTotalProfit = 0; let manualTotalValue = 0; let manualTotalProfit = 0;
       const aiAssets = []; const manualAssets = [];
       
-      // Process actual database assets
       portfolio.forEach(item => {
         const isAi = item.type === 'ai_managed'; if (isAi) hasAiAssets = true;
         const currentValue = Number(item.investedAmount || 0); const dailyChangeVal = calculateBetaGrowth(currentValue);
@@ -557,11 +555,12 @@
       const totalChangeClass = totalDailyProfit >= 0 ? 'up' : 'down'; const totalChangeSign = totalDailyProfit >= 0 ? '+' : '';
       totalChangeEl.innerHTML = `<span class="holding-change ${totalChangeClass}">${totalChangeSign}$${formatMoney(totalDailyProfit)} today</span>`;
       
-      // AI PORTFOLIO LOGIC (Threshold set to $100)
+      // 1. AI PORTFOLIO LOGIC
       if (user.aiAgentActive) {
-        aiSectionTitle.style.display = 'flex'; aiInfoBox.style.display = 'block';
+        aiSectionTitle.style.display = 'flex';
         
         if (aiPortfolioBalance >= 100) {
+          aiInfoBox.style.display = 'block';
           const aiChangeClass = aiTotalProfit >= 0 ? 'up' : 'down'; const aiChangeSign = aiTotalProfit >= 0 ? '+' : '';
           
           const betaAssetsHtml = BETA_AI_ASSETS.map(asset => {
@@ -596,17 +595,20 @@
               <div id="aiAssetDetails" class="asset-details">${betaAssetsHtml}</div>
             </div>
           `;
-        } else if (aiPortfolioBalance > 0 && aiPortfolioBalance < 100) {
-          aiPortfolioSummary.innerHTML = '<div class="empty-state">Minimum AI allocation is $100. Please top up your portfolio to begin trading.</div>';
-        } else { 
-          aiPortfolioSummary.innerHTML = '<div class="empty-state">AI Agent is ready. Allocate funds above to begin trading.</div>'; 
+        } else {
+          aiInfoBox.style.display = 'block';
+          if (aiPortfolioBalance > 0) {
+            aiPortfolioSummary.innerHTML = '<div class="empty-state">Minimum AI allocation is $100. Please top up your portfolio to begin trading.</div>';
+          } else {
+            aiPortfolioSummary.innerHTML = '';
+          }
         }
       } else {
-        aiSectionTitle.style.display = 'flex'; aiInfoBox.style.display = 'none';
+        aiSectionTitle.style.display = 'flex';
         aiPortfolioSummary.innerHTML = `<div class="empty-state" style="background: rgba(124,92,255,0.05); border: 1px solid var(--accent); border-radius: 12px; padding: 20px;"><div style="font-size: 24px; margin-bottom: 8px;">🔒</div><strong style="color: var(--text); display: block; margin-bottom: 4px;">AI Portfolio Locked</strong>Subscribe to unlock AI-managed investments.<button onclick="switchTab(tabAgent, viewAgent); closeDrawer();" style="margin-top: 12px; padding: 8px 16px; background: var(--grad-2); color: #fff; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">View Plans</button></div>`;
       }
       
-      // PERSONAL PORTFOLIO LOGIC (Mirrors AI Logic)
+      // 2. PERSONAL PORTFOLIO LOGIC
       if (manualAssets.length > 0) {
         const manualChangeClass = manualTotalProfit >= 0 ? 'up' : 'down'; const manualChangeSign = manualTotalProfit >= 0 ? '+' : '';
         manualPortfolioSummary.innerHTML = `
