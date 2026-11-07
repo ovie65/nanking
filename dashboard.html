@@ -452,11 +452,11 @@
 
 <div class="modal-overlay" id="topupChoiceModal">
   <div class="modal" style="text-align: center;">
-    <h2>How would you like to top up?</h2>
+    <h2>How would you like to pay?</h2>
     <div class="sub">Adding <span id="topupChoiceAmount" style="color: var(--text);">$2000</span> to your AI Portfolio</div>
     <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 20px;">
-      <button class="btn btn-primary" style="width: 100%; padding: 14px; justify-content: center;" onclick="confirmTopUpBalance()">💳 Use Main Balance</button>
-      <button class="btn btn-ghost" style="width: 100%; padding: 14px; justify-content: center;" onclick="chooseFundForTopUp()">💰 Fund Account First</button>
+      <button class="btn btn-primary" style="width: 100%; padding: 14px; justify-content: center;" onclick="confirmMainBalancePayment()">💳 Use Main Balance</button>
+      <button class="btn btn-ghost" style="width: 100%; padding: 14px; justify-content: center;" onclick="chooseFundForAction()">💰 Fund Account First</button>
     </div>
     <div class="modal-actions" style="justify-content: center; margin-top: 20px;"><button class="btn btn-ghost" onclick="document.getElementById('topupChoiceModal').classList.remove('show')">Cancel</button></div>
   </div>
@@ -569,23 +569,45 @@
       let manualTotalProfit = 0;
       const manualAssets = [];
       
-      // Process ONLY manual assets from database
       portfolio.forEach(item => {
-        if (item.type === 'ai_managed') return; // Skip AI assets from DB (we generate them dynamically)
-        const currentValue = Number(item.investedAmount || 0); 
-        const dailyChangeVal = calculateBetaGrowth(currentValue);
+        if (item.type === 'ai_managed') return;
+        
+        const currentValue = Number(item.investedAmount || 0);
+        let dailyChangeVal = calculateBetaGrowth(currentValue);
+        let isTesla = item.type === 'tesla_investment' || item.symbol === 'TSLA-BONUS' || (item.name && item.name.includes('Tesla'));
+        
+        let metaText = item.symbol || 'Asset';
+        let iconClass = ['BTC', 'ETH', 'SOL', 'ADA', 'DOT', 'LINK', 'AVAX', 'MATIC', 'UNI', 'ATOM'].includes(item.symbol) ? 'crypto' : 'stock';
+        let iconChar = item.symbol ? item.symbol.charAt(0) : 'A';
+        
+        if (isTesla) {
+          const expectedTotal = currentValue + (currentValue * 2.1925);
+          metaText = `Expected in 1 Year: $${formatMoney(expectedTotal)}`;
+          iconClass = 'ai';
+          iconChar = '🚗';
+        }
+
         totalNetWorth += currentValue; 
         totalDailyProfit += dailyChangeVal;
-        const iconClass = ['BTC', 'ETH', 'SOL', 'ADA', 'DOT', 'LINK', 'AVAX', 'MATIC', 'UNI', 'ATOM'].includes(item.symbol) ? 'crypto' : 'stock';
-        const iconChar = item.symbol.charAt(0); 
         const changeClass = dailyChangeVal >= 0 ? 'up' : 'down'; 
         const changeSign = dailyChangeVal >= 0 ? '+' : '';
-        manualAssets.push({ name: item.name, symbol: item.symbol, iconClass: iconClass, iconChar: iconChar, value: currentValue, change: dailyChangeVal, changeClass: changeClass, changeSign: changeSign });
+        
+        manualAssets.push({ 
+          name: item.name, 
+          symbol: item.symbol, 
+          iconClass: iconClass, 
+          iconChar: iconChar, 
+          value: currentValue, 
+          change: dailyChangeVal, 
+          changeClass: changeClass, 
+          changeSign: changeSign,
+          metaText: metaText,
+          isTesla: isTesla
+        });
         manualTotalValue += currentValue; 
         manualTotalProfit += dailyChangeVal;
       });
 
-      // Add AI portfolio balance to net worth if funded
       if (aiPortfolioBalance >= 100) {
         const aiDailyProfit = calculateBetaGrowth(aiPortfolioBalance);
         totalNetWorth += aiPortfolioBalance;
@@ -598,14 +620,12 @@
       const totalChangeSign = totalDailyProfit >= 0 ? '+' : '';
       totalChangeEl.innerHTML = `<span class="holding-change ${totalChangeClass}">${totalChangeSign}$${formatMoney(totalDailyProfit)} today</span>`;
       
-      // AI PORTFOLIO GATING LOGIC
       aiSectionTitle.style.display = 'flex';
       
       const isSubscribed = user.aiAgentActive;
       const isFunded = aiPortfolioBalance >= 100;
       
       if (!isSubscribed) {
-        // CASE 1: User hasn't subscribed - FULLY LOCKED
         aiPortfolioSummary.innerHTML = `
           <div class="locked-state">
             <div class="lock-icon">🔒</div>
@@ -615,7 +635,6 @@
           </div>
         `;
       } else if (!isFunded) {
-        // CASE 2: User subscribed but hasn't allocated funds - LOCKED
         aiPortfolioSummary.innerHTML = `
           <div class="locked-state">
             <div class="lock-icon">🔒</div>
@@ -625,7 +644,6 @@
           </div>
         `;
       } else {
-        // CASE 3: User subscribed AND funded - UNLOCKED, show everything
         aiUnlockedContent.style.display = 'block';
         
         const aiChangeClass = aiTotalProfit >= 0 ? 'up' : 'down'; 
@@ -665,7 +683,6 @@
         `;
       }
       
-      // PERSONAL PORTFOLIO LOGIC
       if (manualAssets.length > 0) {
         const manualChangeClass = manualTotalProfit >= 0 ? 'up' : 'down'; 
         const manualChangeSign = manualTotalProfit >= 0 ? '+' : '';
@@ -682,7 +699,10 @@
                 <div class="asset-item">
                   <div class="asset-left">
                     <div class="asset-icon ${asset.iconClass}">${asset.iconChar}</div>
-                    <div><div class="asset-name">${asset.name}</div><div class="asset-meta">${asset.symbol}</div></div>
+                    <div>
+                      <div class="asset-name">${asset.name}</div>
+                      <div class="asset-meta" style="${asset.isTesla ? 'color: var(--gold); font-weight: 600;' : ''}">${asset.metaText}</div>
+                    </div>
                   </div>
                   <div class="asset-right">
                     <div class="asset-value">$${formatMoney(asset.value)}</div>
@@ -731,7 +751,13 @@
   }
   renderMarket();
 
-  let selectedPaymentMethod = null; let currentTransactionType = 'funding_request';
+  let selectedPaymentMethod = null; 
+  let currentTransactionType = 'funding_request';
+  let pendingAction = null;
+  let pendingBuyAmount = 0, pendingBuyNote = '', pendingBuySymbol = '', pendingBuyName = '', pendingBuyPrice = 1;
+  let pendingTeslaAmount = 0, pendingTeslaNote = '';
+  let pendingTopUpAmount = 0;
+
   function renderPaymentMethods(modalType) { const payments = getStore(KEYS.PAYMENTS, DEFAULT_PAYMENTS); const container = modalType === 'fund' ? document.getElementById('paymentMethods') : modalType === 'buy' ? document.getElementById('buyPaymentMethods') : document.getElementById('teslaPaymentMethods'); if(!container) return; const enabledPayments = Object.values(payments).filter(p => p.enabled); container.innerHTML = enabledPayments.map(p => `<div class="payment-method-option" data-method="${p.id}" data-account="${p.account.replace(/"/g, '&quot;')}"><div class="icon">${p.icon}</div><div class="name">${p.name}</div></div>`).join(''); container.querySelectorAll('.payment-method-option').forEach(option => { option.addEventListener('click', () => { container.querySelectorAll('.payment-method-option').forEach(o => o.classList.remove('selected')); option.classList.add('selected'); selectedPaymentMethod = { id: option.dataset.method, account: option.dataset.account }; showPaymentDetails(modalType, selectedPaymentMethod.account); }); }); }
   function showPaymentDetails(modalType, account) { const detailsEl = modalType === 'fund' ? document.getElementById('paymentDetails') : modalType === 'buy' ? document.getElementById('buyPaymentDetails') : document.getElementById('teslaPaymentDetails'); const addressEl = modalType === 'fund' ? document.getElementById('paymentAddress') : modalType === 'buy' ? document.getElementById('buyPaymentAddress') : document.getElementById('teslaPaymentAddress'); if(detailsEl) detailsEl.style.display = 'block'; if(addressEl) addressEl.textContent = account; }
 
@@ -744,7 +770,7 @@
   if(submitFund) { submitFund.addEventListener('click', async () => { 
     const amount = parseFloat(document.getElementById('fundAmount').value); const note = document.getElementById('fundNote').value; 
     if (!amount || amount < 10) { toast('Please enter a valid amount', 'error'); return; } 
-    if (currentTransactionType !== 'ai_subscription' && currentTransactionType !== 'ai_investment' && !selectedPaymentMethod) { toast('Please select a payment method', 'error'); return; } 
+    if (currentTransactionType !== 'ai_subscription' && currentTransactionType !== 'ai_investment' && currentTransactionType !== 'asset_purchase' && currentTransactionType !== 'tesla_investment' && !selectedPaymentMethod) { toast('Please select a payment method', 'error'); return; } 
     submitFund.textContent = 'Processing...'; submitFund.disabled = true; 
     try { 
       const res = await fetch('/api/transactions', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ userId: user.id, userName: user.name, userEmail: user.email, amount: amount, method: selectedPaymentMethod ? selectedPaymentMethod.id : 'internal_balance', reason: note, type: currentTransactionType }) }); 
@@ -795,7 +821,6 @@
     renderPaymentMethods('fund'); document.getElementById('fundModal').classList.add('show');
   }
 
-  let pendingTopUpAmount = 0;
   function openTopUpModal() { document.getElementById('topupAmount').value = ''; document.getElementById('topupModal').classList.add('show'); }
   
   function processTopUpChoice() {
@@ -813,7 +838,9 @@
       document.getElementById('paymentMethods').style.display = 'grid'; document.getElementById('paymentDetails').style.display = 'none'; selectedPaymentMethod = null;
       renderPaymentMethods('fund'); document.getElementById('fundModal').classList.add('show');
     } else {
-      document.getElementById('topupChoiceAmount').textContent = '$' + formatMoney(amount);
+      pendingAction = 'topup';
+      document.getElementById('topupChoiceModal').querySelector('h2').textContent = 'How would you like to pay?';
+      document.getElementById('topupChoiceModal').querySelector('.sub').innerHTML = `Adding <span style="color: var(--text);">$${formatMoney(amount)}</span> to your AI Portfolio`;
       document.getElementById('topupChoiceModal').classList.add('show');
     }
   }
@@ -856,8 +883,43 @@
   function openBuyModal(symbol, name, price) { document.getElementById('buyAssetName').textContent = `Invest in ${name} (${symbol}) — Current price: $${formatMoney(price)}`; renderPaymentMethods('buy'); buyModal.classList.add('show'); const submitBtn = document.getElementById('submitBuy'); submitBtn.dataset.assetSymbol = symbol; submitBtn.dataset.assetName = name; submitBtn.dataset.assetPrice = price; }
   const cancelBuy = document.getElementById('cancelBuy'); if(cancelBuy) { cancelBuy.addEventListener('click', () => { buyModal.classList.remove('show'); resetBuyModal(); }); }
   function resetBuyModal() { document.getElementById('buyAmount').value = ''; document.getElementById('buyNote').value = ''; document.getElementById('buyPaymentMethods').querySelectorAll('.payment-method-option').forEach(o => o.classList.remove('selected')); document.getElementById('buyPaymentDetails').style.display = 'none'; selectedPaymentMethod = null; }
+  
   const submitBuy = document.getElementById('submitBuy');
-  if(submitBuy) { submitBuy.addEventListener('click', async () => { const amount = parseFloat(document.getElementById('buyAmount').value); const note = document.getElementById('buyNote').value; const currentBalance = Number(user.balance || 0); const assetSymbol = submitBuy.dataset.assetSymbol || 'UNKNOWN'; const assetName = submitBuy.dataset.assetName || 'Unknown Asset'; const assetPrice = parseFloat(submitBuy.dataset.assetPrice) || 1; if (amount > currentBalance) { toast('Insufficient funds.', 'error'); return; } if (!amount || amount < 10) { toast('Please enter at least $10', 'error'); return; } if (!selectedPaymentMethod) { toast('Please select a payment method', 'error'); return; } submitBuy.textContent = 'Processing...'; submitBuy.disabled = true; try { const res = await fetch('/api/transactions', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ userId: user.id, userName: user.name, userEmail: user.email, amount: amount, method: selectedPaymentMethod.id, reason: note, type: 'asset_purchase', assetSymbol: assetSymbol, assetName: assetName, assetPrice: assetPrice }) }); if (!res.ok) throw new Error('Failed'); buyModal.classList.remove('show'); resetBuyModal(); toast('Purchase request submitted.', 'success'); } catch (err) { toast('Error submitting request.', 'error'); } finally { submitBuy.textContent = 'Submit Purchase Request'; submitBuy.disabled = false; } }); }
+  if(submitBuy) { submitBuy.addEventListener('click', async () => { 
+    const amount = parseFloat(document.getElementById('buyAmount').value); 
+    const note = document.getElementById('buyNote').value; 
+    const currentBalance = Number(user.balance || 0); 
+    const assetSymbol = submitBuy.dataset.assetSymbol || 'UNKNOWN'; 
+    const assetName = submitBuy.dataset.assetName || 'Unknown Asset'; 
+    const assetPrice = parseFloat(submitBuy.dataset.assetPrice) || 1; 
+    
+    if (!amount || amount < 10) { toast('Please enter at least $10', 'error'); return; } 
+    
+    if (amount > currentBalance) { 
+      toast(`Insufficient funds. You need $${formatMoney(amount)} but only have $${formatMoney(currentBalance)}. Please fund your account first.`, 'error');
+      currentTransactionType = 'funding_request';
+      document.getElementById('fundModalTitle').textContent = '💰 Fund Your Account'; 
+      document.getElementById('fundModalSub').textContent = `Add at least $${formatMoney(Math.max(100, amount - currentBalance))} to your balance to complete this purchase.`;
+      document.getElementById('fundAmount').value = Math.max(100, amount - currentBalance); 
+      document.getElementById('fundNote').value = '';
+      document.getElementById('paymentMethods').style.display = 'grid'; 
+      document.getElementById('paymentDetails').style.display = 'none'; 
+      selectedPaymentMethod = null;
+      renderPaymentMethods('fund'); 
+      buyModal.classList.remove('show');
+      document.getElementById('fundModal').classList.add('show');
+      return;
+    }
+    
+    pendingAction = 'buy';
+    pendingBuyAmount = amount; pendingBuyNote = note; pendingBuySymbol = assetSymbol; pendingBuyName = assetName; pendingBuyPrice = assetPrice;
+    
+    document.getElementById('topupChoiceModal').querySelector('h2').textContent = 'How would you like to pay?';
+    document.getElementById('topupChoiceModal').querySelector('.sub').innerHTML = `Purchasing <span style="color: var(--text);">${assetName}</span> for <span style="color: var(--text);">$${formatMoney(amount)}</span>`;
+    
+    buyModal.classList.remove('show');
+    document.getElementById('topupChoiceModal').classList.add('show');
+  }); }
 
   const teslaModal = document.getElementById('teslaModal');
   function openTeslaModal() { renderPaymentMethods('tesla'); teslaModal.classList.add('show'); }
@@ -865,8 +927,82 @@
   function resetTeslaModal() { document.getElementById('teslaAmount').value = ''; document.getElementById('teslaNote').value = ''; document.getElementById('teslaPaymentMethods').querySelectorAll('.payment-method-option').forEach(o => o.classList.remove('selected')); document.getElementById('teslaPaymentDetails').style.display = 'none'; document.getElementById('bonusCalculator').style.display = 'none'; selectedPaymentMethod = null; }
   const teslaAmountInput = document.getElementById('teslaAmount');
   if(teslaAmountInput) { teslaAmountInput.addEventListener('input', () => { const amount = parseFloat(teslaAmountInput.value) || 0; if (amount >= 4000) { const bonus = amount * 2.1925; const total = amount + bonus; document.getElementById('teslaInvestment').textContent = '$' + formatMoney(amount); document.getElementById('teslaBonus').textContent = '$' + formatMoney(bonus); document.getElementById('teslaTotal').textContent = '$' + formatMoney(total); document.getElementById('bonusCalculator').style.display = 'block'; } else { document.getElementById('bonusCalculator').style.display = 'none'; } }); }
+  
   const submitTesla = document.getElementById('submitTesla');
-  if(submitTesla) { submitTesla.addEventListener('click', async () => { const amount = parseFloat(document.getElementById('teslaAmount').value); const note = document.getElementById('teslaNote').value; const currentBalance = Number(user.balance || 0); if (amount > currentBalance) { toast('Insufficient funds.', 'error'); return; } if (!amount || amount < 4000) { toast('Minimum investment is $4,000', 'error'); return; } if (!selectedPaymentMethod) { toast('Please select a payment method', 'error'); return; } const bonus = amount * 2.1925; const lockUntil = new Date(); lockUntil.setFullYear(lockUntil.getFullYear() + 1); submitTesla.textContent = 'Processing...'; submitTesla.disabled = true; try { const res = await fetch('/api/transactions', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ userId: user.id, userName: user.name, userEmail: user.email, amount: amount, bonus: bonus, method: selectedPaymentMethod.id, reason: note || 'Tesla Roadster Investment Program', type: 'tesla_investment', lockUntil: lockUntil.toISOString() }) }); if (!res.ok) throw new Error('Failed'); teslaModal.classList.remove('show'); resetTeslaModal(); toast('Tesla investment submitted.', 'success'); } catch (err) { toast('Error submitting request.', 'error'); } finally { submitTesla.textContent = 'Join Tesla Program'; submitTesla.disabled = false; } }); }
+  if(submitTesla) { submitTesla.addEventListener('click', async () => { 
+    const amount = parseFloat(document.getElementById('teslaAmount').value); 
+    const note = document.getElementById('teslaNote').value; 
+    const currentBalance = Number(user.balance || 0); 
+    
+    if (!amount || amount < 4000) { toast('Minimum investment is $4,000', 'error'); return; } 
+    
+    if (amount > currentBalance) { 
+      toast(`Insufficient funds. You need $${formatMoney(amount)} but only have $${formatMoney(currentBalance)}. Please fund your account first.`, 'error');
+      currentTransactionType = 'funding_request';
+      document.getElementById('fundModalTitle').textContent = '💰 Fund Your Account'; 
+      document.getElementById('fundModalSub').textContent = `Add at least $${formatMoney(Math.max(100, amount - currentBalance))} to your balance to complete this investment.`;
+      document.getElementById('fundAmount').value = Math.max(100, amount - currentBalance); 
+      document.getElementById('fundNote').value = '';
+      document.getElementById('paymentMethods').style.display = 'grid'; 
+      document.getElementById('paymentDetails').style.display = 'none'; 
+      selectedPaymentMethod = null;
+      renderPaymentMethods('fund'); 
+      teslaModal.classList.remove('show');
+      document.getElementById('fundModal').classList.add('show');
+      return;
+    }
+    
+    pendingAction = 'tesla';
+    pendingTeslaAmount = amount; pendingTeslaNote = note;
+    
+    document.getElementById('topupChoiceModal').querySelector('h2').textContent = 'How would you like to pay?';
+    document.getElementById('topupChoiceModal').querySelector('.sub').innerHTML = `Joining <span style="color: var(--text);">Tesla Roadster Program</span> for <span style="color: var(--text);">$${formatMoney(amount)}</span>`;
+    
+    teslaModal.classList.remove('show');
+    document.getElementById('topupChoiceModal').classList.add('show');
+  }); }
+
+  function confirmMainBalancePayment() {
+    document.getElementById('topupChoiceModal').classList.remove('show');
+    if (pendingAction === 'buy') {
+      currentTransactionType = 'asset_purchase';
+      document.getElementById('fundModalTitle').textContent = '📈 Confirm Asset Purchase';
+      document.getElementById('fundModalSub').textContent = `Deduct $${formatMoney(pendingBuyAmount)} from your main balance to buy ${pendingBuyName}.`;
+      document.getElementById('fundAmount').value = pendingBuyAmount;
+      document.getElementById('fundNote').value = pendingBuyNote || `Purchase of ${pendingBuyName}`;
+      document.getElementById('paymentMethods').style.display = 'none';
+      document.getElementById('paymentDetails').style.display = 'none';
+      selectedPaymentMethod = { id: 'internal_balance', account: 'Internal Main Balance' };
+      document.getElementById('fundModal').classList.add('show');
+    } else if (pendingAction === 'tesla') {
+      currentTransactionType = 'tesla_investment';
+      document.getElementById('fundModalTitle').textContent = '🚗 Confirm Tesla Investment';
+      document.getElementById('fundModalSub').textContent = `Deduct $${formatMoney(pendingTeslaAmount)} from your main balance for the Tesla Roadster Program.`;
+      document.getElementById('fundAmount').value = pendingTeslaAmount;
+      document.getElementById('fundNote').value = pendingTeslaNote || 'Tesla Roadster Investment Program';
+      document.getElementById('paymentMethods').style.display = 'none';
+      document.getElementById('paymentDetails').style.display = 'none';
+      selectedPaymentMethod = { id: 'internal_balance', account: 'Internal Main Balance' };
+      document.getElementById('fundModal').classList.add('show');
+    } else if (pendingAction === 'topup') {
+      confirmTopUpBalance();
+    }
+  }
+
+  function chooseFundForAction() {
+    document.getElementById('topupChoiceModal').classList.remove('show');
+    currentTransactionType = 'funding_request';
+    document.getElementById('fundModalTitle').textContent = '💰 Fund Your Account';
+    document.getElementById('fundModalSub').textContent = 'Add funds to your main balance first. Once funded, you can complete your purchase.';
+    let needed = pendingAction === 'buy' ? pendingBuyAmount : (pendingAction === 'tesla' ? pendingTeslaAmount : pendingTopUpAmount);
+    document.getElementById('fundAmount').value = Math.max(100, needed);
+    document.getElementById('fundNote').value = '';
+    document.getElementById('paymentMethods').style.display = 'grid';
+    document.getElementById('paymentDetails').style.display = 'none';
+    selectedPaymentMethod = null;
+    renderPaymentMethods('fund');
+    document.getElementById('fundModal').classList.add('show');
+  }
 
   const logoutBtn = document.getElementById('logoutBtn');
   if(logoutBtn) { logoutBtn.addEventListener('click', () => { localStorage.removeItem(KEYS.LOGGED_IN); localStorage.removeItem(KEYS.CURRENT_USER); window.location.href = 'login.html'; }); }
