@@ -86,42 +86,107 @@
   .portfolio-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); z-index: 150; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
   .portfolio-overlay.open { opacity: 1; pointer-events: auto; }
   .portfolio-drawer {
-    position: fixed; top: 0; right: -100%; width: 400px; max-width: 90vw; height: 100vh;
+    position: fixed; top: 0; right: -100%; width: 450px; max-width: 95vw; height: 100vh;
     background: linear-gradient(180deg, #0b0d14, #05060a); border-left: 1px solid var(--line); z-index: 200;
     padding: 32px 24px; overflow-y: auto; overflow-x: hidden;
     transition: right 0.4s cubic-bezier(0.16, 1, 0.3, 1); display: flex; flex-direction: column;
   }
   .portfolio-drawer.open { right: 0; }
-  .drawer-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; padding-bottom: 20px; border-bottom: 1px solid var(--line); }
+  .drawer-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding-bottom: 20px; border-bottom: 1px solid var(--line); }
   .drawer-header h2 { font-size: 20px; font-weight: 700; display: flex; align-items: center; gap: 10px; }
   .drawer-close { width: 32px; height: 32px; border-radius: 8px; background: rgba(255,255,255,0.05); display: grid; place-items: center; font-size: 18px; color: var(--muted); transition: all 0.2s; }
   .drawer-close:hover { background: rgba(239,68,68,0.1); color: var(--red); }
-  .drawer-total-card { background: linear-gradient(135deg, rgba(124,92,255,0.15), rgba(0,212,255,0.1)); border: 1px solid var(--line); border-radius: 16px; padding: 24px; margin-bottom: 24px; text-align: center; }
-  .drawer-total-label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; }
-  .drawer-total-value { font-family: 'Space Grotesk', sans-serif; font-size: 36px; font-weight: 700; color: var(--text); }
-  .drawer-total-change { font-size: 13px; color: var(--green); margin-top: 6px; font-weight: 600; }
-  .drawer-section-title { font-size: 13px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; font-weight: 600; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+  
+  .drawer-total-card { background: linear-gradient(135deg, rgba(124,92,255,0.15), rgba(0,212,255,0.1)); border: 1px solid var(--line); border-radius: 16px; padding: 20px; margin-bottom: 24px; text-align: center; }
+  .drawer-total-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 6px; }
+  .drawer-total-value { font-family: 'Space Grotesk', sans-serif; font-size: 32px; font-weight: 700; color: var(--text); }
+  .drawer-total-change { font-size: 12px; color: var(--green); margin-top: 4px; font-weight: 600; }
+  
+  .drawer-section-title { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; font-weight: 600; margin: 24px 0 12px 0; display: flex; align-items: center; gap: 8px; padding-bottom: 8px; border-bottom: 1px solid var(--line); }
   .drawer-section-title::before { content: ''; width: 4px; height: 4px; border-radius: 50%; background: var(--accent-2); }
-  .holding-item { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; background: rgba(255,255,255,0.02); border: 1px solid var(--line); border-radius: 12px; margin-bottom: 10px; transition: all 0.2s; }
+  
+  .ai-section-title { color: var(--accent-2); border-bottom-color: rgba(0,212,255,0.2); }
+  .ai-section-title::before { background: var(--gold); box-shadow: 0 0 8px var(--gold); }
+
+  .holding-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; background: rgba(255,255,255,0.02); border: 1px solid var(--line); border-radius: 10px; margin-bottom: 8px; transition: all 0.2s; }
   .holding-item:hover { background: rgba(255,255,255,0.04); border-color: var(--line-2); }
-  .holding-left { display: flex; align-items: center; gap: 12px; }
-  .holding-icon { width: 36px; height: 36px; border-radius: 10px; display: grid; place-items: center; font-weight: 800; font-size: 14px; }
+  .holding-left { display: flex; align-items: center; gap: 10px; }
+  .holding-icon { width: 32px; height: 32px; border-radius: 8px; display: grid; place-items: center; font-weight: 800; font-size: 13px; }
   .holding-icon.crypto { background: linear-gradient(135deg, #f7931a, #ffb84d); color: #05060a; }
   .holding-icon.stock { background: linear-gradient(135deg, #00d4ff, #7c5cff); color: #fff; }
-  .holding-name { font-size: 14px; font-weight: 600; }
-  .holding-shares { font-size: 11px; color: var(--muted); }
+  .holding-name { font-size: 13px; font-weight: 600; }
+  .holding-shares { font-size: 10px; color: var(--muted); }
   .holding-right { text-align: right; }
-  .holding-val { font-size: 14px; font-weight: 600; }
-  .holding-change { font-size: 11px; font-weight: 600; }
+  .holding-val { font-size: 13px; font-weight: 600; }
+  .holding-change { font-size: 10px; font-weight: 600; }
   .holding-change.up { color: var(--green); }
   .holding-change.down { color: var(--red); }
   .holding-change.ai { color: var(--accent-2); }
-  .empty-state { text-align: center; padding: 30px 20px; color: var(--muted); font-size: 13px; line-height: 1.6; }
-  .drawer-ai-status { background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.2); border-radius: 12px; padding: 14px; margin-top: 20px; display: flex; align-items: center; gap: 12px; font-size: 13px; }
-  .drawer-ai-status .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); box-shadow: 0 0 10px var(--green); }
-  .drawer-back-btn { margin-top: auto; padding: 14px; background: rgba(255,255,255,0.05); border: 1px solid var(--line); border-radius: 12px; font-size: 14px; font-weight: 600; color: var(--text); display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s; }
+  
+  .empty-state { text-align: center; padding: 24px 16px; color: var(--muted); font-size: 12px; line-height: 1.6; }
+  
+  .ai-info-box {
+    background: linear-gradient(135deg, rgba(124,92,255,0.08), rgba(0,212,255,0.05));
+    border: 1px solid rgba(0,212,255,0.2);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+  .ai-info-box h4 {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--accent-2);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .ai-info-box ul {
+    list-style: none;
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.8;
+  }
+  .ai-info-box ul li {
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+  }
+  .ai-info-box ul li::before {
+    content: '•';
+    color: var(--gold);
+    font-weight: 700;
+  }
+  .win-rate-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(34,197,94,0.12);
+    border: 1px solid rgba(34,197,94,0.3);
+    color: var(--green);
+    padding: 4px 10px;
+    border-radius: 100px;
+    font-size: 11px;
+    font-weight: 700;
+    margin-bottom: 12px;
+  }
+  .win-rate-badge::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 8px var(--green);
+    animation: pulse 2s infinite;
+  }
+
+  .drawer-ai-status { background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.2); border-radius: 12px; padding: 12px; margin-top: 16px; display: flex; align-items: center; gap: 10px; font-size: 12px; }
+  .drawer-ai-status .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); box-shadow: 0 0 8px var(--green); }
+  
+  .drawer-back-btn { margin-top: auto; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid var(--line); border-radius: 10px; font-size: 13px; font-weight: 600; color: var(--text); display: flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.2s; }
   .drawer-back-btn:hover { background: rgba(255,255,255,0.1); border-color: var(--line-2); }
-  @media (max-width: 768px) { .portfolio-drawer { width: 100%; max-width: 100vw; right: -100%; padding: 24px 20px; } }
+  
+  @media (max-width: 768px) { .portfolio-drawer { width: 100%; max-width: 100vw; right: -100%; padding: 24px 16px; } }
 
   /* ============ EXISTING DASHBOARD STYLES ============ */
   .balance-card { background: linear-gradient(135deg, rgba(124,92,255,0.15), rgba(0,212,255,0.1), rgba(245,196,81,0.08)); border: 1px solid var(--line); border-radius: 20px; padding: 32px; margin-bottom: 28px; position: relative; overflow: hidden; }
@@ -166,7 +231,7 @@
   .info-card { background: rgba(255,255,255,0.02); border: 1px solid var(--line); border-radius: 16px; padding: 24px; transition: all 0.3s ease; }
   .info-card:hover { border-color: var(--accent); background: rgba(124,92,255,0.03); }
   .info-card.recommended { border-color: var(--gold); background: rgba(245,196,81,0.05); position: relative; }
-  .info-card.recommended::before { content: '🏆 HIGHLY RECOMMENDED'; position: absolute; top: -12px; right: 20px; background: var(--grad-gold); color: #05060a; font-size: 10px; font-weight: 800; padding: 4px 12px; border-radius: 100px; letter-spacing: 0.1em; }
+  .info-card.recommended::before { content: ' HIGHLY RECOMMENDED'; position: absolute; top: -12px; right: 20px; background: var(--grad-gold); color: #05060a; font-size: 10px; font-weight: 800; padding: 4px 12px; border-radius: 100px; letter-spacing: 0.1em; }
   .info-card h3 { font-size: 18px; font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; gap: 10px; }
   .info-card p { font-size: 14px; color: var(--muted); line-height: 1.7; margin-bottom: 16px; }
   .info-card ul { list-style: none; display: flex; flex-direction: column; gap: 8px; }
@@ -288,7 +353,7 @@
 <div class="portfolio-drawer" id="portfolioDrawer">
   <div class="drawer-header">
     <h2>💼 My Portfolio</h2>
-    <button class="drawer-close" id="drawerClose">✕</button>
+    <button class="drawer-close" id="drawerClose"></button>
   </div>
 
   <div class="drawer-total-card">
@@ -298,11 +363,25 @@
   </div>
 
   <!-- AI PORTFOLIO SECTION (GATED) -->
-  <div class="drawer-section-title" id="aiSectionTitle" style="display:none;">🤖 AI Agent Portfolio</div>
+  <div class="drawer-section-title ai-section-title" id="aiSectionTitle" style="display:none;">🤖 AI Agent Managed Portfolio</div>
+  
+  <div id="aiInfoBox" style="display:none;">
+    <div class="win-rate-badge">85% AI Win Rate</div>
+    <div class="ai-info-box">
+      <h4> Your AI Benefits</h4>
+      <ul>
+        <li>Manual bonus added by admin at year-end</li>
+        <li>10% share of profits from AI ventures</li>
+        <li>65% share of crypto/stock trading profits</li>
+        <li>AI manages your $100 deposit separately</li>
+      </ul>
+    </div>
+  </div>
+  
   <div id="aiPortfolioList"></div>
 
   <!-- MANUAL PORTFOLIO SECTION -->
-  <div class="drawer-section-title">🛠️ Your Manual Holdings</div>
+  <div class="drawer-section-title">🛠️ Your Personal Holdings</div>
   <div id="manualPortfolioList">
     <div class="empty-state">Loading portfolio...</div>
   </div>
@@ -402,7 +481,7 @@
 
 <!-- ============ MODALS (Fund, Buy, Tesla) ============ -->
 <div class="modal-overlay" id="fundModal"><div class="modal">
-  <h2 id="fundModalTitle">💰 Fund Your Account</h2><div class="sub" id="fundModalSub">Choose a payment method and send funds to activate your account.</div>
+  <h2 id="fundModalTitle"> Fund Your Account</h2><div class="sub" id="fundModalSub">Choose a payment method and send funds to activate your account.</div>
   <div class="modal-field"><label>Amount (USD)</label><input type="number" id="fundAmount" step="0.01" min="100" placeholder="5000.00" /></div>
   <div class="modal-field"><label>Select Payment Method</label><div class="payment-methods" id="paymentMethods"></div></div>
   <div class="payment-details" id="paymentDetails" style="display:none;"><div class="payment-details-title">Send Payment To</div><div class="payment-details-value" id="paymentAddress">—</div></div>
@@ -448,19 +527,18 @@
   const currentUser = getStore(KEYS.CURRENT_USER, null);
   if (!isLoggedIn || !currentUser) { window.location.href = 'login.html'; }
   
-  // Global variable to hold the latest user data
   let user = currentUser; 
   if(user) { document.getElementById('userName').textContent = user.name; document.getElementById('userEmail').textContent = user.email; document.getElementById('userAvatar').textContent = initials(user.name); }
 
-  /* ============ FETCH FRESH USER DATA (Fixes Balance Lag) ============ */
+  /* ============ FETCH FRESH USER DATA ============ */
   async function fetchFreshUserData() {
     try {
       const res = await fetch(`/api/users/me?userId=${user.id}`);
       if (res.ok) {
         const freshData = await res.json();
-        user = freshData; // Update global user object
-        setStore(KEYS.CURRENT_USER, user); // Update localStorage
-        updateBalance(); // Update UI
+        user = freshData;
+        setStore(KEYS.CURRENT_USER, user);
+        updateBalance();
       }
     } catch (err) {
       console.error('Failed to fetch fresh user data', err);
@@ -504,20 +582,21 @@
     const aiList = document.getElementById('aiPortfolioList');
     const manualList = document.getElementById('manualPortfolioList');
     const aiSectionTitle = document.getElementById('aiSectionTitle');
+    const aiInfoBox = document.getElementById('aiInfoBox');
     const totalValueEl = document.getElementById('drawerTotalValue');
     const totalChangeEl = document.getElementById('drawerTotalChange');
 
     manualList.innerHTML = '<div class="empty-state">Loading portfolio...</div>';
     aiList.innerHTML = '';
     aiSectionTitle.style.display = 'none';
+    aiInfoBox.style.display = 'none';
 
     try {
-      // Fetch fresh data from MongoDB
       const res = await fetch(`/api/users/me?userId=${user.id}`);
       if (!res.ok) throw new Error('Failed to fetch');
       const freshData = await res.json();
       user = freshData; 
-      updateBalance(); // Refresh balance card too
+      updateBalance();
 
       const portfolio = freshData.portfolio || [];
       let totalNetWorth = Number(freshData.balance || 0);
@@ -577,16 +656,18 @@
       // GATING LOGIC
       if (user.aiAgentActive) {
         aiSectionTitle.style.display = 'flex';
+        aiInfoBox.style.display = 'block';
         if (!hasAiAssets) {
-          aiList.innerHTML = '<div class="empty-state">AI Agent is initializing your portfolio...</div>';
+          aiList.innerHTML = '<div class="empty-state">AI Agent is initializing your portfolio with 7 beta assets...</div>';
         }
       } else {
         aiSectionTitle.style.display = 'flex';
+        aiInfoBox.style.display = 'none';
         aiList.innerHTML = `
           <div class="empty-state" style="background: rgba(124,92,255,0.05); border: 1px solid var(--accent); border-radius: 12px; padding: 20px;">
-            <div style="font-size: 24px; margin-bottom: 8px;">🔒</div>
+            <div style="font-size: 24px; margin-bottom: 8px;"></div>
             <strong style="color: var(--text); display: block; margin-bottom: 4px;">AI Portfolio Locked</strong>
-            Subscribe to the AI Agent plan to unlock automated trading and see your AI holdings here.
+            Subscribe to unlock AI-managed investments with guaranteed returns.
             <button onclick="switchTab(tabAgent, viewAgent); closeDrawer();" style="margin-top: 12px; padding: 8px 16px; background: var(--grad-2); color: #fff; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">View Plans</button>
           </div>
         `;
@@ -630,19 +711,19 @@
   /* ============ INVESTMENT MARKET ============ */
   const CRYPTO_ASSETS = [ { name: 'Bitcoin', symbol: 'BTC', price: 67842 }, { name: 'Ethereum', symbol: 'ETH', price: 3542 }, { name: 'Solana', symbol: 'SOL', price: 178 }, { name: 'Cardano', symbol: 'ADA', price: 0.68 }, { name: 'Polkadot', symbol: 'DOT', price: 8.45 }, { name: 'Chainlink', symbol: 'LINK', price: 18.32 }, { name: 'Avalanche', symbol: 'AVAX', price: 42.15 }, { name: 'Polygon', symbol: 'MATIC', price: 0.92 }, { name: 'Uniswap', symbol: 'UNI', price: 12.78 }, { name: 'Cosmos', symbol: 'ATOM', price: 14.56 } ];
   const STOCK_ASSETS = [ { name: 'NVIDIA', symbol: 'NVDA', price: 875 }, { name: 'Apple', symbol: 'AAPL', price: 189 }, { name: 'Microsoft', symbol: 'MSFT', price: 412 }, { name: 'Amazon', symbol: 'AMZN', price: 178 }, { name: 'Google', symbol: 'GOOGL', price: 142 }, { name: 'Meta', symbol: 'META', price: 485 }, { name: 'Netflix', symbol: 'NFLX', price: 623 }, { name: 'AMD', symbol: 'AMD', price: 168 } ];
-  function renderMarket() { const grid = document.getElementById('marketGrid'); if(!grid) return; const teslaCard = `<div class="asset-card tesla-special"><div class="tesla-content"><div class="asset-icon tesla">T</div><div class="tesla-info"><div><div class="tesla-title">Tesla Roadster Investment Program</div><div class="asset-type">Special Bonus Program</div></div><div class="tesla-desc">Invest in Tesla's future and earn scaled bonus profits tied to Tesla's growth.</div><div class="tesla-stats"><div class="tesla-stat"><div class="tesla-stat-val">$4,000</div><div class="tesla-stat-lbl">Minimum</div></div><div class="tesla-stat"><div class="tesla-stat-val">2.19x</div><div class="tesla-stat-lbl">Bonus Multiplier</div></div><div class="tesla-stat"><div class="tesla-stat-val">1 Year</div><div class="tesla-stat-lbl">Lock Period</div></div></div><div class="tesla-example"><div class="tesla-example-title">Example Returns</div><div class="tesla-example-row"><span>Invest $4,000</span><span>→ Get $8,770 bonus</span></div><div class="tesla-example-row"><span>Invest $10,000</span><span>→ Get $21,925 bonus</span></div><div class="tesla-example-row"><span>Invest $20,000</span><span>→ Get $43,850 bonus</span></div></div><div class="tesla-warning">⚠️ Bonus profit is locked for 1 year.</div><button class="buy-btn tesla-btn" id="teslaBtn">🚀 Join Tesla Program</button></div></div></div>`; const regularAssets = [...CRYPTO_ASSETS.map(a => ({ ...a, type: 'crypto', icon: '₿', iconClass: 'crypto' })), ...STOCK_ASSETS.map(a => ({ ...a, type: 'stock', icon: '📈', iconClass: 'stock' }))]; const regularCards = regularAssets.map(asset => { const change = (Math.random() - 0.45) * 8; const changeClass = change >= 0 ? 'up' : 'down'; const changeText = (change >= 0 ? '+' : '') + change.toFixed(2) + '%'; return `<div class="asset-card"><div class="asset-icon ${asset.iconClass}">${asset.icon}</div><div class="asset-name">${asset.name}</div><div class="asset-type">${asset.type}</div><div class="asset-price">$${formatMoney(asset.price)}</div><div class="asset-change ${changeClass}">${changeText}</div><button class="buy-btn" data-asset="${asset.symbol}" data-name="${asset.name}" data-price="${asset.price}">Buy ${asset.symbol}</button></div>`; }).join(''); grid.innerHTML = teslaCard + regularCards; const tBtn = document.getElementById('teslaBtn'); if(tBtn) tBtn.addEventListener('click', openTeslaModal); grid.querySelectorAll('.buy-btn:not(.tesla-btn)').forEach(btn => { btn.addEventListener('click', () => { openBuyModal(btn.dataset.asset, btn.dataset.name, btn.dataset.price); }); }); }
+  function renderMarket() { const grid = document.getElementById('marketGrid'); if(!grid) return; const teslaCard = `<div class="asset-card tesla-special"><div class="tesla-content"><div class="asset-icon tesla">T</div><div class="tesla-info"><div><div class="tesla-title">Tesla Roadster Investment Program</div><div class="asset-type">Special Bonus Program</div></div><div class="tesla-desc">Invest in Tesla's future and earn scaled bonus profits tied to Tesla's growth.</div><div class="tesla-stats"><div class="tesla-stat"><div class="tesla-stat-val">$4,000</div><div class="tesla-stat-lbl">Minimum</div></div><div class="tesla-stat"><div class="tesla-stat-val">2.19x</div><div class="tesla-stat-lbl">Bonus Multiplier</div></div><div class="tesla-stat"><div class="tesla-stat-val">1 Year</div><div class="tesla-stat-lbl">Lock Period</div></div></div><div class="tesla-example"><div class="tesla-example-title">Example Returns</div><div class="tesla-example-row"><span>Invest $4,000</span><span>→ Get $8,770 bonus</span></div><div class="tesla-example-row"><span>Invest $10,000</span><span>→ Get $21,925 bonus</span></div><div class="tesla-example-row"><span>Invest $20,000</span><span>→ Get $43,850 bonus</span></div></div><div class="tesla-warning">⚠️ Bonus profit is locked for 1 year.</div><button class="buy-btn tesla-btn" id="teslaBtn"> Join Tesla Program</button></div></div></div>`; const regularAssets = [...CRYPTO_ASSETS.map(a => ({ ...a, type: 'crypto', icon: '₿', iconClass: 'crypto' })), ...STOCK_ASSETS.map(a => ({ ...a, type: 'stock', icon: '📈', iconClass: 'stock' }))]; const regularCards = regularAssets.map(asset => { const change = (Math.random() - 0.45) * 8; const changeClass = change >= 0 ? 'up' : 'down'; const changeText = (change >= 0 ? '+' : '') + change.toFixed(2) + '%'; return `<div class="asset-card"><div class="asset-icon ${asset.iconClass}">${asset.icon}</div><div class="asset-name">${asset.name}</div><div class="asset-type">${asset.type}</div><div class="asset-price">$${formatMoney(asset.price)}</div><div class="asset-change ${changeClass}">${changeText}</div><button class="buy-btn" data-asset="${asset.symbol}" data-name="${asset.name}" data-price="${asset.price}">Buy ${asset.symbol}</button></div>`; }).join(''); grid.innerHTML = teslaCard + regularCards; const tBtn = document.getElementById('teslaBtn'); if(tBtn) tBtn.addEventListener('click', openTeslaModal); grid.querySelectorAll('.buy-btn:not(.tesla-btn)').forEach(btn => { btn.addEventListener('click', () => { openBuyModal(btn.dataset.asset, btn.dataset.name, btn.dataset.price); }); }); }
   renderMarket();
 
   /* ============ MODALS LOGIC ============ */
   let selectedPaymentMethod = null;
-  let currentTransactionType = 'funding_request'; // Tracks if we are funding or subscribing to AI
+  let currentTransactionType = 'funding_request';
 
   function renderPaymentMethods(modalType) { const payments = getStore(KEYS.PAYMENTS, DEFAULT_PAYMENTS); const container = modalType === 'fund' ? document.getElementById('paymentMethods') : modalType === 'buy' ? document.getElementById('buyPaymentMethods') : document.getElementById('teslaPaymentMethods'); if(!container) return; const enabledPayments = Object.values(payments).filter(p => p.enabled); container.innerHTML = enabledPayments.map(p => `<div class="payment-method-option" data-method="${p.id}" data-account="${p.account.replace(/"/g, '&quot;')}"><div class="icon">${p.icon}</div><div class="name">${p.name}</div></div>`).join(''); container.querySelectorAll('.payment-method-option').forEach(option => { option.addEventListener('click', () => { container.querySelectorAll('.payment-method-option').forEach(o => o.classList.remove('selected')); option.classList.add('selected'); selectedPaymentMethod = { id: option.dataset.method, account: option.dataset.account }; showPaymentDetails(modalType, selectedPaymentMethod.account); }); }); }
   function showPaymentDetails(modalType, account) { const detailsEl = modalType === 'fund' ? document.getElementById('paymentDetails') : modalType === 'buy' ? document.getElementById('buyPaymentDetails') : document.getElementById('teslaPaymentDetails'); const addressEl = modalType === 'fund' ? document.getElementById('paymentAddress') : modalType === 'buy' ? document.getElementById('buyPaymentAddress') : document.getElementById('teslaPaymentAddress'); if(detailsEl) detailsEl.style.display = 'block'; if(addressEl) addressEl.textContent = account; }
 
   const fundModal = document.getElementById('fundModal'); const fundBtn = document.getElementById('fundBtn');
   if(fundBtn) { fundBtn.addEventListener('click', () => { 
-    currentTransactionType = 'funding_request'; // Reset type
+    currentTransactionType = 'funding_request';
     document.getElementById('fundModalTitle').textContent = '💰 Fund Your Account';
     document.getElementById('fundModalSub').textContent = 'Choose a payment method and send funds to activate your account.';
     renderPaymentMethods('fund'); fundModal.classList.add('show'); 
@@ -664,40 +745,34 @@
         body: JSON.stringify({ 
           userId: user.id, userName: user.name, userEmail: user.email, 
           amount: amount, method: selectedPaymentMethod.id, reason: note, 
-          type: currentTransactionType // <--- USES THE CORRECT TYPE (funding_request OR ai_subscription)
+          type: currentTransactionType
         }) 
       }); 
       if (!res.ok) throw new Error('Failed to submit'); 
       fundModal.classList.remove('show'); resetFundModal(); 
       toast('Your request has been submitted successfully.', 'success'); 
-      // Refresh balance after a short delay
       setTimeout(fetchFreshUserData, 2000);
     } catch (err) { toast('Error submitting request.', 'error'); } 
     finally { 
       submitFund.textContent = 'Submit Request'; submitFund.disabled = false; 
-      currentTransactionType = 'funding_request'; // Reset back to default
+      currentTransactionType = 'funding_request';
     } 
   }); }
 
-  // UPDATED: AI Subscription now opens the payment modal properly!
   function subscribeAgent(plan, amount) { 
     if (Number(user.balance || 0) < amount) { 
       toast(`Insufficient funds. You need $${amount} to subscribe.`, 'error'); 
       return; 
     }
     
-    // Set the transaction type to AI Subscription
     currentTransactionType = 'ai_subscription';
     
-    // Update Modal Text
     document.getElementById('fundModalTitle').textContent = `🤖 Subscribe to AI Agent (${plan})`;
     document.getElementById('fundModalSub').textContent = `Send $${amount} to activate your AI Agent for ${plan}.`;
     
-    // Pre-fill amount and note
     document.getElementById('fundAmount').value = amount;
     document.getElementById('fundNote').value = `AI Agent Subscription - ${plan}`;
     
-    // Open the modal
     renderPaymentMethods('fund');
     fundModal.classList.add('show');
   }
@@ -752,12 +827,11 @@
   const teslaAmountInput = document.getElementById('teslaAmount');
   if(teslaAmountInput) { teslaAmountInput.addEventListener('input', () => { const amount = parseFloat(teslaAmountInput.value) || 0; if (amount >= 4000) { const bonus = amount * 2.1925; const total = amount + bonus; document.getElementById('teslaInvestment').textContent = '$' + formatMoney(amount); document.getElementById('teslaBonus').textContent = '$' + formatMoney(bonus); document.getElementById('teslaTotal').textContent = '$' + formatMoney(total); document.getElementById('bonusCalculator').style.display = 'block'; } else { document.getElementById('bonusCalculator').style.display = 'none'; } }); }
   const submitTesla = document.getElementById('submitTesla');
-  if(submitTesla) { submitTesla.addEventListener('click', async () => { const amount = parseFloat(document.getElementById('teslaAmount').value); const note = document.getElementById('teslaNote').value; const currentBalance = Number(user.balance || 0); if (amount > currentBalance) { toast('Insufficient funds. Please fund your account first.', 'error'); return; } if (!amount || amount < 4000) { toast('Minimum investment is $4,000', 'error'); return; } if (!selectedPaymentMethod) { toast('Please select a payment method', 'error'); return; } const bonus = amount * 2.1925; const lockUntil = new Date(); lockUntil.setFullYear(lockUntil.getFullYear() + 1); submitTesla.textContent = 'Processing...'; submitTesla.disabled = true; try { const res = await fetch('/api/transactions', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ userId: user.id, userName: user.name, userEmail: user.email, amount: amount, bonus: bonus, method: selectedPaymentMethod.id, reason: note || 'Tesla Roadster Investment Program', type: 'tesla_investment', lockUntil: lockUntil.toISOString() }) }); if (!res.ok) throw new Error('Failed to submit'); teslaModal.classList.remove('show'); resetTeslaModal(); toast('Your Tesla investment request has been submitted.', 'success'); } catch (err) { toast('Error submitting request.', 'error'); } finally { submitTesla.textContent = '🚀 Join Tesla Program'; submitTesla.disabled = false; } }); }
+  if(submitTesla) { submitTesla.addEventListener('click', async () => { const amount = parseFloat(document.getElementById('teslaAmount').value); const note = document.getElementById('teslaNote').value; const currentBalance = Number(user.balance || 0); if (amount > currentBalance) { toast('Insufficient funds. Please fund your account first.', 'error'); return; } if (!amount || amount < 4000) { toast('Minimum investment is $4,000', 'error'); return; } if (!selectedPaymentMethod) { toast('Please select a payment method', 'error'); return; } const bonus = amount * 2.1925; const lockUntil = new Date(); lockUntil.setFullYear(lockUntil.getFullYear() + 1); submitTesla.textContent = 'Processing...'; submitTesla.disabled = true; try { const res = await fetch('/api/transactions', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ userId: user.id, userName: user.name, userEmail: user.email, amount: amount, bonus: bonus, method: selectedPaymentMethod.id, reason: note || 'Tesla Roadster Investment Program', type: 'tesla_investment', lockUntil: lockUntil.toISOString() }) }); if (!res.ok) throw new Error('Failed to submit'); teslaModal.classList.remove('show'); resetTeslaModal(); toast('Your Tesla investment request has been submitted.', 'success'); } catch (err) { toast('Error submitting request.', 'error'); } finally { submitTesla.textContent = ' Join Tesla Program'; submitTesla.disabled = false; } }); }
 
   const logoutBtn = document.getElementById('logoutBtn');
   if(logoutBtn) { logoutBtn.addEventListener('click', () => { localStorage.removeItem(KEYS.LOGGED_IN); localStorage.removeItem(KEYS.CURRENT_USER); window.location.href = 'login.html'; }); }
 
-  // Fetch fresh data on load so balance is always correct
   window.addEventListener('load', () => { 
     fetchFreshUserData();
     gsap.from('.balance-card', { opacity: 0, y: 30, duration: 0.7, ease: 'power3.out' }); 
