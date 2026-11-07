@@ -402,12 +402,12 @@
 
 <!-- ============ MODALS (Fund, Buy, Tesla) ============ -->
 <div class="modal-overlay" id="fundModal"><div class="modal">
-  <h2>💰 Fund Your Account</h2><div class="sub">Choose a payment method and send funds to activate your account.</div>
+  <h2 id="fundModalTitle">💰 Fund Your Account</h2><div class="sub" id="fundModalSub">Choose a payment method and send funds to activate your account.</div>
   <div class="modal-field"><label>Amount (USD)</label><input type="number" id="fundAmount" step="0.01" min="100" placeholder="5000.00" /></div>
   <div class="modal-field"><label>Select Payment Method</label><div class="payment-methods" id="paymentMethods"></div></div>
   <div class="payment-details" id="paymentDetails" style="display:none;"><div class="payment-details-title">Send Payment To</div><div class="payment-details-value" id="paymentAddress">—</div></div>
   <div class="modal-field"><label>Reference Note (optional)</label><textarea id="fundNote" placeholder="Add a note for your records..."></textarea></div>
-  <div class="modal-actions"><button class="btn btn-ghost" id="cancelFund">Cancel</button><button class="btn btn-primary" id="submitFund">Submit Funding Request</button></div>
+  <div class="modal-actions"><button class="btn btn-ghost" id="cancelFund">Cancel</button><button class="btn btn-primary" id="submitFund">Submit Request</button></div>
 </div></div>
 
 <div class="modal-overlay" id="buyModal"><div class="modal">
@@ -447,9 +447,25 @@
   const isLoggedIn = localStorage.getItem(KEYS.LOGGED_IN) === 'true';
   const currentUser = getStore(KEYS.CURRENT_USER, null);
   if (!isLoggedIn || !currentUser) { window.location.href = 'login.html'; }
-  function loadUserData() { const users = getStore(KEYS.USERS, []); const user = users.find(u => u.id === currentUser.id); if (user) { setStore(KEYS.CURRENT_USER, user); return user; } return currentUser; }
-  let user = loadUserData();
+  
+  // Global variable to hold the latest user data
+  let user = currentUser; 
   if(user) { document.getElementById('userName').textContent = user.name; document.getElementById('userEmail').textContent = user.email; document.getElementById('userAvatar').textContent = initials(user.name); }
+
+  /* ============ FETCH FRESH USER DATA (Fixes Balance Lag) ============ */
+  async function fetchFreshUserData() {
+    try {
+      const res = await fetch(`/api/users/me?userId=${user.id}`);
+      if (res.ok) {
+        const freshData = await res.json();
+        user = freshData; // Update global user object
+        setStore(KEYS.CURRENT_USER, user); // Update localStorage
+        updateBalance(); // Update UI
+      }
+    } catch (err) {
+      console.error('Failed to fetch fresh user data', err);
+    }
+  }
 
   /* ============ TAB SWITCHING ============ */
   const tabDash = document.getElementById('tabDashboard'); const tabAgent = document.getElementById('tabAgent'); const tabMarkets = document.getElementById('tabMarkets');
@@ -463,25 +479,19 @@
   let livePrices = {};
   async function fetchLivePrices() {
     try {
-      // Fetching top cryptos from CoinGecko
       const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana,cardano,polkadot,chainlink,avalanche-2&vs_currencies=usd&include_24hr_change=true');
       const data = await res.json();
-      
-      // Map CoinGecko IDs to our symbols
       const map = { bitcoin: 'BTC', ethereum: 'ETH', solana: 'SOL', cardano: 'ADA', polkadot: 'DOT', chainlink: 'LINK', 'avalanche-2': 'AVAX' };
       for (const [id, info] of Object.entries(data)) {
-        if (map[id]) {
-          livePrices[map[id]] = { price: info.usd, change24h: info.usd_24h_change };
-        }
+        if (map[id]) { livePrices[map[id]] = { price: info.usd, change24h: info.usd_24h_change }; }
       }
     } catch (err) {
-      console.warn('CoinGecko API failed, using fallback simulated prices');
-      // Fallback if API rate limit is hit
+      console.warn('CoinGecko API failed, using fallback');
       livePrices = { BTC: { price: 67000, change24h: 2.5 }, ETH: { price: 3500, change24h: 1.2 }, SOL: { price: 170, change24h: -0.5 } };
     }
   }
   fetchLivePrices();
-  setInterval(fetchLivePrices, 60000); // Refresh every 60 seconds
+  setInterval(fetchLivePrices, 60000); 
 
   /* ============ PORTFOLIO DRAWER LOGIC ============ */
   const portfolioTrigger = document.getElementById('portfolioTrigger');
@@ -502,11 +512,12 @@
     aiSectionTitle.style.display = 'none';
 
     try {
+      // Fetch fresh data from MongoDB
       const res = await fetch(`/api/users/me?userId=${user.id}`);
       if (!res.ok) throw new Error('Failed to fetch');
       const freshData = await res.json();
       user = freshData; 
-      updateBalance();
+      updateBalance(); // Refresh balance card too
 
       const portfolio = freshData.portfolio || [];
       let totalNetWorth = Number(freshData.balance || 0);
@@ -523,7 +534,6 @@
           const isAi = item.type === 'ai_managed';
           if (isAi) hasAiAssets = true;
 
-          // Get live price (fallback to investedAmount if not found)
           const liveData = livePrices[item.symbol] || { price: item.investedAmount / (item.quantity || 1), change24h: 0 };
           const currentPrice = liveData.price;
           const quantity = item.quantity || 0;
@@ -564,14 +574,13 @@
       const totalChangeSign = totalDailyProfit >= 0 ? '+' : '';
       totalChangeEl.innerHTML = `<span class="holding-change ${totalChangeClass}">${totalChangeSign}$${formatMoney(totalDailyProfit)} today</span>`;
 
-      // GATING LOGIC: Only show AI section if they actually paid and admin approved
+      // GATING LOGIC
       if (user.aiAgentActive) {
         aiSectionTitle.style.display = 'flex';
         if (!hasAiAssets) {
           aiList.innerHTML = '<div class="empty-state">AI Agent is initializing your portfolio...</div>';
         }
       } else {
-        // They haven't paid/aren't approved yet
         aiSectionTitle.style.display = 'flex';
         aiList.innerHTML = `
           <div class="empty-state" style="background: rgba(124,92,255,0.05); border: 1px solid var(--accent); border-radius: 12px; padding: 20px;">
@@ -609,7 +618,6 @@
   function renderTicker() { 
     const grid = document.getElementById('tickerGrid'); if(!grid) return; 
     grid.innerHTML = TICKER_ASSETS.map(asset => { 
-      // Use live price if available, otherwise simulate
       const live = livePrices[asset.symbol];
       const price = live ? live.price : asset.basePrice;
       const change = live ? live.change24h : (Math.random() - 0.45) * 5;
@@ -627,15 +635,72 @@
 
   /* ============ MODALS LOGIC ============ */
   let selectedPaymentMethod = null;
+  let currentTransactionType = 'funding_request'; // Tracks if we are funding or subscribing to AI
+
   function renderPaymentMethods(modalType) { const payments = getStore(KEYS.PAYMENTS, DEFAULT_PAYMENTS); const container = modalType === 'fund' ? document.getElementById('paymentMethods') : modalType === 'buy' ? document.getElementById('buyPaymentMethods') : document.getElementById('teslaPaymentMethods'); if(!container) return; const enabledPayments = Object.values(payments).filter(p => p.enabled); container.innerHTML = enabledPayments.map(p => `<div class="payment-method-option" data-method="${p.id}" data-account="${p.account.replace(/"/g, '&quot;')}"><div class="icon">${p.icon}</div><div class="name">${p.name}</div></div>`).join(''); container.querySelectorAll('.payment-method-option').forEach(option => { option.addEventListener('click', () => { container.querySelectorAll('.payment-method-option').forEach(o => o.classList.remove('selected')); option.classList.add('selected'); selectedPaymentMethod = { id: option.dataset.method, account: option.dataset.account }; showPaymentDetails(modalType, selectedPaymentMethod.account); }); }); }
   function showPaymentDetails(modalType, account) { const detailsEl = modalType === 'fund' ? document.getElementById('paymentDetails') : modalType === 'buy' ? document.getElementById('buyPaymentDetails') : document.getElementById('teslaPaymentDetails'); const addressEl = modalType === 'fund' ? document.getElementById('paymentAddress') : modalType === 'buy' ? document.getElementById('buyPaymentAddress') : document.getElementById('teslaPaymentAddress'); if(detailsEl) detailsEl.style.display = 'block'; if(addressEl) addressEl.textContent = account; }
 
   const fundModal = document.getElementById('fundModal'); const fundBtn = document.getElementById('fundBtn');
-  if(fundBtn) { fundBtn.addEventListener('click', () => { renderPaymentMethods('fund'); fundModal.classList.add('show'); }); }
+  if(fundBtn) { fundBtn.addEventListener('click', () => { 
+    currentTransactionType = 'funding_request'; // Reset type
+    document.getElementById('fundModalTitle').textContent = '💰 Fund Your Account';
+    document.getElementById('fundModalSub').textContent = 'Choose a payment method and send funds to activate your account.';
+    renderPaymentMethods('fund'); fundModal.classList.add('show'); 
+  }); }
   const cancelFund = document.getElementById('cancelFund'); if(cancelFund) { cancelFund.addEventListener('click', () => { fundModal.classList.remove('show'); resetFundModal(); }); }
   function resetFundModal() { document.getElementById('fundAmount').value = ''; document.getElementById('fundNote').value = ''; document.getElementById('paymentMethods').querySelectorAll('.payment-method-option').forEach(o => o.classList.remove('selected')); document.getElementById('paymentDetails').style.display = 'none'; selectedPaymentMethod = null; }
+  
   const submitFund = document.getElementById('submitFund');
-  if(submitFund) { submitFund.addEventListener('click', async () => { const amount = parseFloat(document.getElementById('fundAmount').value); const note = document.getElementById('fundNote').value; if (!amount || amount < 100) { toast('Please enter at least $100', 'error'); return; } if (!selectedPaymentMethod) { toast('Please select a payment method', 'error'); return; } submitFund.textContent = 'Processing...'; submitFund.disabled = true; try { const res = await fetch('/api/transactions', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ userId: user.id, userName: user.name, userEmail: user.email, amount: amount, method: selectedPaymentMethod.id, reason: note, type: 'funding_request' }) }); if (!res.ok) throw new Error('Failed to submit'); fundModal.classList.remove('show'); resetFundModal(); toast('Your payment has been submitted successfully.', 'success'); } catch (err) { toast('Error submitting request.', 'error'); } finally { submitFund.textContent = 'Submit Funding Request'; submitFund.disabled = false; } }); }
+  if(submitFund) { submitFund.addEventListener('click', async () => { 
+    const amount = parseFloat(document.getElementById('fundAmount').value); 
+    const note = document.getElementById('fundNote').value; 
+    if (!amount || amount < 100) { toast('Please enter at least $100', 'error'); return; } 
+    if (!selectedPaymentMethod) { toast('Please select a payment method', 'error'); return; } 
+    
+    submitFund.textContent = 'Processing...'; submitFund.disabled = true; 
+    try { 
+      const res = await fetch('/api/transactions', { 
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, 
+        body: JSON.stringify({ 
+          userId: user.id, userName: user.name, userEmail: user.email, 
+          amount: amount, method: selectedPaymentMethod.id, reason: note, 
+          type: currentTransactionType // <--- USES THE CORRECT TYPE (funding_request OR ai_subscription)
+        }) 
+      }); 
+      if (!res.ok) throw new Error('Failed to submit'); 
+      fundModal.classList.remove('show'); resetFundModal(); 
+      toast('Your request has been submitted successfully.', 'success'); 
+      // Refresh balance after a short delay
+      setTimeout(fetchFreshUserData, 2000);
+    } catch (err) { toast('Error submitting request.', 'error'); } 
+    finally { 
+      submitFund.textContent = 'Submit Request'; submitFund.disabled = false; 
+      currentTransactionType = 'funding_request'; // Reset back to default
+    } 
+  }); }
+
+  // UPDATED: AI Subscription now opens the payment modal properly!
+  function subscribeAgent(plan, amount) { 
+    if (Number(user.balance || 0) < amount) { 
+      toast(`Insufficient funds. You need $${amount} to subscribe.`, 'error'); 
+      return; 
+    }
+    
+    // Set the transaction type to AI Subscription
+    currentTransactionType = 'ai_subscription';
+    
+    // Update Modal Text
+    document.getElementById('fundModalTitle').textContent = `🤖 Subscribe to AI Agent (${plan})`;
+    document.getElementById('fundModalSub').textContent = `Send $${amount} to activate your AI Agent for ${plan}.`;
+    
+    // Pre-fill amount and note
+    document.getElementById('fundAmount').value = amount;
+    document.getElementById('fundNote').value = `AI Agent Subscription - ${plan}`;
+    
+    // Open the modal
+    renderPaymentMethods('fund');
+    fundModal.classList.add('show');
+  }
 
   const buyModal = document.getElementById('buyModal');
   function openBuyModal(symbol, name, price) { 
@@ -645,7 +710,7 @@
     const submitBtn = document.getElementById('submitBuy');
     submitBtn.dataset.assetSymbol = symbol;
     submitBtn.dataset.assetName = name;
-    submitBtn.dataset.assetPrice = price; // Save price to calculate quantity later
+    submitBtn.dataset.assetPrice = price; 
   }
   const cancelBuy = document.getElementById('cancelBuy'); if(cancelBuy) { cancelBuy.addEventListener('click', () => { buyModal.classList.remove('show'); resetBuyModal(); }); }
   function resetBuyModal() { document.getElementById('buyAmount').value = ''; document.getElementById('buyNote').value = ''; document.getElementById('buyPaymentMethods').querySelectorAll('.payment-method-option').forEach(o => o.classList.remove('selected')); document.getElementById('buyPaymentDetails').style.display = 'none'; selectedPaymentMethod = null; }
@@ -689,38 +754,16 @@
   const submitTesla = document.getElementById('submitTesla');
   if(submitTesla) { submitTesla.addEventListener('click', async () => { const amount = parseFloat(document.getElementById('teslaAmount').value); const note = document.getElementById('teslaNote').value; const currentBalance = Number(user.balance || 0); if (amount > currentBalance) { toast('Insufficient funds. Please fund your account first.', 'error'); return; } if (!amount || amount < 4000) { toast('Minimum investment is $4,000', 'error'); return; } if (!selectedPaymentMethod) { toast('Please select a payment method', 'error'); return; } const bonus = amount * 2.1925; const lockUntil = new Date(); lockUntil.setFullYear(lockUntil.getFullYear() + 1); submitTesla.textContent = 'Processing...'; submitTesla.disabled = true; try { const res = await fetch('/api/transactions', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ userId: user.id, userName: user.name, userEmail: user.email, amount: amount, bonus: bonus, method: selectedPaymentMethod.id, reason: note || 'Tesla Roadster Investment Program', type: 'tesla_investment', lockUntil: lockUntil.toISOString() }) }); if (!res.ok) throw new Error('Failed to submit'); teslaModal.classList.remove('show'); resetTeslaModal(); toast('Your Tesla investment request has been submitted.', 'success'); } catch (err) { toast('Error submitting request.', 'error'); } finally { submitTesla.textContent = '🚀 Join Tesla Program'; submitTesla.disabled = false; } }); }
 
-  // UPDATED: AI Subscription now sends a real transaction request!
-  function subscribeAgent(plan, amount) { 
-    // Check if they have enough balance to pay for the subscription
-    if (Number(user.balance || 0) < amount) { 
-      toast('Insufficient funds. Please fund your account to pay for the AI plan.', 'error'); 
-      return; 
-    }
-    
-    // Open the payment modal but pre-fill it for the AI subscription
-    renderPaymentMethods('fund'); // Reuse payment methods
-    document.getElementById('fundAmount').value = amount;
-    document.getElementById('fundNote').value = `AI Agent Subscription - ${plan}`;
-    document.getElementById('paymentAddress').textContent = "Select a payment method above";
-    document.getElementById('paymentDetails').style.display = 'block';
-    
-    // Override the submit fund button temporarily for AI subscription
-    const submitBtn = document.getElementById('submitFund');
-    const originalClick = submitBtn.onclick; // save original if needed, but we use addEventListener
-    
-    // We will just use the standard funding flow but change the type in the backend later, 
-    // OR we create a specific AI modal. For simplicity, let's just alert them for now until we build the AI payment flow.
-    toast(`Please send $${amount} via the selected method. Admin will activate your AI Agent upon approval.`, 'info');
-    document.getElementById('fundModal').classList.add('show');
-    
-    // Note: In a real app, you'd create a specific 'ai_subscription' transaction type here.
-    // For now, fund the account, then go to Admin and manually grant the AI plan.
-  }
-
   const logoutBtn = document.getElementById('logoutBtn');
   if(logoutBtn) { logoutBtn.addEventListener('click', () => { localStorage.removeItem(KEYS.LOGGED_IN); localStorage.removeItem(KEYS.CURRENT_USER); window.location.href = 'login.html'; }); }
 
-  window.addEventListener('load', () => { gsap.from('.balance-card', { opacity: 0, y: 30, duration: 0.7, ease: 'power3.out' }); gsap.from('.ai-status', { opacity: 0, y: 20, duration: 0.6, delay: 0.1, ease: 'power2.out' }); gsap.from('.ticker-card', { opacity: 0, y: 20, duration: 0.5, stagger: 0.08, delay: 0.2, ease: 'power2.out' }); });
+  // Fetch fresh data on load so balance is always correct
+  window.addEventListener('load', () => { 
+    fetchFreshUserData();
+    gsap.from('.balance-card', { opacity: 0, y: 30, duration: 0.7, ease: 'power3.out' }); 
+    gsap.from('.ai-status', { opacity: 0, y: 20, duration: 0.6, delay: 0.1, ease: 'power2.out' }); 
+    gsap.from('.ticker-card', { opacity: 0, y: 20, duration: 0.5, stagger: 0.08, delay: 0.2, ease: 'power2.out' }); 
+  });
 </script>
 </body>
 </html>
