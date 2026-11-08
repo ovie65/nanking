@@ -9,7 +9,6 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/inter@5.0.0/index.css" />
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/space-grotesk@5.0.0/index.css" />
 <style>
-  /* [KEEP ALL YOUR EXISTING CSS EXACTLY AS IT WAS] */
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   html, body { overflow-x: hidden; max-width: 100vw; }
   html { scroll-behavior: smooth; }
@@ -28,23 +27,46 @@
   .nav-avatar { width: 38px; height: 38px; border-radius: 50%; background: var(--grad-2); display: grid; place-items: center; color: #fff; font-weight: 700; font-size: 14px; }
   .logout-btn { padding: 8px 14px; background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.2); color: var(--red); border-radius: 8px; font-size: 12px; font-weight: 600; transition: all 0.2s; }
   .logout-btn:hover { background: rgba(239,68,68,0.15); }
-  @media (max-width: 768px) { .top-nav { flex-wrap: wrap; padding: 12px 16px; gap: 12px; } .nav-logo { flex: 1; } .nav-user { width: 100%; flex-wrap: wrap; justify-content: space-between; align-items: center; border-top: 1px solid var(--line); padding-top: 12px; margin-top: 4px; } .nav-avatar { order: 1; } .nav-user-info { order: 2; text-align: left; flex: 1; padding-left: 12px; } .nav-user-name { font-size: 13px; } .nav-user-email { font-size: 10px; } .logout-btn { order: 3; width: 100%; margin-top: 8px; justify-content: center; padding: 10px; } }
+  
+  /* MOBILE RESPONSIVENESS FIXES */
+  @media (max-width: 768px) { 
+    .top-nav { flex-wrap: wrap; padding: 12px 16px; gap: 12px; } 
+    .nav-logo { flex: 1; } 
+    .nav-user { width: 100%; flex-wrap: wrap; justify-content: space-between; align-items: center; border-top: 1px solid var(--line); padding-top: 12px; margin-top: 4px; } 
+    .nav-avatar { order: 1; } 
+    .nav-user-info { order: 2; text-align: left; flex: 1; padding-left: 12px; } 
+    .nav-user-name { font-size: 13px; } 
+    .nav-user-email { font-size: 10px; } 
+    .logout-btn { order: 3; width: 100%; margin-top: 8px; justify-content: center; padding: 10px; } 
+    
+    .dashboard-container { padding: 0 16px 100px; }
+    .balance-card { padding: 20px; }
+    .balance-header { flex-direction: column; gap: 16px; }
+    .balance-section { width: 100%; }
+    .info-grid { grid-template-columns: 1fr; gap: 16px; }
+    .info-card { padding: 16px; }
+    .drawer-total-value { font-size: 28px; }
+    .portfolio-drawer { width: 100%; max-width: 100vw; right: -100%; padding: 24px 16px; }
+  }
+
   .tab-switcher-container { display: flex; justify-content: center; margin: 30px auto 40px; padding: 0 16px; }
   .tab-switcher { display: inline-flex; background: rgba(255,255,255,0.03); border: 1px solid var(--line); border-radius: 14px; padding: 6px; gap: 6px; flex-wrap: wrap; justify-content: center; }
   .tab-btn { padding: 10px 24px; border-radius: 10px; background: transparent; color: var(--muted); font-weight: 600; font-size: 14px; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 8px; white-space: nowrap; }
   .tab-btn:hover { color: var(--text); }
   .tab-btn.active { background: var(--grad-2); color: #fff; box-shadow: 0 4px 15px rgba(124,92,255,0.3); }
   @media (max-width: 600px) { .tab-btn { padding: 8px 14px; font-size: 13px; } }
+  
   .dashboard-container { max-width: 1400px; margin: 0 auto; padding: 0 32px 100px; }
-  @media (max-width: 768px) { .dashboard-container { padding: 0 16px 100px; } }
   .view-section { display: none; animation: fadeIn 0.4s ease-out; }
   .view-section.active { display: block; }
   @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  
   .portfolio-trigger { position: fixed; right: 24px; top: 50%; transform: translateY(-50%); background: rgba(11,13,20,0.95); backdrop-filter: blur(10px); border: 1px solid var(--line); border-radius: 12px; padding: 12px 10px; z-index: 90; display: flex; flex-direction: column; gap: 4px; transition: all 0.3s ease; cursor: pointer; box-shadow: 0 4px 20px rgba(0,0,0,0.5); }
   .portfolio-trigger:hover { background: rgba(124,92,255,0.15); border-color: var(--accent); transform: translateY(-50%) scale(1.05); }
   .portfolio-trigger .dash { width: 20px; height: 2px; background: var(--text); border-radius: 2px; transition: all 0.3s; }
   .portfolio-trigger:hover .dash { background: var(--accent-2); }
   @media (max-width: 768px) { .portfolio-trigger { right: 12px; padding: 10px 8px; } .portfolio-trigger .dash { width: 18px; } }
+  
   .portfolio-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); z-index: 150; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
   .portfolio-overlay.open { opacity: 1; pointer-events: auto; }
   .portfolio-drawer { position: fixed; top: 0; right: -100%; width: 450px; max-width: 95vw; height: 100vh; background: linear-gradient(180deg, #0b0d14, #05060a); border-left: 1px solid var(--line); z-index: 200; padding: 32px 24px; overflow-y: auto; overflow-x: hidden; transition: right 0.4s cubic-bezier(0.16, 1, 0.3, 1); display: flex; flex-direction: column; }
@@ -118,7 +140,7 @@
   .drawer-ai-status .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); box-shadow: 0 0 8px var(--green); }
   .drawer-back-btn { margin-top: auto; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid var(--line); border-radius: 10px; font-size: 13px; font-weight: 600; color: var(--text); display: flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.2s; }
   .drawer-back-btn:hover { background: rgba(255,255,255,0.1); border-color: var(--line-2); }
-  @media (max-width: 768px) { .portfolio-drawer { width: 100%; max-width: 100vw; right: -100%; padding: 24px 16px; } }
+  
   .balance-card { background: linear-gradient(135deg, rgba(124,92,255,0.15), rgba(0,212,255,0.1), rgba(245,196,81,0.08)); border: 1px solid var(--line); border-radius: 20px; padding: 32px; margin-bottom: 28px; position: relative; overflow: hidden; }
   .balance-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; position: relative; z-index: 2; flex-wrap: wrap; gap: 20px; }
   .balance-section { flex: 1; min-width: 200px; }
@@ -169,7 +191,7 @@
   .info-card ul { list-style: none; display: flex; flex-direction: column; gap: 8px; }
   .info-card ul li { font-size: 13px; color: var(--text); display: flex; align-items: center; gap: 8px; }
   .info-card ul li::before { content: '✓'; color: var(--green); font-weight: 700; }
-  @media (max-width: 768px) { .info-grid { grid-template-columns: 1fr; } .balance-amount { font-size: 32px; } .balance-amount.locked { font-size: 24px; } }
+  
   .sub-plans { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; margin-top: 32px; }
   .plan-card { background: linear-gradient(180deg, rgba(20,23,35,0.7), rgba(11,13,20,0.5)); border: 1px solid var(--line); border-radius: 20px; padding: 32px; text-align: center; transition: all 0.3s ease; position: relative; }
   .plan-card.featured { border-color: var(--gold); background: rgba(245,196,81,0.05); transform: scale(1.02); }
@@ -217,6 +239,7 @@
   .tesla-example-row { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 4px; }
   .tesla-example-row:last-child { margin-bottom: 0; font-weight: 700; color: var(--green); }
   @media (max-width: 768px) { .tesla-content { grid-template-columns: 1fr; } .tesla-stats { grid-template-columns: 1fr; } }
+  
   .modal-overlay { position: fixed; inset: 0; background: rgba(5,6,10,0.85); backdrop-filter: blur(8px); z-index: 1000; display: none; align-items: center; justify-content: center; padding: 20px; }
   .modal-overlay.show { display: flex; }
   .modal { background: linear-gradient(180deg, #141723, #0b0d14); border: 1px solid var(--line); border-radius: 16px; padding: 32px; max-width: 520px; width: 100%; max-height: 90vh; overflow-y: auto; }
@@ -256,7 +279,6 @@
 </head>
 <body>
 
-<!-- [KEEP ALL YOUR EXISTING HTML BODY CONTENT EXACTLY AS IT WAS] -->
 <nav class="top-nav">
   <a href="index.html" class="nav-logo"><span class="nav-logo-mark">N</span><span>NexaVault</span></a>
   <div class="nav-user">
@@ -396,6 +418,7 @@
   </div>
 </div>
 
+<!-- [MODALS REMAIN EXACTLY AS THEY WERE] -->
 <div class="modal-overlay" id="fundModal"><div class="modal">
   <h2 id="fundModalTitle">💰 Fund Your Account</h2><div class="sub" id="fundModalSub">Choose a payment method and send funds to activate your account.</div>
   <div class="modal-field"><label>Amount (USD)</label><input type="number" id="fundAmount" step="0.01" min="100" placeholder="5000.00" /></div>
@@ -470,12 +493,6 @@
   function toast(msg, type) { const t = document.getElementById('toast'); t.textContent = msg; t.className = 'toast show ' + (type || ''); clearTimeout(window._tt); window._tt = setTimeout(() => t.classList.remove('show'), 3000); }
   function formatMoney(n) { return Number(n || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
   function initials(name) { return (name || '?').split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2); }
-  
-  // NEW: Calculate days between two dates
-  function getDaysDifference(date1, date2) {
-    const oneDay = 24 * 60 * 60 * 1000;
-    return Math.round(Math.abs((date2 - date1) / oneDay));
-  }
 
   const isLoggedIn = localStorage.getItem(KEYS.LOGGED_IN) === 'true';
   const currentUser = getStore(KEYS.CURRENT_USER, null);
@@ -519,13 +536,6 @@
   }
   fetchLivePrices(); setInterval(fetchLivePrices, 60000); 
 
-  function calculateBetaGrowth(portfolioBalance) {
-    if (!portfolioBalance || portfolioBalance <= 0) return 0;
-    const isWin = Math.random() > 0.15; let dailyPercent;
-    if (isWin) { dailyPercent = (Math.random() * 1.3) + 0.2; } else { dailyPercent = ((Math.random() * 0.3) + 0.1) * -1; }
-    return portfolioBalance * (dailyPercent / 100);
-  }
-
   const BETA_AI_ASSETS = [
     { symbol: 'BTC', name: 'Bitcoin', type: 'crypto', allocation: 0.30 },
     { symbol: 'ETH', name: 'Ethereum', type: 'crypto', allocation: 0.20 },
@@ -543,12 +553,10 @@
     if (details && btn) { details.classList.toggle('show'); btn.classList.toggle('active'); btn.textContent = details.classList.contains('show') ? 'Hide Details' : '👁 View Details'; }
   }
   
-  // NEW: Calculate Accrued Tesla Balance
   function getAccruedTeslaData(portfolio) {
     let totalAccrued = 0;
     let maxDaysLeft = 0;
     const now = new Date();
-
     if (portfolio && portfolio.length > 0) {
         portfolio.forEach(item => {
             if (item.type === 'tesla_investment') {
@@ -556,14 +564,11 @@
                 const daysPassed = Math.floor((now - startDate) / (1000 * 60 * 60 * 24));
                 const totalDays = 365;
                 const daysRemaining = Math.max(0, totalDays - daysPassed);
-
                 const principal = Number(item.investedAmount || 0);
                 const totalBonus = Number(item.bonusAmount || (principal * 2.1925));
                 const dailyBonus = totalBonus / totalDays;
-
                 const accruedBonus = Math.min(dailyBonus * daysPassed, totalBonus);
                 totalAccrued += principal + accruedBonus;
-
                 if (daysRemaining > maxDaysLeft) maxDaysLeft = daysRemaining;
             }
         });
@@ -593,56 +598,46 @@
       
       const portfolio = freshData.portfolio || []; 
       let totalNetWorth = Number(freshData.balance || 0); 
-      let totalDailyProfit = 0; 
+      
+      // NEW: Read the saved accumulated profit from the backend instead of calculating randomly
+      const totalAccumulatedProfit = Number(user.accumulatedProfit || 0);
+      
       let aiPortfolioBalance = Number(freshData.aiPortfolioBalance || 0); 
-      let aiTotalProfit = 0; 
       let manualTotalValue = 0; 
-      let manualTotalProfit = 0;
       const manualAssets = [];
       
       portfolio.forEach(item => {
         if (item.type === 'ai_managed') return;
-        if (item.type === 'tesla_investment') return; // Handled separately in accrued logic
+        if (item.type === 'tesla_investment') return; 
         
         const currentValue = Number(item.investedAmount || 0);
-        let dailyChangeVal = calculateBetaGrowth(currentValue);
-        
         let metaText = item.symbol || 'Asset';
         let iconClass = ['BTC', 'ETH', 'SOL', 'ADA', 'DOT', 'LINK', 'AVAX', 'MATIC', 'UNI', 'ATOM'].includes(item.symbol) ? 'crypto' : 'stock';
         let iconChar = item.symbol ? item.symbol.charAt(0) : 'A';
 
         totalNetWorth += currentValue; 
-        totalDailyProfit += dailyChangeVal;
-        const changeClass = dailyChangeVal >= 0 ? 'up' : 'down'; 
-        const changeSign = dailyChangeVal >= 0 ? '+' : '';
+        manualTotalValue += currentValue;
         
         manualAssets.push({ 
           name: item.name, symbol: item.symbol, iconClass: iconClass, iconChar: iconChar, 
-          value: currentValue, change: dailyChangeVal, changeClass: changeClass, changeSign: changeSign,
-          metaText: metaText, isTesla: false
+          value: currentValue, metaText: metaText, isTesla: false
         });
-        manualTotalValue += currentValue; 
-        manualTotalProfit += dailyChangeVal;
       });
 
-      // Add Accrued Tesla to Net Worth
       const teslaData = getAccruedTeslaData(portfolio);
       totalNetWorth += teslaData.totalAccrued;
-
       if (aiPortfolioBalance >= 100) {
-        const aiDailyProfit = calculateBetaGrowth(aiPortfolioBalance);
         totalNetWorth += aiPortfolioBalance;
-        totalDailyProfit += aiDailyProfit;
-        aiTotalProfit = aiDailyProfit;
       }
 
       totalValueEl.textContent = '$' + formatMoney(totalNetWorth);
-      const totalChangeClass = totalDailyProfit >= 0 ? 'up' : 'down'; 
-      const totalChangeSign = totalDailyProfit >= 0 ? '+' : '';
-      totalChangeEl.innerHTML = `<span class="holding-change ${totalChangeClass}">${totalChangeSign}$${formatMoney(totalDailyProfit)} today</span>`;
+      
+      // Display the backend-saved accumulated profit
+      const profitClass = totalAccumulatedProfit >= 0 ? 'up' : 'down'; 
+      const profitSign = totalAccumulatedProfit >= 0 ? '+' : '';
+      totalChangeEl.innerHTML = `<span class="holding-change ${profitClass}">${profitSign}$${formatMoney(totalAccumulatedProfit)} Total Profit</span>`;
       
       aiSectionTitle.style.display = 'flex';
-      
       const isSubscribed = user.aiAgentActive;
       const isFunded = aiPortfolioBalance >= 100;
       
@@ -652,22 +647,17 @@
         aiPortfolioSummary.innerHTML = `<div class="locked-state"><div class="lock-icon">🔒</div><div class="lock-title">AI Portfolio Not Funded</div><div class="lock-desc">You've activated AI Agent! Allocate at least $100 from your main balance to begin trading.</div><button class="gold" onclick="openTopUpModal()">Fund AI Portfolio</button></div>`;
       } else {
         aiUnlockedContent.style.display = 'block';
-        const aiChangeClass = aiTotalProfit >= 0 ? 'up' : 'down'; const aiChangeSign = aiTotalProfit >= 0 ? '+' : '';
         const betaAssetsHtml = BETA_AI_ASSETS.map(asset => {
           const assetValue = aiPortfolioBalance * asset.allocation;
-          const assetChange = calculateBetaGrowth(assetValue);
-          const changeClass = assetChange >= 0 ? 'up' : 'down';
-          const changeSign = assetChange >= 0 ? '+' : '';
           const iconClass = asset.type === 'crypto' ? 'crypto' : 'stock';
           const iconChar = asset.symbol.charAt(0);
-          return `<div class="asset-item"><div class="asset-left"><div class="asset-icon ${iconClass}">${iconChar}</div><div><div class="asset-name">${asset.name}</div><div class="asset-meta">${asset.symbol} · ${(asset.allocation * 100).toFixed(0)}% Allocation</div></div></div><div class="asset-right"><div class="asset-value">$${formatMoney(assetValue)}</div><div class="asset-change ${changeClass}">${changeSign}$${formatMoney(assetChange)}</div></div></div>`;
+          return `<div class="asset-item"><div class="asset-left"><div class="asset-icon ${iconClass}">${iconChar}</div><div><div class="asset-name">${asset.name}</div><div class="asset-meta">${asset.symbol} · ${(asset.allocation * 100).toFixed(0)}% Allocation</div></div></div><div class="asset-right"><div class="asset-value">$${formatMoney(assetValue)}</div></div></div>`;
         }).join('');
-        aiPortfolioSummary.innerHTML = `<div class="portfolio-summary-card"><div class="summary-header"><div class="summary-title">🤖 AI Agent Portfolio</div></div><div class="summary-stats"><div class="summary-stat"><div class="summary-stat-label">Total Value</div><div class="summary-stat-value">$${formatMoney(aiPortfolioBalance)}</div></div><div class="summary-stat"><div class="summary-stat-label">Today's Profit</div><div class="summary-stat-value ${aiChangeClass}">${aiChangeSign}$${formatMoney(aiTotalProfit)}</div></div></div><button class="view-details-btn" data-toggle="aiAssetDetails" onclick="toggleDetails('aiAssetDetails')">👁 View Details</button><button class="topup-btn" onclick="openTopUpModal()">➕ Top Up Portfolio</button><div id="aiAssetDetails" class="asset-details">${betaAssetsHtml}</div></div>`;
+        aiPortfolioSummary.innerHTML = `<div class="portfolio-summary-card"><div class="summary-header"><div class="summary-title">🤖 AI Agent Portfolio</div></div><div class="summary-stats"><div class="summary-stat"><div class="summary-stat-label">Total Value</div><div class="summary-stat-value">$${formatMoney(aiPortfolioBalance)}</div></div><div class="summary-stat"><div class="summary-stat-label">Total Profit</div><div class="summary-stat-value ${profitClass}">${profitSign}$${formatMoney(totalAccumulatedProfit)}</div></div></div><button class="view-details-btn" data-toggle="aiAssetDetails" onclick="toggleDetails('aiAssetDetails')">👁 View Details</button><button class="topup-btn" onclick="openTopUpModal()">➕ Top Up Portfolio</button><div id="aiAssetDetails" class="asset-details">${betaAssetsHtml}</div></div>`;
       }
       
       if (manualAssets.length > 0) {
-        const manualChangeClass = manualTotalProfit >= 0 ? 'up' : 'down'; const manualChangeSign = manualTotalProfit >= 0 ? '+' : '';
-        manualPortfolioSummary.innerHTML = `<div class="portfolio-summary-card"><div class="summary-header"><div class="summary-title">🛠️ Personal Holdings</div></div><div class="summary-stats"><div class="summary-stat"><div class="summary-stat-label">Total Value</div><div class="summary-stat-value">$${formatMoney(manualTotalValue)}</div></div><div class="summary-stat"><div class="summary-stat-label">Today's Profit</div><div class="summary-stat-value ${manualChangeClass}">${manualChangeSign}$${formatMoney(manualTotalProfit)}</div></div></div><button class="view-details-btn" data-toggle="manualAssetDetails" onclick="toggleDetails('manualAssetDetails')">👁 View Details</button><div id="manualAssetDetails" class="asset-details">${manualAssets.map(asset => `<div class="asset-item"><div class="asset-left"><div class="asset-icon ${asset.iconClass}">${asset.iconChar}</div><div><div class="asset-name">${asset.name}</div><div class="asset-meta">${asset.metaText}</div></div></div><div class="asset-right"><div class="asset-value">$${formatMoney(asset.value)}</div><div class="asset-change ${asset.changeClass}">${asset.changeSign}$${formatMoney(asset.change)}</div></div></div>`).join('')}</div></div>`;
+        manualPortfolioSummary.innerHTML = `<div class="portfolio-summary-card"><div class="summary-header"><div class="summary-title">🛠️ Personal Holdings</div></div><div class="summary-stats"><div class="summary-stat"><div class="summary-stat-label">Total Value</div><div class="summary-stat-value">$${formatMoney(manualTotalValue)}</div></div><div class="summary-stat"><div class="summary-stat-label">Total Profit</div><div class="summary-stat-value ${profitClass}">${profitSign}$${formatMoney(totalAccumulatedProfit)}</div></div></div><button class="view-details-btn" data-toggle="manualAssetDetails" onclick="toggleDetails('manualAssetDetails')">👁 View Details</button><div id="manualAssetDetails" class="asset-details">${manualAssets.map(asset => `<div class="asset-item"><div class="asset-left"><div class="asset-icon ${asset.iconClass}">${asset.iconChar}</div><div><div class="asset-name">${asset.name}</div><div class="asset-meta">${asset.metaText}</div></div></div><div class="asset-right"><div class="asset-value">$${formatMoney(asset.value)}</div></div></div>`).join('')}</div></div>`;
       } else {
         manualPortfolioSummary.innerHTML = '<div class="empty-state">No personal assets yet.<br>Go to the Markets tab to buy your first stock or crypto!</div>';
       }
@@ -682,7 +672,6 @@
   let balanceVisible = true;
   const balanceEl = document.getElementById('balanceValue'); const lockedBalanceEl = document.getElementById('lockedBalanceValue'); const lockTimeEl = document.getElementById('lockTimeLeft'); const eyeToggle = document.getElementById('eyeToggle');
   
-  // UPDATED: Balance and Badge Logic
   function updateBalance() { 
     const teslaData = getAccruedTeslaData(user.portfolio || []);
     const currentLockedBalance = teslaData.totalAccrued;
