@@ -275,6 +275,37 @@
   .toast.success { border-color: rgba(34,197,94,0.4); color: var(--green); }
   .toast.error { border-color: rgba(239,68,68,0.4); color: var(--red); }
   .toast.info { border-color: rgba(0,212,255,0.4); color: var(--accent-2); }
+
+  /* Fix info cards overflow on mobile */
+@media (max-width: 900px) {
+  .info-grid {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+  }
+  
+  .info-card {
+    padding: 20px !important;
+    overflow: hidden;
+  }
+  
+  .info-card.recommended::before {
+    right: 12px !important;
+    font-size: 9px !important;
+    padding: 3px 8px !important;
+  }
+  
+  .info-card h3 {
+    font-size: 16px !important;
+  }
+  
+  .info-card p {
+    font-size: 13px !important;
+  }
+  
+  .info-card ul li {
+    font-size: 12px !important;
+  }
+}
 </style>
 </head>
 <body>
