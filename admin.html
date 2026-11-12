@@ -300,7 +300,7 @@
 <script>
   const ADMIN_USER = 'ovie65'; const ADMIN_PASS = 'Voltovie65$$';
   const KEYS = { EMAILS: 'nexavault_emails', SITE: 'nexavault_site_content', PAYMENTS: 'nexavault_payment_methods', SESSION: 'nexavault_admin_session' };
-  const DEFAULT_PAYMENTS = { btc: { id: 'btc', name: 'Bitcoin', icon: '₿', iconClass: 'btc', desc: 'Pay with Bitcoin', enabled: true, account: 'bc1qxy2kgdygjrsqtzq2n0yrf2499p5a0w8mdjm64u' }, bank: { id: 'bank', name: 'Bank Transfer', icon: '🏦', iconClass: 'bank', desc: 'Direct bank transfer', enabled: true, account: 'Bank: Chase Bank\nAccount Name: NexaVault LLC\nAccount Number: 1234567890\nRouting: 021000021' }, paypal: { id: 'paypal', name: 'PayPal', icon: 'P', iconClass: 'paypal', desc: 'Pay via PayPal', enabled: false, account: 'payments@nexavault.com' } };
+  const DEFAULT_PAYMENTS_LOCAL = { btc: { id: 'btc', name: 'Bitcoin', icon: '', iconClass: 'btc', desc: 'Pay with Bitcoin', enabled: true, account: 'bc1qxy2kgdygjrsqtzq2n0yrf2499p5a0w8mdjm64u' }, bank: { id: 'bank', name: 'Bank Transfer', icon: '🏦', iconClass: 'bank', desc: 'Direct bank transfer', enabled: true, account: 'Bank: Chase Bank\nAccount Name: NexaVault LLC\nAccount Number: 1234567890\nRouting: 021000021' }, paypal: { id: 'paypal', name: 'PayPal', icon: 'P', iconClass: 'paypal', desc: 'Pay via PayPal', enabled: false, account: 'payments@nexavault.com' } };
 
   function getStore(key, fallback) { try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; } catch(e) { return fallback; } }
   function setStore(key, val) { localStorage.setItem(key, JSON.stringify(val)); }
@@ -308,6 +308,21 @@
   function formatDate(iso) { if (!iso) return '—'; const d = new Date(iso); return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) + ' · ' + d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }); }
   function formatMoney(n) { return '$' + Number(n || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
   function initials(name) { return (name || '?').split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2); }
+
+  // --- NEW DATABASE SETTINGS LOGIC ---
+  let globalPayments = null;
+  let globalSiteContent = null;
+
+  async function loadGlobalSettings() {
+    try {
+      const res = await fetch('/api/settings');
+      if (res.ok) {
+        const data = await res.json();
+        globalPayments = data.payments;
+        globalSiteContent = data.siteContent;
+      }
+    } catch (err) { console.error('Failed to load settings', err); }
+  }
 
   const loginScreen = document.getElementById('loginScreen'); const adminWrap = document.getElementById('adminWrap');
   function showDashboard() { loginScreen.style.display = 'none'; adminWrap.classList.add('active'); renderAll(); gsap.from('.sidebar', { x: -30, opacity: 0, duration: 0.5, ease: 'power2.out' }); gsap.from('.main', { y: 20, opacity: 0, duration: 0.5, ease: 'power2.out', delay: 0.1 }); }
@@ -332,7 +347,7 @@
     document.getElementById('statPending').textContent = pending;
     const allActivity = [...allUsers.map(u => ({ type: 'user', name: u.name, time: u.createdAt })), ...allTxns.map(t => ({ type: 'txn', name: t.userName, amount: t.amount, status: t.status, txnType: t.type, time: t.createdAt }))].sort((a, b) => new Date(b.time) - new Date(a.time)).slice(0, 5);
     const actEl = document.getElementById('recentActivity');
-    if (allActivity.length === 0) { actEl.innerHTML = `<div class="empty-state"><div class="icon">📋</div><div class="title">No activity yet</div><div class="desc">User signups and transactions will appear here.</div></div>`; } 
+    if (allActivity.length === 0) { actEl.innerHTML = `<div class="empty-state"><div class="icon"></div><div class="title">No activity yet</div><div class="desc">User signups and transactions will appear here.</div></div>`; } 
     else { actEl.innerHTML = `<table class="data-table"><tbody>${allActivity.map(a => { if (a.type === 'user') { return `<tr><td><div class="user-cell"><div class="user-avatar">${initials(a.name)}</div><div><div class="user-name">${a.name}</div><div class="user-email">New account created</div></div></div></td><td><span class="status-pill approved">Signed Up</span></td><td style="color:var(--muted);font-size:12px;">${formatDate(a.time)}</td></tr>`; } else { const statusClass = a.status === 'approved' ? 'approved' : a.status === 'rejected' ? 'rejected' : 'pending'; const typeLabel = a.txnType === 'tesla_investment' ? '🚗 Tesla' : a.txnType === 'bonus_grant' ? '🎁 Bonus' : a.txnType === 'withdrawal_request' ? '💸 Withdrawal' : a.txnType === 'asset_purchase' ? '📈 Purchase' : a.txnType === 'ai_subscription' ? '🤖 AI Sub' : a.txnType === 'ai_investment' ? '🤖 AI Invest' : '💰 Funding'; return `<tr><td><div class="user-cell"><div class="user-avatar">${initials(a.name)}</div><div><div class="user-name">${a.name}</div><div class="user-email">${typeLabel}: ${formatMoney(a.amount)}</div></div></div></td><td><span class="status-pill ${statusClass}">${a.status}</span></td><td style="color:var(--muted);font-size:12px;">${formatDate(a.time)}</td></tr>`; } }).join('')}</tbody></table>`; }
     document.getElementById('usersBadge').textContent = allUsers.length;
     document.getElementById('txnBadge').textContent = pending;
@@ -384,14 +399,13 @@
     const sorted = [...filtered].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
     document.getElementById('txnCount').textContent = filtered.length;
     if (sorted.length === 0) { el.innerHTML = `<div class="empty-state"><div class="icon">💰</div><div class="title">No transactions</div><div class="desc">${currentFilter === 'all' ? 'Funding requests will appear here.' : 'No ' + currentFilter + ' transactions.'}</div></div>`; return; }
-    el.innerHTML = `<table class="data-table"><thead><tr><th>User</th><th>Amount</th><th>Type</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead><tbody>${sorted.map(t => { const statusClass = t.status === 'approved' ? 'approved' : t.status === 'rejected' ? 'rejected' : 'pending'; let typeLabel = '💰 Funding'; if (t.type === 'tesla_investment') typeLabel = '🚗 Tesla'; else if (t.type === 'ai_subscription') typeLabel = '🤖 AI Sub'; else if (t.type === 'ai_investment') typeLabel = '🤖 AI Invest'; else if (t.type === 'asset_purchase') typeLabel = '📈 Purchase'; else if (t.type === 'withdrawal_request') typeLabel = '💸 Withdrawal'; const actions = t.status === 'pending' ? `<button class="icon-btn approve" data-approve="${t.id}">✓ Approve</button><button class="icon-btn reject" data-reject="${t.id}">✕ Reject</button>` : `<button class="icon-btn view" data-view-txn="${t.id}">View</button>`; return `<tr><td><div class="user-cell"><div class="user-avatar">${initials(t.userName)}</div><div><div class="user-name">${t.userName}</div><div class="user-email">${t.userEmail}</div></div></div></td><td style="font-weight:700;color:var(--gold);">${formatMoney(t.amount)}</td><td><span class="status-pill ${statusClass}">${typeLabel}</span></td><td><span class="status-pill ${statusClass}">${t.status}</span></td><td style="font-size:12px;color:var(--muted);">${formatDate(t.createdAt)}</td><td><div class="action-btns">${actions}</div></td></tr>`; }).join('')}</tbody></table>`;
+    el.innerHTML = `<table class="data-table"><thead><tr><th>User</th><th>Amount</th><th>Type</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead><tbody>${sorted.map(t => { const statusClass = t.status === 'approved' ? 'approved' : t.status === 'rejected' ? 'rejected' : 'pending'; let typeLabel = '💰 Funding'; if (t.type === 'tesla_investment') typeLabel = '🚗 Tesla'; else if (t.type === 'ai_subscription') typeLabel = '🤖 AI Sub'; else if (t.type === 'ai_investment') typeLabel = '🤖 AI Invest'; else if (t.type === 'asset_purchase') typeLabel = ' Purchase'; else if (t.type === 'withdrawal_request') typeLabel = '💸 Withdrawal'; const actions = t.status === 'pending' ? `<button class="icon-btn approve" data-approve="${t.id}">✓ Approve</button><button class="icon-btn reject" data-reject="${t.id}">✕ Reject</button>` : `<button class="icon-btn view" data-view-txn="${t.id}">View</button>`; return `<tr><td><div class="user-cell"><div class="user-avatar">${initials(t.userName)}</div><div><div class="user-name">${t.userName}</div><div class="user-email">${t.userEmail}</div></div></div></td><td style="font-weight:700;color:var(--gold);">${formatMoney(t.amount)}</td><td><span class="status-pill ${statusClass}">${typeLabel}</span></td><td><span class="status-pill ${statusClass}">${t.status}</span></td><td style="font-size:12px;color:var(--muted);">${formatDate(t.createdAt)}</td><td><div class="action-btns">${actions}</div></td></tr>`; }).join('')}</tbody></table>`;
     el.querySelectorAll('[data-approve]').forEach(btn => { btn.addEventListener('click', () => approveTxn(btn.dataset.approve)); });
     el.querySelectorAll('[data-reject]').forEach(btn => { btn.addEventListener('click', () => rejectTxn(btn.dataset.reject)); });
     el.querySelectorAll('[data-view-txn]').forEach(btn => { btn.addEventListener('click', () => viewTxn(btn.dataset.viewTxn)); });
   }
   document.querySelectorAll('[data-filter]').forEach(btn => { btn.addEventListener('click', () => { currentFilter = btn.dataset.filter; renderTransactions(); }); });
   
-  // NEW: Clear All Transactions Logic
   document.getElementById('clearAllTxnsBtn').addEventListener('click', async () => {
     if (!confirm('⚠️ Are you sure you want to delete ALL transaction history? This cannot be undone.')) return;
     try {
@@ -411,27 +425,122 @@
   async function rejectTxn(id) { if (!confirm('Reject this transaction?')) return; try { const res = await fetch('/api/transactions/approve', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ transactionId: id, action: 'rejected' }) }); if (!res.ok) throw new Error('Failed'); await renderAll(); toast('Transaction rejected', 'error'); } catch (err) { toast('Error rejecting', 'error'); } }
   function viewTxn(id) { const t = allTxns.find(x => x.id === id); if (!t) return; document.getElementById('modalContent').innerHTML = `<h2>Transaction Details</h2><div class="sub">Reference: ${t.id}</div><div class="modal-row"><span class="label">User</span><span class="val">${t.userName}</span></div><div class="modal-row"><span class="label">Email</span><span class="val">${t.userEmail}</span></div><div class="modal-row"><span class="label">Amount</span><span class="val" style="color:var(--gold)">${formatMoney(t.amount)}</span></div><div class="modal-row"><span class="label">Type</span><span class="val">${t.type}</span></div><div class="modal-row"><span class="label">Method</span><span class="val">${t.method || '—'}</span></div><div class="modal-row"><span class="label">Status</span><span class="val">${t.status}</span></div><div class="modal-row"><span class="label">Created</span><span class="val">${formatDate(t.createdAt)}</span></div>${t.reason ? `<div class="modal-row"><span class="label">Reason/Note</span><span class="val">${t.reason}</span></div>` : ''}<div class="modal-actions"><button class="btn btn-ghost" onclick="closeModal()">Close</button></div>`; document.getElementById('modalOverlay').classList.add('show'); }
 
-  function renderPaymentMethods() { const payments = getStore(KEYS.PAYMENTS, DEFAULT_PAYMENTS); const container = document.getElementById('paymentMethodsList'); container.innerHTML = Object.values(payments).map(p => `<div class="payment-method-card" data-method="${p.id}"><div class="payment-method-header"><div class="payment-method-title"><div class="payment-method-icon ${p.iconClass}">${p.icon}</div><div><div class="payment-method-name">${p.name}</div><div class="payment-method-desc">${p.desc}</div></div></div><div class="toggle-switch ${p.enabled ? 'on' : ''}" data-toggle="${p.id}"></div></div><div class="editor-field"><label>${p.id === 'bank' ? 'Bank Details' : 'Account / Address'}</label><textarea data-account="${p.id}" rows="3" placeholder="Enter ${p.name} details...">${p.account}</textarea></div></div>`).join(''); container.querySelectorAll('.toggle-switch').forEach(toggle => { toggle.addEventListener('click', () => toggle.classList.toggle('on')); }); }
-  document.getElementById('savePaymentsBtn').addEventListener('click', () => { const payments = getStore(KEYS.PAYMENTS, DEFAULT_PAYMENTS); document.querySelectorAll('.toggle-switch').forEach(toggle => { const id = toggle.dataset.toggle; if (payments[id]) payments[id].enabled = toggle.classList.contains('on'); }); document.querySelectorAll('[data-account]').forEach(textarea => { const id = textarea.dataset.account; if (payments[id]) payments[id].account = textarea.value.trim(); }); setStore(KEYS.PAYMENTS, payments); toast('Payment settings saved locally!', 'success'); });
+  // --- UPDATED: Payment Methods (Database) ---
+  function renderPaymentMethods() { 
+    const paymentsToRender = globalPayments || DEFAULT_PAYMENTS_LOCAL; 
+    const container = document.getElementById('paymentMethodsList'); 
+    if(!container) return;
+    
+    container.innerHTML = Object.values(paymentsToRender).map(p => `
+      <div class="payment-method-card" data-method="${p.id}">
+        <div class="payment-method-header">
+          <div class="payment-method-title">
+            <div class="payment-method-icon ${p.iconClass}">${p.icon}</div>
+            <div><div class="payment-method-name">${p.name}</div><div class="payment-method-desc">${p.desc}</div></div>
+          </div>
+          <div class="toggle-switch ${p.enabled ? 'on' : ''}" data-toggle="${p.id}"></div>
+        </div>
+        <div class="editor-field">
+          <label>${p.id === 'bank' ? 'Bank Details' : 'Account / Address'}</label>
+          <textarea data-account="${p.id}" rows="3">${p.account || ''}</textarea>
+        </div>
+      </div>
+    `).join(''); 
+    
+    container.querySelectorAll('.toggle-switch').forEach(toggle => { 
+      toggle.addEventListener('click', () => toggle.classList.toggle('on')); 
+    }); 
+  }
 
-  function renderEmails() { const emails = getStore(KEYS.EMAILS, []); const el = document.getElementById('emailsTable'); document.getElementById('emailCount').textContent = emails.length; if (emails.length === 0) { el.innerHTML = `<div class="empty-state"><div class="icon">📧</div><div class="title">No emails sent yet</div><div class="desc">Emails will appear here after being triggered.</div></div>`; return; } el.innerHTML = `<table class="data-table"><thead><tr><th>Subject</th><th>Recipient</th><th>Type</th><th>Status</th><th>Sent</th></tr></thead><tbody>${emails.map(e => `<tr><td style="font-weight:600;">${e.subject}</td><td style="font-size:12px;">${e.to}</td><td style="font-size:12px;color:var(--muted);">${e.type}</td><td><span class="status-pill ${e.status === 'sent' ? 'approved' : 'rejected'}">${e.status}</span></td><td style="font-size:12px;color:var(--muted);">${formatDate(e.timestamp)}</td></tr>`).join('')}</tbody></table>`; }
+  document.getElementById('savePaymentsBtn').addEventListener('click', async () => { 
+    const currentPayments = globalPayments || JSON.parse(JSON.stringify(DEFAULT_PAYMENTS_LOCAL));
+    document.querySelectorAll('.toggle-switch').forEach(toggle => { const id = toggle.dataset.toggle; if (currentPayments[id]) currentPayments[id].enabled = toggle.classList.contains('on'); }); 
+    document.querySelectorAll('[data-account]').forEach(textarea => { const id = textarea.dataset.account; if (currentPayments[id]) currentPayments[id].account = textarea.value.trim(); }); 
+    
+    try {
+      const res = await fetch('/api/settings', { 
+        method: 'POST', 
+        headers: { 'Content-Type': 'application/json' }, 
+        body: JSON.stringify({ payments: currentPayments, siteContent: globalSiteContent }) 
+      });
+      if (res.ok) { 
+        globalPayments = currentPayments; 
+        toast('Payment settings saved to database!', 'success'); 
+      } else {
+        toast('Error saving settings', 'error');
+      }
+    } catch (err) { 
+      toast('Error saving settings', 'error'); 
+    }
+  });
+
+  // --- UPDATED: Site Editor (Database) ---
+  function loadSiteContentEditor() { 
+    const site = globalSiteContent; 
+    if (site) { 
+      if(document.getElementById('editHeroTitle')) document.getElementById('editHeroTitle').value = site.heroTitle || ''; 
+      if(document.getElementById('editHeroSub')) document.getElementById('editHeroSub').value = site.heroSub || ''; 
+      if(document.getElementById('editStat1')) document.getElementById('editStat1').value = site.stat1 || ''; 
+      if(document.getElementById('editStat2')) document.getElementById('editStat2').value = site.stat2 || ''; 
+      if(document.getElementById('editStat3')) document.getElementById('editStat3').value = site.stat3 || ''; 
+    } 
+  }
+
+  document.getElementById('saveSiteBtn').addEventListener('click', async () => { 
+    const newSiteContent = { 
+      heroTitle: document.getElementById('editHeroTitle').value, 
+      heroSub: document.getElementById('editHeroSub').value, 
+      stat1: document.getElementById('editStat1').value, 
+      stat2: document.getElementById('editStat2').value, 
+      stat3: document.getElementById('editStat3').value, 
+      updatedAt: new Date().toISOString() 
+    }; 
+    
+    try {
+      const res = await fetch('/api/settings', { 
+        method: 'POST', 
+        headers: { 'Content-Type': 'application/json' }, 
+        body: JSON.stringify({ payments: globalPayments, siteContent: newSiteContent }) 
+      });
+      if (res.ok) { 
+        globalSiteContent = newSiteContent; 
+        toast('Site content saved to database!', 'success'); 
+      } else {
+        toast('Error saving site content', 'error');
+      }
+    } catch (err) { 
+      toast('Error saving site content', 'error'); 
+    }
+  });
+
+  function renderEmails() { const emails = getStore(KEYS.EMAILS, []); const el = document.getElementById('emailsTable'); document.getElementById('emailCount').textContent = emails.length; if (emails.length === 0) { el.innerHTML = `<div class="empty-state"><div class="icon"></div><div class="title">No emails sent yet</div><div class="desc">Emails will appear here after being triggered.</div></div>`; return; } el.innerHTML = `<table class="data-table"><thead><tr><th>Subject</th><th>Recipient</th><th>Type</th><th>Status</th><th>Sent</th></tr></thead><tbody>${emails.map(e => `<tr><td style="font-weight:600;">${e.subject}</td><td style="font-size:12px;">${e.to}</td><td style="font-size:12px;color:var(--muted);">${e.type}</td><td><span class="status-pill ${e.status === 'sent' ? 'approved' : 'rejected'}">${e.status}</span></td><td style="font-size:12px;color:var(--muted);">${formatDate(e.timestamp)}</td></tr>`).join('')}</tbody></table>`; }
   document.getElementById('clearEmailsBtn').addEventListener('click', () => { if (!confirm('Clear all email logs?')) return; setStore(KEYS.EMAILS, []); renderEmails(); toast('Email logs cleared', 'success'); });
 
-  function loadSiteContent() { const site = getStore(KEYS.SITE, null); if (site) { document.getElementById('editHeroTitle').value = site.heroTitle || ''; document.getElementById('editHeroSub').value = site.heroSub || ''; document.getElementById('editStat1').value = site.stat1 || ''; document.getElementById('editStat2').value = site.stat2 || ''; document.getElementById('editStat3').value = site.stat3 || ''; } }
-  document.getElementById('saveSiteBtn').addEventListener('click', () => { const site = { heroTitle: document.getElementById('editHeroTitle').value, heroSub: document.getElementById('editHeroSub').value, stat1: document.getElementById('editStat1').value, stat2: document.getElementById('editStat2').value, stat3: document.getElementById('editStat3').value, updatedAt: new Date().toISOString() }; setStore(KEYS.SITE, site); toast('Site content saved locally', 'success'); });
   document.getElementById('resetAllBtn').addEventListener('click', () => { if (!confirm('⚠ RESET LOCAL SETTINGS?')) return; Object.values(KEYS).forEach(k => { if (k !== KEYS.SESSION) localStorage.removeItem(k); }); renderAll(); toast('Local settings reset', 'success'); });
   document.getElementById('refreshBtn').addEventListener('click', () => { renderAll(); toast('Dashboard refreshed', 'info'); });
   document.getElementById('exportUsersBtn').addEventListener('click', () => { if (allUsers.length === 0) { toast('No users to export', 'error'); return; } const csv = 'Name,Email,Phone,Age,Balance,Joined\n' + allUsers.map(u => `"${u.name}","${u.email}","${u.phone || ''}",${u.age || ''},${u.balance || 0},"${u.createdAt}"`).join('\n'); const blob = new Blob([csv], { type: 'text/csv' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `nexavault-users-${new Date().toISOString().slice(0,10)}.csv`; a.click(); URL.revokeObjectURL(url); toast('Users exported', 'success'); });
 
+  // --- UPDATED: renderAll loads from DB first ---
   async function renderAll() {
+    await loadGlobalSettings(); // Load payment/site settings from DB
+    
     document.getElementById('statUsers').textContent = '...';
     try {
       const [usersRes, txnsRes] = await Promise.all([ fetch('/api/users'), fetch('/api/transactions') ]);
       if (usersRes.ok) allUsers = await usersRes.json();
       if (txnsRes.ok) allTxns = await txnsRes.json();
-      renderOverview(); renderUsers(); renderTransactions(); renderPaymentMethods(); renderEmails(); loadSiteContent();
-    } catch (error) { console.error('Error loading admin data:', error); toast('Error loading data from database', 'error'); }
+      renderOverview(); 
+      renderUsers(); 
+      renderTransactions(); 
+      renderPaymentMethods(); // Now uses DB data
+      renderEmails(); 
+      loadSiteContentEditor(); // Now uses DB data
+    } catch (error) { 
+      console.error('Error loading admin data:', error); 
+      toast('Error loading data from database', 'error'); 
+    }
   }
+  
   window.addEventListener('load', () => { gsap.from('.login-card', { opacity: 0, y: 30, scale: 0.97, duration: 0.7, ease: 'power3.out' }); });
 </script>
 </body>

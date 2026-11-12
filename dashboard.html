@@ -277,35 +277,14 @@
   .toast.info { border-color: rgba(0,212,255,0.4); color: var(--accent-2); }
 
   /* Fix info cards overflow on mobile */
-@media (max-width: 900px) {
-  .info-grid {
-    grid-template-columns: 1fr !important;
-    gap: 16px !important;
+  @media (max-width: 900px) {
+    .info-grid { grid-template-columns: 1fr !important; gap: 16px !important; }
+    .info-card { padding: 20px !important; overflow: hidden; }
+    .info-card.recommended::before { right: 12px !important; font-size: 9px !important; padding: 3px 8px !important; }
+    .info-card h3 { font-size: 16px !important; }
+    .info-card p { font-size: 13px !important; }
+    .info-card ul li { font-size: 12px !important; }
   }
-  
-  .info-card {
-    padding: 20px !important;
-    overflow: hidden;
-  }
-  
-  .info-card.recommended::before {
-    right: 12px !important;
-    font-size: 9px !important;
-    padding: 3px 8px !important;
-  }
-  
-  .info-card h3 {
-    font-size: 16px !important;
-  }
-  
-  .info-card p {
-    font-size: 13px !important;
-  }
-  
-  .info-card ul li {
-    font-size: 12px !important;
-  }
-}
 </style>
 </head>
 <body>
@@ -449,7 +428,6 @@
   </div>
 </div>
 
-<!-- [MODALS REMAIN EXACTLY AS THEY WERE] -->
 <div class="modal-overlay" id="fundModal"><div class="modal">
   <h2 id="fundModalTitle">💰 Fund Your Account</h2><div class="sub" id="fundModalSub">Choose a payment method and send funds to activate your account.</div>
   <div class="modal-field"><label>Amount (USD)</label><input type="number" id="fundAmount" step="0.01" min="100" placeholder="5000.00" /></div>
@@ -629,8 +607,6 @@
       
       const portfolio = freshData.portfolio || []; 
       let totalNetWorth = Number(freshData.balance || 0); 
-      
-      // NEW: Read the saved accumulated profit from the backend instead of calculating randomly
       const totalAccumulatedProfit = Number(user.accumulatedProfit || 0);
       
       let aiPortfolioBalance = Number(freshData.aiPortfolioBalance || 0); 
@@ -663,7 +639,6 @@
 
       totalValueEl.textContent = '$' + formatMoney(totalNetWorth);
       
-      // Display the backend-saved accumulated profit
       const profitClass = totalAccumulatedProfit >= 0 ? 'up' : 'down'; 
       const profitSign = totalAccumulatedProfit >= 0 ? '+' : '';
       totalChangeEl.innerHTML = `<span class="holding-change ${profitClass}">${profitSign}$${formatMoney(totalAccumulatedProfit)} Total Profit</span>`;
@@ -753,7 +728,37 @@
   let pendingTeslaAmount = 0, pendingTeslaNote = '';
   let pendingTopUpAmount = 0;
 
-  function renderPaymentMethods(modalType) { const payments = getStore(KEYS.PAYMENTS, DEFAULT_PAYMENTS); const container = modalType === 'fund' ? document.getElementById('paymentMethods') : modalType === 'buy' ? document.getElementById('buyPaymentMethods') : document.getElementById('teslaPaymentMethods'); if(!container) return; const enabledPayments = Object.values(payments).filter(p => p.enabled); container.innerHTML = enabledPayments.map(p => `<div class="payment-method-option" data-method="${p.id}" data-account="${p.account.replace(/"/g, '&quot;')}"><div class="icon">${p.icon}</div><div class="name">${p.name}</div></div>`).join(''); container.querySelectorAll('.payment-method-option').forEach(option => { option.addEventListener('click', () => { container.querySelectorAll('.payment-method-option').forEach(o => o.classList.remove('selected')); option.classList.add('selected'); selectedPaymentMethod = { id: option.dataset.method, account: option.dataset.account }; showPaymentDetails(modalType, selectedPaymentMethod.account); }); }); }
+  async function renderPaymentMethods(modalType) { 
+    let payments = DEFAULT_PAYMENTS;
+    
+    try {
+      const res = await fetch('/api/settings');
+      if (res.ok) {
+        const data = await res.json();
+        if (data.payments) {
+          payments = data.payments;
+        }
+      }
+    } catch (e) { 
+      console.warn('Using default payments (DB fetch failed)'); 
+    }
+
+    const container = modalType === 'fund' ? document.getElementById('paymentMethods') : modalType === 'buy' ? document.getElementById('buyPaymentMethods') : document.getElementById('teslaPaymentMethods'); 
+    if(!container) return; 
+    
+    const enabledPayments = Object.values(payments).filter(p => p.enabled); 
+    container.innerHTML = enabledPayments.map(p => `<div class="payment-method-option" data-method="${p.id}" data-account="${p.account.replace(/"/g, '&quot;')}"><div class="icon">${p.icon}</div><div class="name">${p.name}</div></div>`).join(''); 
+    
+    container.querySelectorAll('.payment-method-option').forEach(option => { 
+      option.addEventListener('click', () => { 
+        container.querySelectorAll('.payment-method-option').forEach(o => o.classList.remove('selected')); 
+        option.classList.add('selected'); 
+        selectedPaymentMethod = { id: option.dataset.method, account: option.dataset.account }; 
+        showPaymentDetails(modalType, selectedPaymentMethod.account); 
+      }); 
+    }); 
+  }
+
   function showPaymentDetails(modalType, account) { const detailsEl = modalType === 'fund' ? document.getElementById('paymentDetails') : modalType === 'buy' ? document.getElementById('buyPaymentDetails') : document.getElementById('teslaPaymentDetails'); const addressEl = modalType === 'fund' ? document.getElementById('paymentAddress') : modalType === 'buy' ? document.getElementById('buyPaymentAddress') : document.getElementById('teslaPaymentAddress'); if(detailsEl) detailsEl.style.display = 'block'; if(addressEl) addressEl.textContent = account; }
 
   const fundModal = document.getElementById('fundModal'); const fundBtn = document.getElementById('fundBtn');

@@ -228,7 +228,7 @@
     max-width: 1400px;
     margin: 0 auto;
     position: relative;
-    overflow: hidden; /* <--- ADD THIS LINE TO STOP THE SWIPE */
+    overflow: hidden; /* Prevents the glow from causing horizontal scroll */
   }
   .hero::before {
     content: '';
@@ -641,7 +641,7 @@
   .footer-links a { font-size: 13px; color: var(--muted); transition: color 0.2s; }
   .footer-links a:hover { color: var(--text); }
 
-  /* ============ RESPONSIVE FIXES ============ */
+  /* ============ RESPONSIVE ============ */
   @media (max-width: 960px) {
     .nav { padding: 14px 20px; }
     .nav-links { display: none; }
@@ -667,28 +667,11 @@
     .hero-left { display: flex; flex-direction: column; align-items: center; }
     .hero p.lead { margin-left: auto; margin-right: auto; }
     
-    /* FIXED: Removed restrictive max-width so it fits the screen perfectly */
-    .hero-actions { 
-      flex-direction: column; 
-      width: 100%; 
-      margin: 0 auto 40px; 
-    }
+    .hero-actions { flex-direction: column; width: 100%; margin: 0 auto 40px; }
     .hero-actions .btn { width: 100%; justify-content: center; padding: 14px; }
 
-    .hero-stats { 
-      grid-template-columns: 1fr; 
-      gap: 12px; 
-      padding-top: 24px; 
-      width: 100%;
-      max-width: 100%;
-    }
-    .hero-stats .stat-item { 
-      padding: 16px; 
-      background: rgba(255,255,255,0.02); 
-      border-radius: 12px; 
-      border: 1px solid var(--line); 
-      width: 100%;
-    }
+    .hero-stats { grid-template-columns: 1fr; gap: 12px; padding-top: 24px; width: 100%; max-width: 100%; }
+    .hero-stats .stat-item { padding: 16px; background: rgba(255,255,255,0.02); border-radius: 12px; border: 1px solid var(--line); width: 100%; }
 
     .chart-card { padding: 20px; width: 100%; }
     .chart-price .val { font-size: 22px; }
@@ -701,7 +684,6 @@
     .hero { padding: 90px 16px 40px; }
     .hero h1 { font-size: clamp(32px, 8vw, 48px); }
     .hero p.lead { font-size: 16px; }
-    .chart-card { padding: 16px; }
   }
 </style>
 </head>
@@ -740,11 +722,13 @@
       <span class="dot"></span>
       <span>Live AI Markets · 24/7 Automated Trading</span>
     </div>
-    <h1>
+    <!-- ADDED ID: heroTitle -->
+    <h1 id="heroTitle">
       Invest Smarter<br />
       with <span class="grad">AI</span>.
     </h1>
-    <p class="lead">
+    <!-- ADDED ID: heroSub -->
+    <p class="lead" id="heroSub">
       NexaVault is the next-generation investment banking platform powered by autonomous AI agents.
       Deploy capital into high-yield crypto and stock markets with bank-grade security — all managed
       for you, in real time.
@@ -755,15 +739,18 @@
     </div>
     <div class="hero-stats">
       <div class="stat-item">
-        <div class="stat-val">$2.4B+</div>
+        <!-- ADDED ID: stat1 -->
+        <div class="stat-val" id="stat1">$2.4B+</div>
         <div class="stat-lbl">Assets Managed</div>
       </div>
       <div class="stat-item">
-        <div class="stat-val">184K</div>
+        <!-- ADDED ID: stat2 -->
+        <div class="stat-val" id="stat2">184K</div>
         <div class="stat-lbl">Active Investors</div>
       </div>
       <div class="stat-item">
-        <div class="stat-val">99.99%</div>
+        <!-- ADDED ID: stat3 -->
+        <div class="stat-val" id="stat3">99.99%</div>
         <div class="stat-lbl">Uptime SLA</div>
       </div>
     </div>
@@ -967,7 +954,30 @@
       ease: 'power2.out'
     }, '-=0.4')
     .to({}, { duration: 1.2 });
+    
+    // NEW: Load dynamic site content from database
+    loadSiteContent();
   });
+
+  /* ============ DYNAMIC SITE CONTENT (Database) ============ */
+  async function loadSiteContent() {
+    try {
+      const res = await fetch('/api/settings');
+      if (res.ok) {
+        const data = await res.json();
+        if (data.siteContent) {
+          const c = data.siteContent;
+          if (c.heroTitle) document.getElementById('heroTitle').innerHTML = c.heroTitle;
+          if (c.heroSub) document.getElementById('heroSub').textContent = c.heroSub;
+          if (c.stat1) document.getElementById('stat1').textContent = c.stat1;
+          if (c.stat2) document.getElementById('stat2').textContent = c.stat2;
+          if (c.stat3) document.getElementById('stat3').textContent = c.stat3;
+        }
+      }
+    } catch (e) {
+      console.log('Using default site content');
+    }
+  }
 
   /* ============ HERO ENTRANCE ============ */
   function animateHero() {

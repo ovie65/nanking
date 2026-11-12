@@ -25,17 +25,20 @@ export default async function handler(req, res) {
     }
 
     // ==========================================
-    // NEW: Daily Profit Persistence Logic
+    // FIXED: Daily Profit Persistence Logic
     // ==========================================
     const now = new Date();
     let updatedUser = { ...user };
     let daysElapsed = 0;
 
-    if (user.lastProfitUpdate) {
-      const lastUpdate = new Date(user.lastProfitUpdate);
-      const diffTime = Math.abs(now - lastUpdate);
-      daysElapsed = Math.floor(diffTime / (1000 * 60 * 60 * 24)); // Calculate full days passed
-    }
+    // FIX: If lastProfitUpdate doesn't exist, we pretend it was 24 hours ago 
+    // so the math runs immediately for the first time.
+    let lastUpdate = user.lastProfitUpdate 
+      ? new Date(user.lastProfitUpdate) 
+      : new Date(Date.now() - 24 * 60 * 60 * 1000); 
+
+    const diffTime = Math.abs(now - lastUpdate);
+    daysElapsed = Math.floor(diffTime / (1000 * 60 * 60 * 24)); 
 
     // Only run the math if at least 1 day has passed AND they have investments
     if (daysElapsed >= 1) {
@@ -58,21 +61,21 @@ export default async function handler(req, res) {
       if (eligiblePortfolioValue > 0) {
         let totalNewProfit = 0;
 
-        // Simulate the daily roll for each day elapsed to maintain the 85% win rate realism
+        // Simulate the daily roll for each day elapsed
         for (let i = 0; i < daysElapsed; i++) {
           const isWin = Math.random() > 0.15;
           let dailyPercent;
           
           if (isWin) {
-            dailyPercent = (Math.random() * 1.3) + 0.2; // +0.2% to +1.5%
+            dailyPercent = (Math.random() * 1.3) + 0.2; 
           } else {
-            dailyPercent = ((Math.random() * 0.3) + 0.1) * -1; // -0.1% to -0.4%
+            dailyPercent = ((Math.random() * 0.3) + 0.1) * -1; 
           }
           
           totalNewProfit += eligiblePortfolioValue * (dailyPercent / 100);
         }
 
-        // Add the 10% AI Venture Profit drip (simulated as 10% of a 1% daily venture growth)
+        // Add the 10% AI Venture Profit drip
         const aiVentureDrip = (eligiblePortfolioValue * 0.01 * 0.10) * daysElapsed;
         
         const finalProfitToAdd = totalNewProfit + aiVentureDrip;
