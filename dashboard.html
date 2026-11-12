@@ -28,7 +28,6 @@
   .logout-btn { padding: 8px 14px; background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.2); color: var(--red); border-radius: 8px; font-size: 12px; font-weight: 600; transition: all 0.2s; }
   .logout-btn:hover { background: rgba(239,68,68,0.15); }
   
-  /* MOBILE RESPONSIVENESS FIXES */
   @media (max-width: 768px) { 
     .top-nav { flex-wrap: wrap; padding: 12px 16px; gap: 12px; } 
     .nav-logo { flex: 1; } 
@@ -38,7 +37,6 @@
     .nav-user-name { font-size: 13px; } 
     .nav-user-email { font-size: 10px; } 
     .logout-btn { order: 3; width: 100%; margin-top: 8px; justify-content: center; padding: 10px; } 
-    
     .dashboard-container { padding: 0 16px 100px; }
     .balance-card { padding: 20px; }
     .balance-header { flex-direction: column; gap: 16px; }
@@ -276,7 +274,6 @@
   .toast.error { border-color: rgba(239,68,68,0.4); color: var(--red); }
   .toast.info { border-color: rgba(0,212,255,0.4); color: var(--accent-2); }
 
-  /* Fix info cards overflow on mobile */
   @media (max-width: 900px) {
     .info-grid { grid-template-columns: 1fr !important; gap: 16px !important; }
     .info-card { padding: 20px !important; overflow: hidden; }
@@ -373,7 +370,7 @@
       </div>
     </div>
     <div class="ai-status">
-      <div class="ai-icon">🤖</div>
+      <div class="ai-icon"></div>
       <div class="ai-info"><div class="ai-title">Your AI Mini-Worker is Active</div><div class="ai-desc">Autonomous agent monitoring markets 24/7 and optimizing your portfolio</div></div>
       <div class="ai-stats"><div class="ai-stat"><div class="ai-stat-val">2,847</div><div class="ai-stat-lbl">Signals/Day</div></div><div class="ai-stat"><div class="ai-stat-val">99.8%</div><div class="ai-stat-lbl">Uptime</div></div></div>
     </div>
@@ -440,7 +437,7 @@
 <div class="modal-overlay" id="withdrawModal"><div class="modal">
   <h2>💸 Withdraw Funds</h2><div class="sub">Request a withdrawal to your external wallet or bank account.</div>
   <div class="modal-field"><label>Withdrawal Amount (USD)</label><input type="number" id="withdrawAmount" step="0.01" min="50" placeholder="1000.00" /></div>
-  <div class="modal-field"><label>Withdrawal Method</label><select id="withdrawMethod"><option value="btc">₿ Bitcoin (BTC)</option><option value="bank">🏦 Bank Transfer</option></select></div>
+  <div class="modal-field"><label>Withdrawal Method</label><select id="withdrawMethod"><option value="btc"> Bitcoin (BTC)</option><option value="bank">🏦 Bank Transfer</option></select></div>
   <div class="modal-field"><label id="withdrawDestLabel">Your Bitcoin Address</label><textarea id="withdrawDestination" placeholder="Enter your BTC wallet address..."></textarea></div>
   <div class="modal-field"><label>Reference Note (optional)</label><textarea id="withdrawNote" placeholder="Add a note for your records..."></textarea></div>
   <div class="modal-actions"><button class="btn btn-ghost" id="cancelWithdraw">Cancel</button><button class="btn btn-primary" id="submitWithdraw">Submit Withdrawal</button></div>
@@ -468,7 +465,7 @@
     <div class="sub">For the <span id="choicePlanName" style="color: var(--text);">1 Year</span> plan ($<span id="choiceAmount" style="color: var(--text);">150</span>)</div>
     <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 20px;">
       <button class="btn btn-primary" style="width: 100%; padding: 14px; justify-content: center;" onclick="confirmAiBalancePayment()">💳 Pay from Main Balance</button>
-      <button class="btn btn-ghost" style="width: 100%; padding: 14px; justify-content: center;" onclick="chooseFundFirst()">💰 Fund Account First</button>
+      <button class="btn btn-ghost" style="width: 100%; padding: 14px; justify-content: center;" onclick="chooseFundFirst()"> Fund Account First</button>
     </div>
     <div class="modal-actions" style="justify-content: center; margin-top: 20px;"><button class="btn btn-ghost" onclick="document.getElementById('aiPaymentChoiceModal').classList.remove('show')">Cancel</button></div>
   </div>
@@ -606,13 +603,36 @@
       updateBalance();
       
       const portfolio = freshData.portfolio || []; 
-      let totalNetWorth = Number(freshData.balance || 0); 
-      const totalAccumulatedProfit = Number(user.accumulatedProfit || 0);
       
+      // 1. GET SEPARATE PROFITS FROM DATABASE
+      const personalProfit = Number(freshData.personalAccumulatedProfit || 0);
+      const aiProfit = Number(freshData.aiAccumulatedProfit || 0);
+      
+      let totalNetWorth = Number(freshData.balance || 0); 
       let aiPortfolioBalance = Number(freshData.aiPortfolioBalance || 0); 
       let manualTotalValue = 0; 
       const manualAssets = [];
       
+      // 2. CALCULATE TESLA DATA (Principal + Accrued Bonus)
+      let teslaTotalValue = 0;
+      let teslaAccruedProfit = 0;
+      
+      if (portfolio && portfolio.length > 0) {
+        portfolio.forEach(item => {
+            if (item.type === 'tesla_investment') {
+                const principal = Number(item.investedAmount || 0);
+                const totalBonus = Number(item.bonusAmount || (principal * 2.1925));
+                const startDate = new Date(item.dateAdded);
+                const daysPassed = Math.floor((new Date() - startDate) / (1000 * 60 * 60 * 24));
+                const accruedBonus = Math.min((totalBonus / 365) * daysPassed, totalBonus);
+                
+                teslaTotalValue += (principal + accruedBonus);
+                teslaAccruedProfit += accruedBonus;
+            }
+        });
+      }
+
+      // 3. PROCESS PERSONAL ASSETS
       portfolio.forEach(item => {
         if (item.type === 'ai_managed') return;
         if (item.type === 'tesla_investment') return; 
@@ -627,43 +647,57 @@
         
         manualAssets.push({ 
           name: item.name, symbol: item.symbol, iconClass: iconClass, iconChar: iconChar, 
-          value: currentValue, metaText: metaText, isTesla: false
+          value: currentValue, metaText: metaText
         });
       });
 
-      const teslaData = getAccruedTeslaData(portfolio);
-      totalNetWorth += teslaData.totalAccrued;
+      // 4. ADD AI VALUE
       if (aiPortfolioBalance >= 100) {
         totalNetWorth += aiPortfolioBalance;
       }
 
+      // 5. ADD TESLA VALUE
+      totalNetWorth += teslaTotalValue;
+
+      // 6. CALCULATE GRAND TOTAL PROFIT
+      const grandTotalProfit = personalProfit + aiProfit + teslaAccruedProfit;
+
+      // --- RENDER TOTAL NET WORTH CARD ---
       totalValueEl.textContent = '$' + formatMoney(totalNetWorth);
-      
-      const profitClass = totalAccumulatedProfit >= 0 ? 'up' : 'down'; 
-      const profitSign = totalAccumulatedProfit >= 0 ? '+' : '';
-      totalChangeEl.innerHTML = `<span class="holding-change ${profitClass}">${profitSign}$${formatMoney(totalAccumulatedProfit)} Total Profit</span>`;
+      const totalProfitClass = grandTotalProfit >= 0 ? 'up' : 'down'; 
+      const totalProfitSign = grandTotalProfit >= 0 ? '+' : '';
+      totalChangeEl.innerHTML = `<span class="holding-change ${totalProfitClass}">${totalProfitSign}$${formatMoney(grandTotalProfit)} Total Profit</span>`;
       
       aiSectionTitle.style.display = 'flex';
       const isSubscribed = user.aiAgentActive;
       const isFunded = aiPortfolioBalance >= 100;
       
+      // --- RENDER AI PORTFOLIO CARD ---
       if (!isSubscribed) {
-        aiPortfolioSummary.innerHTML = `<div class="locked-state"><div class="lock-icon">🔒</div><div class="lock-title">AI Portfolio Locked</div><div class="lock-desc">Subscribe to the AI Agent plan to unlock automated trading with 85% win rate.</div><button onclick="switchTab(tabAgent, viewAgent); closeDrawer();">View Subscription Plans</button></div>`;
+        aiPortfolioSummary.innerHTML = `<div class="locked-state"><div class="lock-icon"></div><div class="lock-title">AI Portfolio Locked</div><div class="lock-desc">Subscribe to the AI Agent plan to unlock automated trading with 85% win rate.</div><button onclick="switchTab(tabAgent, viewAgent); closeDrawer();">View Subscription Plans</button></div>`;
       } else if (!isFunded) {
         aiPortfolioSummary.innerHTML = `<div class="locked-state"><div class="lock-icon">🔒</div><div class="lock-title">AI Portfolio Not Funded</div><div class="lock-desc">You've activated AI Agent! Allocate at least $100 from your main balance to begin trading.</div><button class="gold" onclick="openTopUpModal()">Fund AI Portfolio</button></div>`;
       } else {
         aiUnlockedContent.style.display = 'block';
+        const aiProfitClass = aiProfit >= 0 ? 'up' : 'down'; 
+        const aiProfitSign = aiProfit >= 0 ? '+' : '';
+        
         const betaAssetsHtml = BETA_AI_ASSETS.map(asset => {
           const assetValue = aiPortfolioBalance * asset.allocation;
           const iconClass = asset.type === 'crypto' ? 'crypto' : 'stock';
           const iconChar = asset.symbol.charAt(0);
           return `<div class="asset-item"><div class="asset-left"><div class="asset-icon ${iconClass}">${iconChar}</div><div><div class="asset-name">${asset.name}</div><div class="asset-meta">${asset.symbol} · ${(asset.allocation * 100).toFixed(0)}% Allocation</div></div></div><div class="asset-right"><div class="asset-value">$${formatMoney(assetValue)}</div></div></div>`;
         }).join('');
-        aiPortfolioSummary.innerHTML = `<div class="portfolio-summary-card"><div class="summary-header"><div class="summary-title">🤖 AI Agent Portfolio</div></div><div class="summary-stats"><div class="summary-stat"><div class="summary-stat-label">Total Value</div><div class="summary-stat-value">$${formatMoney(aiPortfolioBalance)}</div></div><div class="summary-stat"><div class="summary-stat-label">Total Profit</div><div class="summary-stat-value ${profitClass}">${profitSign}$${formatMoney(totalAccumulatedProfit)}</div></div></div><button class="view-details-btn" data-toggle="aiAssetDetails" onclick="toggleDetails('aiAssetDetails')">👁 View Details</button><button class="topup-btn" onclick="openTopUpModal()">➕ Top Up Portfolio</button><div id="aiAssetDetails" class="asset-details">${betaAssetsHtml}</div></div>`;
+        
+        aiPortfolioSummary.innerHTML = `<div class="portfolio-summary-card"><div class="summary-header"><div class="summary-title">🤖 AI Agent Portfolio</div></div><div class="summary-stats"><div class="summary-stat"><div class="summary-stat-label">Total Value</div><div class="summary-stat-value">$${formatMoney(aiPortfolioBalance)}</div></div><div class="summary-stat"><div class="summary-stat-label">Total Profit</div><div class="summary-stat-value ${aiProfitClass}">${aiProfitSign}$${formatMoney(aiProfit)}</div></div></div><button class="view-details-btn" data-toggle="aiAssetDetails" onclick="toggleDetails('aiAssetDetails')"> View Details</button><button class="topup-btn" onclick="openTopUpModal()"> Top Up Portfolio</button><div id="aiAssetDetails" class="asset-details">${betaAssetsHtml}</div></div>`;
       }
       
+      // --- RENDER PERSONAL PORTFOLIO CARD ---
       if (manualAssets.length > 0) {
-        manualPortfolioSummary.innerHTML = `<div class="portfolio-summary-card"><div class="summary-header"><div class="summary-title">🛠️ Personal Holdings</div></div><div class="summary-stats"><div class="summary-stat"><div class="summary-stat-label">Total Value</div><div class="summary-stat-value">$${formatMoney(manualTotalValue)}</div></div><div class="summary-stat"><div class="summary-stat-label">Total Profit</div><div class="summary-stat-value ${profitClass}">${profitSign}$${formatMoney(totalAccumulatedProfit)}</div></div></div><button class="view-details-btn" data-toggle="manualAssetDetails" onclick="toggleDetails('manualAssetDetails')">👁 View Details</button><div id="manualAssetDetails" class="asset-details">${manualAssets.map(asset => `<div class="asset-item"><div class="asset-left"><div class="asset-icon ${asset.iconClass}">${asset.iconChar}</div><div><div class="asset-name">${asset.name}</div><div class="asset-meta">${asset.metaText}</div></div></div><div class="asset-right"><div class="asset-value">$${formatMoney(asset.value)}</div></div></div>`).join('')}</div></div>`;
+        const personalProfitClass = personalProfit >= 0 ? 'up' : 'down'; 
+        const personalProfitSign = personalProfit >= 0 ? '+' : '';
+        
+        manualPortfolioSummary.innerHTML = `<div class="portfolio-summary-card"><div class="summary-header"><div class="summary-title">🛠️ Personal Holdings</div></div><div class="summary-stats"><div class="summary-stat"><div class="summary-stat-label">Total Value</div><div class="summary-stat-value">$${formatMoney(manualTotalValue)}</div></div><div class="summary-stat"><div class="summary-stat-label">Total Profit</div><div class="summary-stat-value ${personalProfitClass}">${personalProfitSign}$${formatMoney(personalProfit)}</div></div></div><button class="view-details-btn" data-toggle="manualAssetDetails" onclick="toggleDetails('manualAssetDetails')">👁 View Details</button><div id="manualAssetDetails" class="asset-details">${manualAssets.map(asset => `<div class="asset-item"><div class="asset-left"><div class="asset-icon ${asset.iconClass}">${asset.iconChar}</div><div><div class="asset-name">${asset.name}</div><div class="asset-meta">${asset.metaText}</div></div></div><div class="asset-right"><div class="asset-value">$${formatMoney(asset.value)}</div></div></div>`).join('')}</div></div>`;
       } else {
         manualPortfolioSummary.innerHTML = '<div class="empty-state">No personal assets yet.<br>Go to the Markets tab to buy your first stock or crypto!</div>';
       }
@@ -708,7 +742,7 @@
   const STOCK_ASSETS = [ { name: 'NVIDIA', symbol: 'NVDA', price: 875 }, { name: 'Apple', symbol: 'AAPL', price: 189 }, { name: 'Microsoft', symbol: 'MSFT', price: 412 }, { name: 'Amazon', symbol: 'AMZN', price: 178 }, { name: 'Google', symbol: 'GOOGL', price: 142 }, { name: 'Meta', symbol: 'META', price: 485 }, { name: 'Netflix', symbol: 'NFLX', price: 623 }, { name: 'AMD', symbol: 'AMD', price: 168 } ];
   function renderMarket() { 
     const grid = document.getElementById('marketGrid'); if(!grid) return; 
-    const teslaCard = `<div class="asset-card tesla-special"><div class="tesla-content"><div class="asset-icon-lg tesla">T</div><div class="tesla-info"><div><div class="tesla-title">Tesla Roadster Investment Program</div><div class="asset-type">Special Bonus Program</div></div><div class="tesla-desc">Invest in Tesla's future and earn scaled bonus profits tied to Tesla's growth.</div><div class="tesla-stats"><div class="tesla-stat"><div class="tesla-stat-val">$4,000</div><div class="tesla-stat-lbl">Minimum</div></div><div class="tesla-stat"><div class="tesla-stat-val">2.19x</div><div class="tesla-stat-lbl">Bonus Multiplier</div></div><div class="tesla-stat"><div class="tesla-stat-val">1 Year</div><div class="tesla-stat-lbl">Lock Period</div></div></div><div class="tesla-example"><div class="tesla-example-title">Example Returns</div><div class="tesla-example-row"><span>Invest $4,000</span><span>→ Get $8,770 bonus</span></div><div class="tesla-example-row"><span>Invest $10,000</span><span>→ Get $21,925 bonus</span></div><div class="tesla-example-row"><span>Invest $20,000</span><span>→ Get $43,850 bonus</span></div></div><div class="tesla-warning">⚠️ Bonus profit is locked for 1 year.</div><button class="buy-btn tesla-btn" id="teslaBtn">Join Tesla Program</button></div></div></div>`; 
+    const teslaCard = `<div class="asset-card tesla-special"><div class="tesla-content"><div class="asset-icon-lg tesla">T</div><div class="tesla-info"><div><div class="tesla-title">Tesla Roadster Investment Program</div><div class="asset-type">Special Bonus Program</div></div><div class="tesla-desc">Invest in Tesla's future and earn scaled bonus profits tied to Tesla's growth.</div><div class="tesla-stats"><div class="tesla-stat"><div class="tesla-stat-val">$4,000</div><div class="tesla-stat-lbl">Minimum</div></div><div class="tesla-stat"><div class="tesla-stat-val">2.19x</div><div class="tesla-stat-lbl">Bonus Multiplier</div></div><div class="tesla-stat"><div class="tesla-stat-val">1 Year</div><div class="tesla-stat-lbl">Lock Period</div></div></div><div class="tesla-example"><div class="tesla-example-title">Example Returns</div><div class="tesla-example-row"><span>Invest $4,000</span><span>→ Get $8,770 bonus</span></div><div class="tesla-example-row"><span>Invest $10,000</span><span>→ Get $21,925 bonus</span></div><div class="tesla-example-row"><span>Invest $20,000</span><span>→ Get $43,850 bonus</span></div></div><div class="tesla-warning">️ Bonus profit is locked for 1 year.</div><button class="buy-btn tesla-btn" id="teslaBtn">Join Tesla Program</button></div></div></div>`; 
     const regularAssets = [...CRYPTO_ASSETS.map(a => ({ ...a, type: 'crypto', icon: a.symbol.charAt(0), iconClass: 'crypto' })), ...STOCK_ASSETS.map(a => ({ ...a, type: 'stock', icon: a.symbol.charAt(0), iconClass: 'stock' }))]; 
     const regularCards = regularAssets.map(asset => { 
       const live = livePrices[asset.symbol]; const price = live ? live.price : asset.price; const change = live ? live.change24h : (Math.random() - 0.45) * 8; 
@@ -885,7 +919,7 @@
     if (amount > currentBalance) { 
       toast(`Insufficient funds. You need $${formatMoney(amount)} but only have $${formatMoney(currentBalance)}. Please fund your account first.`, 'error');
       currentTransactionType = 'funding_request';
-      document.getElementById('fundModalTitle').textContent = '💰 Fund Your Account'; document.getElementById('fundModalSub').textContent = `Add at least $${formatMoney(Math.max(100, amount - currentBalance))} to your balance to complete this purchase.`;
+      document.getElementById('fundModalTitle').textContent = ' Fund Your Account'; document.getElementById('fundModalSub').textContent = `Add at least $${formatMoney(Math.max(100, amount - currentBalance))} to your balance to complete this purchase.`;
       document.getElementById('fundAmount').value = Math.max(100, amount - currentBalance); document.getElementById('fundNote').value = '';
       document.getElementById('paymentMethods').style.display = 'grid'; document.getElementById('paymentDetails').style.display = 'none'; selectedPaymentMethod = null;
       renderPaymentMethods('fund'); buyModal.classList.remove('show'); document.getElementById('fundModal').classList.add('show'); return;
