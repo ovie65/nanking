@@ -552,13 +552,13 @@
   fetchLivePrices(); setInterval(fetchLivePrices, 60000); 
 
   const BETA_AI_ASSETS = [
-    { symbol: 'BTC', name: 'Bitcoin', type: 'crypto', allocation: 0.30 },
-    { symbol: 'ETH', name: 'Ethereum', type: 'crypto', allocation: 0.20 },
-    { symbol: 'SOL', name: 'Solana', type: 'crypto', allocation: 0.10 },
-    { symbol: 'NVDA', name: 'NVIDIA', type: 'stock', allocation: 0.15 },
-    { symbol: 'AAPL', name: 'Apple', type: 'stock', allocation: 0.10 },
-    { symbol: 'TSLA', name: 'Tesla', type: 'stock', allocation: 0.10 },
-    { symbol: 'LINK', name: 'Chainlink', type: 'crypto', allocation: 0.05 }
+    { symbol: 'BTC', name: 'Bitcoin', type: 'crypto', allocation: 0.30, img: 'images/btc.svg' },
+    { symbol: 'ETH', name: 'Ethereum', type: 'crypto', allocation: 0.20, img: 'images/eth.svg' },
+    { symbol: 'SOL', name: 'Solana', type: 'crypto', allocation: 0.10, img: 'images/sol.jpeg' },
+    { symbol: 'NVDA', name: 'NVIDIA', type: 'stock', allocation: 0.15, img: 'images/nvda.svg' },
+    { symbol: 'AAPL', name: 'Apple', type: 'stock', allocation: 0.10, img: 'images/aapl.svg' },
+    { symbol: 'TSLA', name: 'Tesla', type: 'stock', allocation: 0.10, img: 'images/tsla.svg' },
+    { symbol: 'LINK', name: 'Chainlink', type: 'crypto', allocation: 0.05, img: 'images/link.svg' }
   ];
 
   const portfolioTrigger = document.getElementById('portfolioTrigger'); const portfolioDrawer = document.getElementById('portfolioDrawer'); const portfolioOverlay = document.getElementById('portfolioOverlay'); const drawerClose = document.getElementById('drawerClose'); const drawerBackBtn = document.getElementById('drawerBackBtn');
@@ -683,11 +683,14 @@
         const aiProfitClass = aiProfit >= 0 ? 'up' : 'down'; 
         const aiProfitSign = aiProfit >= 0 ? '+' : '';
         
-        const betaAssetsHtml = BETA_AI_ASSETS.map(asset => {
+                const betaAssetsHtml = BETA_AI_ASSETS.map(asset => {
           const assetValue = aiPortfolioBalance * asset.allocation;
           const iconClass = asset.type === 'crypto' ? 'crypto' : 'stock';
           const iconChar = asset.symbol.charAt(0);
-          return `<div class="asset-item"><div class="asset-left"><div class="asset-icon ${iconClass}">${iconChar}</div><div><div class="asset-name">${asset.name}</div><div class="asset-meta">${asset.symbol} · ${(asset.allocation * 100).toFixed(0)}% Allocation</div></div></div><div class="asset-right"><div class="asset-value">$${formatMoney(assetValue)}</div></div></div>`;
+          // This line checks if there is an image, otherwise it uses the letter
+          const iconDisplay = asset.img ? `<img src="${asset.img}" alt="${asset.name}" />` : iconChar; 
+          
+          return `<div class="asset-item"><div class="asset-left"><div class="asset-icon ${iconClass}">${iconDisplay}</div><div><div class="asset-name">${asset.name}</div><div class="asset-meta">${asset.symbol} · ${(asset.allocation * 100).toFixed(0)}% Allocation</div></div></div><div class="asset-right"><div class="asset-value">$${formatMoney(assetValue)}</div></div></div>`;
         }).join('');
         
         aiPortfolioSummary.innerHTML = `<div class="portfolio-summary-card"><div class="summary-header"><div class="summary-title">🤖 AI Agent Portfolio</div></div><div class="summary-stats"><div class="summary-stat"><div class="summary-stat-label">Total Value</div><div class="summary-stat-value">$${formatMoney(aiPortfolioBalance)}</div></div><div class="summary-stat"><div class="summary-stat-label">Total Profit</div><div class="summary-stat-value ${aiProfitClass}">${aiProfitSign}$${formatMoney(aiProfit)}</div></div></div><button class="view-details-btn" data-toggle="aiAssetDetails" onclick="toggleDetails('aiAssetDetails')"> View Details</button><button class="topup-btn" onclick="openTopUpModal()"> Top Up Portfolio</button><div id="aiAssetDetails" class="asset-details">${betaAssetsHtml}</div></div>`;
