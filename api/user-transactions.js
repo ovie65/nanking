@@ -13,21 +13,27 @@ export default async function handler(req, res) {
     const db = client.db('nexavault');
     const txnsCollection = db.collection('transactions');
 
-    // Find transactions for this specific user, sorted by newest first
-    const txns = await txnsCollection.find({ userId: userId }).sort({ createdAt: -1 }).toArray();
+    // userId is stored as a STRING in transactions (from user.id), so we match directly
+    const txns = await txnsCollection
+      .find({ userId: userId })
+      .sort({ createdAt: -1 })
+      .limit(100)
+      .toArray();
 
-    // Format them for the frontend
-    const formattedTxns = txns.map(t => ({
+    // Map to clean objects the frontend expects
+    const safeTxns = txns.map(t => ({
       id: t._id.toString(),
+      userId: t.userId,
       type: t.type,
       amount: t.amount,
       status: t.status,
-      date: t.createdAt,
       method: t.method,
-      reason: t.reason
+      reason: t.reason,
+      planName: t.planName,
+      date: t.createdAt || t.date || new Date().toISOString()
     }));
 
-    return res.status(200).json(formattedTxns);
+    return res.status(200).json(safeTxns);
   } catch (error) {
     console.error('Error fetching user transactions:', error);
     return res.status(500).json({ error: 'Internal server error' });

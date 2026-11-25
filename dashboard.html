@@ -1419,7 +1419,8 @@
         else if (t.type === 'asset_purchase') typeLabel = '📈 Asset Purchase';
         else if (t.type === 'withdrawal_request') typeLabel = '💸 Withdrawal';
         
-        const date = new Date(t.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+        const rawDate = t.date || t.createdAt || new Date().toISOString();
+        const date = new Date(rawDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' });
         
         return `
           <div class="txn-item">
