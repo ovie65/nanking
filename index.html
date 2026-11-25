@@ -953,42 +953,58 @@
     loadSiteContent();
   });
 
-  /* ============ DYNAMIC SITE CONTENT (Database) ============ */
+   /* ============ DYNAMIC SITE CONTENT & GLOBAL NAME REPLACEMENT ============ */
   async function loadSiteContent() {
     try {
       const res = await fetch('/api/settings');
-      if (res.ok) {
-        const data = await res.json();
-        
-        // Update site name everywhere
-        const siteName = data.siteName || 'NexaVault';
-        const firstLetter = siteName.charAt(0).toUpperCase();
-        
-        // Update browser tab title
-        document.title = `${siteName} — AI-Powered Investment Banking`;
-        
-        // Update nav logo
-        const navLogoMark = document.getElementById('navLogoMark');
-        const navLogoText = document.getElementById('navLogoText');
-        if (navLogoMark) navLogoMark.textContent = firstLetter;
-        if (navLogoText) navLogoText.textContent = siteName;
-        
-        // Update intro overlay (these are already visible during animation)
-        const introLetter = document.getElementById('introLetter');
-        const introWordmark = document.getElementById('introWordmark');
-        if (introLetter) introLetter.textContent = firstLetter;
-        if (introWordmark) introWordmark.innerHTML = `<span class="grad">${siteName}</span>`;
-        
-        // Update hero content if exists
-        if (data.siteContent) {
-          const c = data.siteContent;
-          if (c.heroTitle) document.getElementById('heroTitle').innerHTML = c.heroTitle;
-          if (c.heroSub) document.getElementById('heroSub').textContent = c.heroSub;
-          if (c.stat1) document.getElementById('stat1').textContent = c.stat1;
-          if (c.stat2) document.getElementById('stat2').textContent = c.stat2;
-          if (c.stat3) document.getElementById('stat3').textContent = c.stat3;
+      if (!res.ok) return;
+      const data = await res.json();
+      
+      const siteName = data.siteName || 'NexaVault';
+      const oldName = 'NexaVault';
+      const firstLetter = siteName.charAt(0).toUpperCase();
+      
+      // 1. Update Browser Tab Title
+      document.title = document.title.replace(new RegExp(oldName, 'g'), siteName);
+      
+      // 2. Update Specific Logo Elements
+      const navLogoMark = document.getElementById('navLogoMark');
+      const navLogoText = document.getElementById('navLogoText');
+      const introLetter = document.getElementById('introLetter');
+      const introWordmark = document.getElementById('introWordmark');
+      
+      if (navLogoMark && navLogoMark.textContent.trim().length <= 2) navLogoMark.textContent = firstLetter;
+      if (navLogoText) navLogoText.textContent = siteName;
+      if (introLetter && introLetter.textContent.trim().length <= 2) introLetter.textContent = firstLetter;
+      if (introWordmark) introWordmark.innerHTML = `<span class="grad">${siteName}</span>`;
+      
+      // 3. Update Hero Content if it exists in DB
+      if (data.siteContent) {
+        const c = data.siteContent;
+        if (c.heroTitle) document.getElementById('heroTitle').innerHTML = c.heroTitle;
+        if (c.heroSub) document.getElementById('heroSub').textContent = c.heroSub;
+        if (c.stat1) document.getElementById('stat1').textContent = c.stat1;
+        if (c.stat2) document.getElementById('stat2').textContent = c.stat2;
+        if (c.stat3) document.getElementById('stat3').textContent = c.stat3;
+      }
+
+      // 4. GLOBAL TEXT REPLACEMENT (Scans the whole page safely)
+      const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
+      let node;
+      const textNodes = [];
+      while(node = walker.nextNode()) {
+        // Skip scripts, styles, and inputs to prevent breaking code
+        if (['SCRIPT', 'STYLE', 'TEXTAREA', 'INPUT', 'CODE'].includes(node.parentElement.tagName)) continue;
+        if (node.nodeValue.includes(oldName)) {
+          textNodes.push(node);
         }
       }
+      
+      // Replace the text safely
+      textNodes.forEach(node => {
+        node.nodeValue = node.nodeValue.replace(new RegExp(oldName, 'g'), siteName);
+      });
+
     } catch (e) {
       console.log('Using default site content');
     }
@@ -1204,53 +1220,6 @@
   });
 
 
-
-    // === UNIVERSAL DYNAMIC SITE NAME FIX ===
-  (async function() {
-    try {
-      const res = await fetch('/api/settings');
-      if (!res.ok) return;
-      const data = await res.json();
-      const newName = data.siteName || 'NexaVault';
-      const oldName = 'NexaVault'; 
-
-      // 1. Update Browser Tab Title
-      if (document.title.includes(oldName)) {
-        document.title = document.title.replace(new RegExp(oldName, 'g'), newName);
-      }
-
-      // 2. Update Logo Letters (The square icon with 'N')
-      const firstLetter = newName.charAt(0).toUpperCase();
-      document.querySelectorAll('.logo-mark, .nav-logo-mark, .brand-logo-mark, .sidebar-logo-mark').forEach(el => { 
-        if(el.textContent.trim().length <= 2) el.textContent = firstLetter; 
-      });
-
-      // 3. Update Specific Logo Text Elements
-      if (document.getElementById('navLogoText')) document.getElementById('navLogoText').textContent = newName;
-      if (document.getElementById('sidebarSiteName')) document.getElementById('sidebarSiteName').textContent = newName;
-      if (document.getElementById('introWordmark')) document.getElementById('introWordmark').innerHTML = '<span class="grad">' + newName + '</span>';
-
-      // 4. GLOBAL TEXT REPLACEMENT (Scans the whole page safely)
-      const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
-      let node;
-      const textNodes = [];
-      while(node = walker.nextNode()) {
-        // Skip scripts, styles, and inputs to prevent breaking code
-        if (['SCRIPT', 'STYLE', 'TEXTAREA', 'INPUT'].includes(node.parentElement.tagName)) continue;
-        if (node.nodeValue.includes(oldName)) {
-          textNodes.push(node);
-        }
-      }
-      
-      // Replace the text safely
-      textNodes.forEach(node => {
-        node.nodeValue = node.nodeValue.replace(new RegExp(oldName, 'g'), newName);
-      });
-
-    } catch (e) {
-      console.log('Site name fetch failed, using default.');
-    }
-  })();
 </script>
 
 </body>

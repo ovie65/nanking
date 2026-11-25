@@ -728,31 +728,7 @@
   let user = currentUser; 
   if(user) { document.getElementById('userName').textContent = user.name; document.getElementById('userEmail').textContent = user.email; document.getElementById('userAvatar').textContent = initials(user.name); }
 
-  // === DYNAMIC SITE NAME ===
-  let siteName = 'NexaVault';
-  async function loadSiteName() {
-    try {
-      const res = await fetch('/api/settings');
-      if (res.ok) {
-        const data = await res.json();
-        if (data.siteContent && data.siteContent.siteName) {
-          siteName = data.siteContent.siteName;
-        }
-      }
-    } catch (e) { console.warn('Using default site name'); }
-    
-    // Update all site name references
-    document.title = `Dashboard — ${siteName}`;
-    const navLogoText = document.getElementById('navLogoText');
-    const navLogoMark = document.getElementById('navLogoMark');
-    const sidebarLogoText = document.getElementById('sidebarLogoText');
-    const sidebarLogoMark = document.getElementById('sidebarLogoMark');
-    if (navLogoText) navLogoText.textContent = siteName;
-    if (navLogoMark) navLogoMark.textContent = siteName.charAt(0).toUpperCase();
-    if (sidebarLogoText) sidebarLogoText.textContent = siteName;
-    if (sidebarLogoMark) sidebarLogoMark.textContent = siteName.charAt(0).toUpperCase();
-  }
-  loadSiteName();
+ 
 
   async function fetchFreshUserData() {
     try { const res = await fetch(`/api/users/me?userId=${user.id}`); if (res.ok) { const freshData = await res.json(); user = freshData; setStore(KEYS.CURRENT_USER, user); updateBalance(); updateActivePlanBanner(); } } catch (err) { console.error('Failed to fetch fresh user data', err); }
@@ -1467,56 +1443,55 @@
       txnHistoryList.innerHTML = '<div class="empty-state" style="color:var(--red);">Error loading transactions.</div>';
     }
   }
-
-
-    // === UNIVERSAL DYNAMIC SITE NAME FIX ===
-  (async function() {
+  // === SINGLE SOURCE OF TRUTH FOR SITE NAME ===
+  async function applyDynamicSiteName() {
     try {
       const res = await fetch('/api/settings');
       if (!res.ok) return;
       const data = await res.json();
+      
       const newName = data.siteName || 'NexaVault';
-      const oldName = 'NexaVault'; 
+      const oldName = 'NexaVault';
+      const firstLetter = newName.charAt(0).toUpperCase();
 
       // 1. Update Browser Tab Title
-      if (document.title.includes(oldName)) {
-        document.title = document.title.replace(new RegExp(oldName, 'g'), newName);
-      }
+      document.title = document.title.replace(new RegExp(oldName, 'gi'), newName);
 
-      // 2. Update Logo Letters (The square icon with 'N')
-      const firstLetter = newName.charAt(0).toUpperCase();
+      // 2. Update Logo Letters (The square icon)
       document.querySelectorAll('.logo-mark, .nav-logo-mark, .brand-logo-mark, .sidebar-logo-mark').forEach(el => { 
-        if(el.textContent.trim().length <= 2) el.textContent = firstLetter; 
+        if (el.textContent.trim().length <= 2) {
+          el.textContent = firstLetter; 
+        }
       });
 
-      // 3. Update Specific Logo Text Elements
-      if (document.getElementById('navLogoText')) document.getElementById('navLogoText').textContent = newName;
-      if (document.getElementById('sidebarSiteName')) document.getElementById('sidebarSiteName').textContent = newName;
-      if (document.getElementById('introWordmark')) document.getElementById('introWordmark').innerHTML = '<span class="grad">' + newName + '</span>';
+      // 3. Update Specific Logo Text Elements by ID
+      const textElements = ['navLogoText', 'sidebarLogoText'];
+      textElements.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = newName;
+      });
 
       // 4. GLOBAL TEXT REPLACEMENT (Scans the whole page safely)
       const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
       let node;
-      const textNodes = [];
-      while(node = walker.nextNode()) {
+      const regex = new RegExp(oldName, 'gi'); // 'gi' makes it case-insensitive to catch any variation
+      
+      while ((node = walker.nextNode())) {
         // Skip scripts, styles, and inputs to prevent breaking code
-        if (['SCRIPT', 'STYLE', 'TEXTAREA', 'INPUT'].includes(node.parentElement.tagName)) continue;
-        if (node.nodeValue.includes(oldName)) {
-          textNodes.push(node);
+        if (['SCRIPT', 'STYLE', 'TEXTAREA', 'INPUT', 'CODE'].includes(node.parentElement.tagName)) continue;
+        
+        if (regex.test(node.nodeValue)) {
+          node.nodeValue = node.nodeValue.replace(regex, newName);
         }
       }
-      
-      // Replace the text safely
-      textNodes.forEach(node => {
-        node.nodeValue = node.nodeValue.replace(new RegExp(oldName, 'g'), newName);
-      });
 
     } catch (e) {
       console.log('Site name fetch failed, using default.');
     }
-  })();
+  }
 
-
+  // Run it as soon as the page loads
+  applyDynamicSiteName();
 </script>
 </body>
 </html>
