@@ -292,7 +292,7 @@
     .info-card ul li { font-size: 12px !important; }
   }
 
-  /* === NEW: LEFT SIDEBAR & TXN DRAWER === */
+  /* === LEFT SIDEBAR & TXN DRAWER === */
   .left-sidebar {
     position: fixed;
     top: 0;
@@ -367,6 +367,9 @@
     .mobile-sidebar-toggle { display: flex; }
   }
 
+  /* FIX: stops the sidebar logo from stretching on mobile */
+  .left-sidebar .nav-logo { flex: none; }
+
   .txn-overlay {
     position: fixed;
     inset: 0;
@@ -421,6 +424,30 @@
     font-size: 11px;
     color: var(--muted);
   }
+
+  /* === NEW: AI PLAN TABS === */
+  .plan-tabs { display: flex; gap: 8px; background: rgba(255,255,255,0.03); border: 1px solid var(--line); border-radius: 12px; padding: 6px; width: fit-content; flex-wrap: wrap; margin-bottom: 24px; }
+  .plan-tab { padding: 10px 22px; border-radius: 8px; font-size: 14px; font-weight: 600; color: var(--muted); cursor: pointer; transition: all 0.25s ease; border: 1px solid transparent; background: transparent; }
+  .plan-tab:hover { color: var(--text); }
+  .plan-tab.active { background: var(--grad-2); color: #fff; box-shadow: 0 4px 15px rgba(124,92,255,0.3); }
+  .plan-layout { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 24px; align-items: start; }
+  @media (max-width: 900px) { .plan-layout { grid-template-columns: 1fr; } }
+  .plan-specs { background: linear-gradient(180deg, rgba(20,23,35,0.7), rgba(11,13,20,0.5)); border: 1px solid var(--line); border-radius: 16px; padding: 8px 24px; }
+  .plan-spec-row { display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: 1px solid rgba(255,255,255,0.04); font-size: 13px; }
+  .plan-spec-row:last-child { border-bottom: none; }
+  .plan-spec-row .label { color: var(--muted); }
+  .plan-spec-row .value { font-weight: 700; color: var(--text); }
+  .plan-spec-row .value.green { color: var(--green); }
+  .plan-spec-row .value.gold { color: var(--gold); }
+  .plan-price-card { background: linear-gradient(180deg, rgba(20,23,35,0.9), rgba(11,13,20,0.7)); border: 1px solid var(--line); border-radius: 16px; padding: 28px 24px; text-align: center; position: relative; }
+  .plan-price-card.featured { border-color: var(--gold); }
+  .plan-best-badge { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--grad-gold); color: #05060a; font-size: 10px; font-weight: 800; padding: 4px 14px; border-radius: 100px; letter-spacing: 0.1em; }
+  .plan-price-card h3 { font-size: 20px; font-weight: 700; margin-bottom: 10px; }
+  .plan-price-big { font-family: 'Space Grotesk', sans-serif; font-size: 40px; font-weight: 700; color: var(--accent-2); margin-bottom: 4px; }
+  .plan-price-big span { font-size: 15px; color: var(--muted); font-weight: 400; }
+  .plan-perks { list-style: none; margin: 18px 0 22px; display: flex; flex-direction: column; gap: 10px; text-align: left; }
+  .plan-perks li { font-size: 13px; color: var(--text); display: flex; gap: 8px; align-items: center; }
+  .plan-perks li::before { content: '✓'; color: var(--green); font-weight: 700; }
 </style>
 </head>
 <body>
@@ -534,28 +561,24 @@
       </div>
     </div>
   </div>
+
+  <!-- === UPDATED: AI AGENT TAB (Qordex-style plan tabs) === -->
   <div id="viewAgent" class="view-section">
     <div class="ticker-section">
       <div class="section-title"><span class="dot"></span><span>AI Agent Subscription Plans</span></div>
       <p style="color: var(--muted); font-size: 15px; line-height: 1.7; max-width: 800px; margin-bottom: 24px;">Unlock the power of our AI Agent. Pay the subscription fee to activate your account, then allocate funds from your balance for the AI to trade with.</p>
-      <div class="sub-plans">
-        <div class="plan-card">
-          <h3>Annual Plan</h3>
-          <div class="plan-price">$150<span>/year</span></div>
-          <div class="plan-desc">Perfect for getting started with AI-managed investments.</div>
-          <ul class="plan-features"><li>Unlocks AI Portfolio access</li><li>85% historical win rate</li><li>10% share of venture profits</li><li>65% share of trading profits</li></ul>
-          <button class="subscribe-btn" onclick="buyAiPlan('1 Year', 150)">Subscribe for 1 Year</button>
-        </div>
-        <div class="plan-card featured">
-          <h3>7-Year Plan</h3>
-          <div class="plan-price">$1,050<span> total</span></div>
-          <div class="plan-desc">Lock in the $150/year rate for 7 years. Maximum long-term growth.</div>
-          <ul class="plan-features"><li>Everything in the Annual Plan</li><li>7 years of uninterrupted AI management</li><li>Priority support & advanced strategies</li><li>Best long-term value</li></ul>
-          <button class="subscribe-btn gold" onclick="buyAiPlan('7 Years', 1050)">Subscribe for 7 Years</button>
-        </div>
+      <div class="plan-tabs" id="planTabs">
+        <button class="plan-tab active" data-plan="3m">3 Months</button>
+        <button class="plan-tab" data-plan="1y">1 Year</button>
+        <button class="plan-tab" data-plan="3y">3 Years</button>
+      </div>
+      <div class="plan-layout">
+        <div class="plan-specs" id="planSpecs"></div>
+        <div class="plan-price-card" id="planPriceCard"></div>
       </div>
     </div>
   </div>
+
   <div id="viewMarkets" class="view-section">
     <div class="ticker-section">
       <div class="section-title"><span class="dot"></span><span>Investment Market</span></div>
@@ -628,7 +651,7 @@
   </div>
 </div>
 
-<!-- === NEW: LEFT SIDEBAR & TXN DRAWER HTML === -->
+<!-- LEFT SIDEBAR & TXN DRAWER -->
 <aside class="left-sidebar" id="leftSidebar">
   <a href="index.html" class="nav-logo" style="margin-bottom: 40px;">
     <span class="nav-logo-mark">N</span><span>NexaVault</span>
@@ -651,7 +674,6 @@
     <div class="empty-state">Loading transactions...</div>
   </div>
 </div>
-<!-- ================================ -->
 
 <div class="toast" id="toast"></div>
 
@@ -838,17 +860,16 @@
         const aiProfitClass = aiProfit >= 0 ? 'up' : 'down'; 
         const aiProfitSign = aiProfit >= 0 ? '+' : '';
         
-                const betaAssetsHtml = BETA_AI_ASSETS.map(asset => {
+        const betaAssetsHtml = BETA_AI_ASSETS.map(asset => {
           const assetValue = aiPortfolioBalance * asset.allocation;
           const iconClass = asset.type === 'crypto' ? 'crypto' : 'stock';
           const iconChar = asset.symbol.charAt(0);
-          // This line checks if there is an image, otherwise it uses the letter
           const iconDisplay = asset.img ? `<img src="${asset.img}" alt="${asset.name}" />` : iconChar; 
           
           return `<div class="asset-item"><div class="asset-left"><div class="asset-icon ${iconClass}">${iconDisplay}</div><div><div class="asset-name">${asset.name}</div><div class="asset-meta">${asset.symbol} · ${(asset.allocation * 100).toFixed(0)}% Allocation</div></div></div><div class="asset-right"><div class="asset-value">$${formatMoney(assetValue)}</div></div></div>`;
         }).join('');
         
-        aiPortfolioSummary.innerHTML = `<div class="portfolio-summary-card"><div class="summary-header"><div class="summary-title">🤖 AI Agent Portfolio</div></div><div class="summary-stats"><div class="summary-stat"><div class="summary-stat-label">Total Value</div><div class="summary-stat-value">$${formatMoney(aiPortfolioBalance)}</div></div><div class="summary-stat"><div class="summary-stat-label">Total Profit</div><div class="summary-stat-value ${aiProfitClass}">${aiProfitSign}$${formatMoney(aiProfit)}</div></div></div><button class="view-details-btn" data-toggle="aiAssetDetails" onclick="toggleDetails('aiAssetDetails')"> View Details</button><button class="topup-btn" onclick="openTopUpModal()"> Top Up Portfolio</button><div id="aiAssetDetails" class="asset-details">${betaAssetsHtml}</div></div>`;
+        aiPortfolioSummary.innerHTML = `<div class="portfolio-summary-card"><div class="summary-header"><div class="summary-title">🤖 AI Agent Portfolio</div></div><div class="summary-stats"><div class="summary-stat"><div class="summary-stat-label">Total Value</div><div class="summary-stat-value">$${formatMoney(aiPortfolioBalance)}</div></div><div class="summary-stat"><div class="summary-stat-label">Total Profit</div><div class="summary-stat-value ${aiProfitClass}">${aiProfitSign}$${formatMoney(aiProfit)}</div></div></div><button class="view-details-btn" data-toggle="aiAssetDetails" onclick="toggleDetails('aiAssetDetails')">👁 View Details</button><button class="topup-btn" onclick="openTopUpModal()">➕ Top Up Portfolio</button><div id="aiAssetDetails" class="asset-details">${betaAssetsHtml}</div></div>`;
       }
       
       if (manualAssets.length > 0) {
@@ -1151,7 +1172,7 @@
 
   window.addEventListener('load', () => { fetchFreshUserData(); gsap.from('.balance-card', { opacity: 0, y: 30, duration: 0.7, ease: 'power3.out' }); gsap.from('.ai-status', { opacity: 0, y: 20, duration: 0.6, delay: 0.1, ease: 'power2.out' }); gsap.from('.ticker-card', { opacity: 0, y: 20, duration: 0.5, stagger: 0.08, delay: 0.2, ease: 'power2.out' }); });
 
-  // === NEW: SIDEBAR & TRANSACTION HISTORY LOGIC ===
+  // === SIDEBAR & TRANSACTION HISTORY LOGIC ===
   const leftSidebar = document.getElementById('leftSidebar');
   const mobileSidebarToggle = document.getElementById('mobileSidebarToggle');
   const sidebarOverlay = document.getElementById('sidebarOverlay');
@@ -1198,7 +1219,6 @@
       }
 
       txnHistoryList.innerHTML = txns.map(t => {
-        const statusClass = t.status === 'approved' ? 'approved' : t.status === 'rejected' ? 'rejected' : 'pending';
         let typeLabel = 'Funding';
         if (t.type === 'tesla_investment') typeLabel = '🚗 Tesla Investment';
         else if (t.type === 'ai_subscription') typeLabel = '🤖 AI Subscription';
@@ -1230,6 +1250,52 @@
       txnHistoryList.innerHTML = '<div class="empty-state" style="color:var(--red);">Error loading transactions.</div>';
     }
   }
+
+  // === NEW: AI PLAN TABS LOGIC ===
+  const AI_PLANS = {
+    '3m': { name: '3 Months', price: 50, term: '3 Months', badge: '', bonus: '—',
+      perks: ['Unlocks AI Portfolio access', '85% historical win rate', '65% share of trading profits', '10% share of venture profits'] },
+    '1y': { name: '1 Year', price: 150, term: '1 Year', badge: 'BEST VALUE', bonus: 'Priority support',
+      perks: ['Everything in the 3-Month plan', 'Priority support', 'Advanced AI strategies', '12 months of uninterrupted management'] },
+    '3y': { name: '3 Years', price: 390, term: '3 Years', badge: '', bonus: 'Locked-in rate + top priority',
+      perks: ['Everything in the 1-Year plan', 'Locked-in discounted rate', 'Top-priority support', '36 months of uninterrupted management'] }
+  };
+
+  function renderPlanPanel(key) {
+    const p = AI_PLANS[key];
+    const specsEl = document.getElementById('planSpecs');
+    const cardEl = document.getElementById('planPriceCard');
+    if (!specsEl || !cardEl) return;
+
+    specsEl.innerHTML = `
+      <div class="plan-spec-row"><span class="label">AI Win Rate</span><span class="value green">85%</span></div>
+      <div class="plan-spec-row"><span class="label">Daily Growth Range</span><span class="value green">+0.2% to +1.5%</span></div>
+      <div class="plan-spec-row"><span class="label">Trading Profit Share</span><span class="value">65%</span></div>
+      <div class="plan-spec-row"><span class="label">Venture Profit Share</span><span class="value">10%</span></div>
+      <div class="plan-spec-row"><span class="label">Term Length</span><span class="value">${p.term}</span></div>
+      <div class="plan-spec-row"><span class="label">Minimum Allocation</span><span class="value">$100</span></div>
+      <div class="plan-spec-row"><span class="label">Management</span><span class="value">Fully Automated 24/7</span></div>
+      <div class="plan-spec-row"><span class="label">Plan Bonus</span><span class="value gold">${p.bonus}</span></div>
+    `;
+
+    cardEl.className = 'plan-price-card' + (p.badge ? ' featured' : '');
+    cardEl.innerHTML = `
+      ${p.badge ? `<div class="plan-best-badge">${p.badge}</div>` : ''}
+      <h3>${p.name} Plan</h3>
+      <div class="plan-price-big">$${p.price.toLocaleString()}<span> / ${p.term.toLowerCase()}</span></div>
+      <ul class="plan-perks">${p.perks.map(x => `<li>${x}</li>`).join('')}</ul>
+      <button class="subscribe-btn ${p.badge ? 'gold' : ''}" onclick="buyAiPlan('${p.name}', ${p.price})">Subscribe for ${p.term}</button>
+    `;
+  }
+
+  document.querySelectorAll('.plan-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.plan-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      renderPlanPanel(tab.dataset.plan);
+    });
+  });
+  renderPlanPanel('3m');
 </script>
 </body>
 </html>
