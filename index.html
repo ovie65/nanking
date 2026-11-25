@@ -228,7 +228,7 @@
     max-width: 1400px;
     margin: 0 auto;
     position: relative;
-    overflow: hidden; /* Prevents the glow from causing horizontal scroll */
+    overflow: hidden;
   }
   .hero::before {
     content: '';
@@ -699,8 +699,8 @@
 <!-- ============ NAV ============ -->
 <nav class="nav" id="nav">
   <a href="#" class="logo">
-    <span class="logo-mark">N</span>
-    <span>NexaVault</span>
+    <span class="logo-mark" id="navLogoMark">N</span>
+    <span id="navLogoText">NexaVault</span>
   </a>
   <div class="nav-links">
     <a href="#features">Platform</a>
@@ -722,12 +722,10 @@
       <span class="dot"></span>
       <span>Live AI Markets · 24/7 Automated Trading</span>
     </div>
-    <!-- ADDED ID: heroTitle -->
     <h1 id="heroTitle">
       Invest Smarter<br />
       with <span class="grad">AI</span>.
     </h1>
-    <!-- ADDED ID: heroSub -->
     <p class="lead" id="heroSub">
       NexaVault is the next-generation investment banking platform powered by autonomous AI agents.
       Deploy capital into high-yield crypto and stock markets with bank-grade security — all managed
@@ -739,17 +737,14 @@
     </div>
     <div class="hero-stats">
       <div class="stat-item">
-        <!-- ADDED ID: stat1 -->
         <div class="stat-val" id="stat1">$2.4B+</div>
         <div class="stat-lbl">Assets Managed</div>
       </div>
       <div class="stat-item">
-        <!-- ADDED ID: stat2 -->
         <div class="stat-val" id="stat2">184K</div>
         <div class="stat-lbl">Active Investors</div>
       </div>
       <div class="stat-item">
-        <!-- ADDED ID: stat3 -->
         <div class="stat-val" id="stat3">99.99%</div>
         <div class="stat-lbl">Uptime SLA</div>
       </div>
@@ -955,7 +950,6 @@
     }, '-=0.4')
     .to({}, { duration: 1.2 });
     
-    // NEW: Load dynamic site content from database
     loadSiteContent();
   });
 
@@ -965,6 +959,27 @@
       const res = await fetch('/api/settings');
       if (res.ok) {
         const data = await res.json();
+        
+        // Update site name everywhere
+        const siteName = data.siteName || 'NexaVault';
+        const firstLetter = siteName.charAt(0).toUpperCase();
+        
+        // Update browser tab title
+        document.title = `${siteName} — AI-Powered Investment Banking`;
+        
+        // Update nav logo
+        const navLogoMark = document.getElementById('navLogoMark');
+        const navLogoText = document.getElementById('navLogoText');
+        if (navLogoMark) navLogoMark.textContent = firstLetter;
+        if (navLogoText) navLogoText.textContent = siteName;
+        
+        // Update intro overlay (these are already visible during animation)
+        const introLetter = document.getElementById('introLetter');
+        const introWordmark = document.getElementById('introWordmark');
+        if (introLetter) introLetter.textContent = firstLetter;
+        if (introWordmark) introWordmark.innerHTML = `<span class="grad">${siteName}</span>`;
+        
+        // Update hero content if exists
         if (data.siteContent) {
           const c = data.siteContent;
           if (c.heroTitle) document.getElementById('heroTitle').innerHTML = c.heroTitle;

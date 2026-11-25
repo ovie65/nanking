@@ -35,14 +35,30 @@ export default async function handler(req, res) {
       if (user) {
         let updateData = {};
 
-        // 1. AI SUBSCRIPTION FEE ($150 or $1050) -> Unlocks the feature
+        // 1. AI SUBSCRIPTION FEE -> Unlocks the feature + SETS EXPIRY
         if (txn.type === 'ai_subscription') {
           const fee = Number(txn.amount);
           if (user.balance < fee) return res.status(400).json({ error: 'Insufficient funds for subscription' });
 
+          // Determine plan length based on price OR planName
+          const planName = txn.planName || '';
+          let monthsToAdd = 12; // default 1 year
+          if (fee === 50 || planName.includes('3 Month')) monthsToAdd = 3;
+          else if (fee === 150 || planName.includes('1 Year')) monthsToAdd = 12;
+          else if (fee === 390 || planName.includes('3 Year')) monthsToAdd = 36;
+          else if (fee === 690) monthsToAdd = 36; // fallback for future price change
+
+          const expiryDate = new Date();
+          expiryDate.setMonth(expiryDate.getMonth() + monthsToAdd);
+
           updateData = {
             $inc: { balance: -fee },
-            $set: { aiAgentActive: true, aiAgentPlan: txn.planName || '1 Year' }
+            $set: { 
+              aiAgentActive: true, 
+              aiAgentPlan: planName || '1 Year',
+              aiAgentStartDate: new Date().toISOString(),
+              aiAgentExpiry: expiryDate.toISOString()
+            }
           };
         } 
         // 2. AI INVESTMENT ALLOCATION -> Moves money to AI Portfolio
@@ -79,7 +95,7 @@ export default async function handler(req, res) {
           updateData = {
             $inc: { 
               balance: -investAmount,
-              lockedBalance: investAmount // ONLY lock the principal initially
+              lockedBalance: investAmount
             },
             $set: { lockedUntil: lockUntil },
             $push: {
@@ -88,7 +104,7 @@ export default async function handler(req, res) {
                 symbol: 'TSLA',
                 name: 'Tesla Roadster Program',
                 investedAmount: investAmount,
-                bonusAmount: bonusAmount, // Store the total expected bonus for the drip
+                bonusAmount: bonusAmount,
                 status: 'locked',
                 dateAdded: new Date().toISOString(),
                 lockUntil: lockUntil

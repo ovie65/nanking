@@ -21,6 +21,29 @@ export default async function handler(req, res) {
     let updatedUser = { ...user };
     let daysElapsed = 0;
 
+        // === GRANDFATHER LOGIC: If user has AI active but no expiry, give them 1 year from today ===
+    if (user.aiAgentActive && !user.aiAgentExpiry) {
+      const grandfatherExpiry = new Date();
+      grandfatherExpiry.setFullYear(grandfatherExpiry.getFullYear() + 1);
+      await usersCollection.updateOne(
+        { _id: new ObjectId(userId) },
+        { $set: { aiAgentExpiry: grandfatherExpiry.toISOString() } }
+      );
+      user.aiAgentExpiry = grandfatherExpiry.toISOString();
+    }
+
+    // === EXPIRY ENFORCER: If the plan has expired, lock the AI ===
+    if (user.aiAgentActive && user.aiAgentExpiry) {
+      const expiryDate = new Date(user.aiAgentExpiry);
+      if (expiryDate < now) {
+        await usersCollection.updateOne(
+          { _id: new ObjectId(userId) },
+          { $set: { aiAgentActive: false } }
+        );
+        user.aiAgentActive = false;
+      }
+    }
+
     // FIX: If no date exists, pretend it was yesterday so math runs once
     let lastUpdate = user.lastProfitUpdate 
       ? new Date(user.lastProfitUpdate) 
@@ -28,6 +51,8 @@ export default async function handler(req, res) {
 
     const diffTime = Math.abs(now - lastUpdate);
     daysElapsed = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+    
 
     if (daysElapsed >= 1) {
       // 1. Calculate Personal Portfolio Value (Exclude Tesla & AI)

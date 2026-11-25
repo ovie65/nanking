@@ -13,14 +13,18 @@ export default async function handler(req, res) {
       
       // If no settings exist yet, return empty structure
       if (!settings) {
-        return res.status(200).json({ payments: null, siteContent: null });
+        return res.status(200).json({ payments: null, siteContent: null, siteName: 'NexaVault' });
       }
+      
+      // Ensure siteName has a default if missing
+      if (!settings.siteName) settings.siteName = 'NexaVault';
+      
       return res.status(200).json(settings);
     }
 
     // 2. HANDLE POST REQUEST (Saving settings)
     if (req.method === 'POST') {
-      const { payments, siteContent } = req.body;
+      const { payments, siteContent, siteName } = req.body;
       
       // Save to database (create if doesn't exist)
       await settingsCollection.updateOne(
@@ -29,10 +33,11 @@ export default async function handler(req, res) {
           $set: { 
             payments: payments, 
             siteContent: siteContent,
+            siteName: siteName || 'NexaVault',
             updatedAt: new Date().toISOString()
           } 
         },
-        { upsert: true } // This creates the document if it doesn't exist
+        { upsert: true }
       );
       
       return res.status(200).json({ message: 'Settings saved successfully' });
@@ -42,7 +47,6 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
 
   } catch (error) {
-    // This will show the exact error in your Vercel logs if it fails again
     console.error("SETTINGS API ERROR:", error);
     return res.status(500).json({ error: error.message });
   }

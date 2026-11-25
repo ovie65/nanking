@@ -155,7 +155,7 @@
 
 <div class="login-screen" id="loginScreen">
   <div class="login-card">
-    <div class="login-logo"><span class="login-logo-mark">N</span><span>NexaVault</span></div>
+    <div class="login-logo"><span class="login-logo-mark">N</span><span id="loginSiteName">NexaVault</span></div>
     <span class="login-eyebrow">Restricted Access</span>
     <h1>Admin Portal</h1>
     <p class="sub">Enter your credentials to access the control panel.</p>
@@ -171,7 +171,7 @@
 
 <div class="admin-wrap" id="adminWrap">
   <aside class="sidebar" id="sidebar">
-    <div class="sidebar-logo"><span class="sidebar-logo-mark">N</span><span>NexaVault</span><span class="admin-badge">ADMIN</span></div>
+    <div class="sidebar-logo"><span class="sidebar-logo-mark" id="sidebarLogoMark">N</span><span id="sidebarSiteName">NexaVault</span><span class="admin-badge">ADMIN</span></div>
     <nav class="sidebar-nav">
       <div class="nav-section-label">Main</div>
       <div class="nav-item active" data-tab="overview"><span class="icon">📊</span><span>Overview</span></div>
@@ -245,9 +245,20 @@
 
     <div class="tab-content" data-tab="editor">
       <div class="main-header">
-        <div><h1>Site Editor</h1><div class="sub">Update content on the public landing page.</div></div>
+        <div><h1>Site Editor</h1><div class="sub">Update branding and content on the public site.</div></div>
         <div class="header-actions"><button class="btn btn-gold" id="saveSiteBtn">💾 Save Changes</button></div>
       </div>
+      
+      <!-- === NEW: SITE NAME SECTION === -->
+      <div class="editor-section">
+        <h3><span class="dot"></span>Site Name & Branding</h3>
+        <p style="color:var(--muted);font-size:13px;margin-bottom:20px;">Change the name of your platform. This updates the logo, browser tab, and all text across Dashboard, Login, and Signup pages instantly.</p>
+        <div class="editor-field">
+          <label>Site Name</label>
+          <input type="text" id="editSiteName" placeholder="e.g. NexaVault, OvieBank, Quantum" value="NexaVault" />
+        </div>
+      </div>
+
       <div class="editor-section">
         <h3><span class="dot"></span>Hero Section</h3>
         <div class="editor-field"><label>Main Headline</label><input type="text" id="editHeroTitle" value="Invest Smarter with AI." /></div>
@@ -309,9 +320,9 @@
   function formatMoney(n) { return '$' + Number(n || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
   function initials(name) { return (name || '?').split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2); }
 
-  // --- NEW DATABASE SETTINGS LOGIC ---
   let globalPayments = null;
   let globalSiteContent = null;
+  let globalSiteName = 'NexaVault';
 
   async function loadGlobalSettings() {
     try {
@@ -320,8 +331,20 @@
         const data = await res.json();
         globalPayments = data.payments;
         globalSiteContent = data.siteContent;
+        globalSiteName = data.siteName || 'NexaVault';
+        updateSiteNameEverywhere();
       }
     } catch (err) { console.error('Failed to load settings', err); }
+  }
+
+  function updateSiteNameEverywhere() {
+    document.title = `Admin Panel — ${globalSiteName}`;
+    const loginName = document.getElementById('loginSiteName');
+    const sidebarName = document.getElementById('sidebarSiteName');
+    const sidebarMark = document.getElementById('sidebarLogoMark');
+    if (loginName) loginName.textContent = globalSiteName;
+    if (sidebarName) sidebarName.textContent = globalSiteName;
+    if (sidebarMark) sidebarMark.textContent = globalSiteName.charAt(0).toUpperCase();
   }
 
   const loginScreen = document.getElementById('loginScreen'); const adminWrap = document.getElementById('adminWrap');
@@ -399,7 +422,7 @@
     const sorted = [...filtered].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
     document.getElementById('txnCount').textContent = filtered.length;
     if (sorted.length === 0) { el.innerHTML = `<div class="empty-state"><div class="icon">💰</div><div class="title">No transactions</div><div class="desc">${currentFilter === 'all' ? 'Funding requests will appear here.' : 'No ' + currentFilter + ' transactions.'}</div></div>`; return; }
-    el.innerHTML = `<table class="data-table"><thead><tr><th>User</th><th>Amount</th><th>Type</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead><tbody>${sorted.map(t => { const statusClass = t.status === 'approved' ? 'approved' : t.status === 'rejected' ? 'rejected' : 'pending'; let typeLabel = '💰 Funding'; if (t.type === 'tesla_investment') typeLabel = '🚗 Tesla'; else if (t.type === 'ai_subscription') typeLabel = '🤖 AI Sub'; else if (t.type === 'ai_investment') typeLabel = '🤖 AI Invest'; else if (t.type === 'asset_purchase') typeLabel = ' Purchase'; else if (t.type === 'withdrawal_request') typeLabel = '💸 Withdrawal'; const actions = t.status === 'pending' ? `<button class="icon-btn approve" data-approve="${t.id}">✓ Approve</button><button class="icon-btn reject" data-reject="${t.id}">✕ Reject</button>` : `<button class="icon-btn view" data-view-txn="${t.id}">View</button>`; return `<tr><td><div class="user-cell"><div class="user-avatar">${initials(t.userName)}</div><div><div class="user-name">${t.userName}</div><div class="user-email">${t.userEmail}</div></div></div></td><td style="font-weight:700;color:var(--gold);">${formatMoney(t.amount)}</td><td><span class="status-pill ${statusClass}">${typeLabel}</span></td><td><span class="status-pill ${statusClass}">${t.status}</span></td><td style="font-size:12px;color:var(--muted);">${formatDate(t.createdAt)}</td><td><div class="action-btns">${actions}</div></td></tr>`; }).join('')}</tbody></table>`;
+    el.innerHTML = `<table class="data-table"><thead><tr><th>User</th><th>Amount</th><th>Type</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead><tbody>${sorted.map(t => { const statusClass = t.status === 'approved' ? 'approved' : t.status === 'rejected' ? 'rejected' : 'pending'; let typeLabel = '💰 Funding'; if (t.type === 'tesla_investment') typeLabel = '🚗 Tesla'; else if (t.type === 'ai_subscription') typeLabel = '🤖 AI Sub'; else if (t.type === 'ai_investment') typeLabel = '🤖 AI Invest'; else if (t.type === 'asset_purchase') typeLabel = '📈 Purchase'; else if (t.type === 'withdrawal_request') typeLabel = '💸 Withdrawal'; const actions = t.status === 'pending' ? `<button class="icon-btn approve" data-approve="${t.id}">✓ Approve</button><button class="icon-btn reject" data-reject="${t.id}">✕ Reject</button>` : `<button class="icon-btn view" data-view-txn="${t.id}">View</button>`; return `<tr><td><div class="user-cell"><div class="user-avatar">${initials(t.userName)}</div><div><div class="user-name">${t.userName}</div><div class="user-email">${t.userEmail}</div></div></div></td><td style="font-weight:700;color:var(--gold);">${formatMoney(t.amount)}</td><td><span class="status-pill ${statusClass}">${typeLabel}</span></td><td><span class="status-pill ${statusClass}">${t.status}</span></td><td style="font-size:12px;color:var(--muted);">${formatDate(t.createdAt)}</td><td><div class="action-btns">${actions}</div></td></tr>`; }).join('')}</tbody></table>`;
     el.querySelectorAll('[data-approve]').forEach(btn => { btn.addEventListener('click', () => approveTxn(btn.dataset.approve)); });
     el.querySelectorAll('[data-reject]').forEach(btn => { btn.addEventListener('click', () => rejectTxn(btn.dataset.reject)); });
     el.querySelectorAll('[data-view-txn]').forEach(btn => { btn.addEventListener('click', () => viewTxn(btn.dataset.viewTxn)); });
@@ -425,7 +448,6 @@
   async function rejectTxn(id) { if (!confirm('Reject this transaction?')) return; try { const res = await fetch('/api/transactions/approve', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ transactionId: id, action: 'rejected' }) }); if (!res.ok) throw new Error('Failed'); await renderAll(); toast('Transaction rejected', 'error'); } catch (err) { toast('Error rejecting', 'error'); } }
   function viewTxn(id) { const t = allTxns.find(x => x.id === id); if (!t) return; document.getElementById('modalContent').innerHTML = `<h2>Transaction Details</h2><div class="sub">Reference: ${t.id}</div><div class="modal-row"><span class="label">User</span><span class="val">${t.userName}</span></div><div class="modal-row"><span class="label">Email</span><span class="val">${t.userEmail}</span></div><div class="modal-row"><span class="label">Amount</span><span class="val" style="color:var(--gold)">${formatMoney(t.amount)}</span></div><div class="modal-row"><span class="label">Type</span><span class="val">${t.type}</span></div><div class="modal-row"><span class="label">Method</span><span class="val">${t.method || '—'}</span></div><div class="modal-row"><span class="label">Status</span><span class="val">${t.status}</span></div><div class="modal-row"><span class="label">Created</span><span class="val">${formatDate(t.createdAt)}</span></div>${t.reason ? `<div class="modal-row"><span class="label">Reason/Note</span><span class="val">${t.reason}</span></div>` : ''}<div class="modal-actions"><button class="btn btn-ghost" onclick="closeModal()">Close</button></div>`; document.getElementById('modalOverlay').classList.add('show'); }
 
-  // --- UPDATED: Payment Methods (Database) ---
   function renderPaymentMethods() { 
     const paymentsToRender = globalPayments || DEFAULT_PAYMENTS_LOCAL; 
     const container = document.getElementById('paymentMethodsList'); 
@@ -461,11 +483,11 @@
       const res = await fetch('/api/settings', { 
         method: 'POST', 
         headers: { 'Content-Type': 'application/json' }, 
-        body: JSON.stringify({ payments: currentPayments, siteContent: globalSiteContent }) 
+        body: JSON.stringify({ payments: currentPayments, siteContent: globalSiteContent, siteName: globalSiteName }) 
       });
       if (res.ok) { 
         globalPayments = currentPayments; 
-        toast('Payment settings saved to database!', 'success'); 
+        toast('Payment settings saved!', 'success'); 
       } else {
         toast('Error saving settings', 'error');
       }
@@ -474,9 +496,9 @@
     }
   });
 
-  // --- UPDATED: Site Editor (Database) ---
   function loadSiteContentEditor() { 
-    const site = globalSiteContent; 
+    const site = globalSiteContent;
+    if (document.getElementById('editSiteName')) document.getElementById('editSiteName').value = globalSiteName || 'NexaVault';
     if (site) { 
       if(document.getElementById('editHeroTitle')) document.getElementById('editHeroTitle').value = site.heroTitle || ''; 
       if(document.getElementById('editHeroSub')) document.getElementById('editHeroSub').value = site.heroSub || ''; 
@@ -487,6 +509,7 @@
   }
 
   document.getElementById('saveSiteBtn').addEventListener('click', async () => { 
+    const newSiteName = document.getElementById('editSiteName').value.trim() || 'NexaVault';
     const newSiteContent = { 
       heroTitle: document.getElementById('editHeroTitle').value, 
       heroSub: document.getElementById('editHeroSub').value, 
@@ -500,16 +523,18 @@
       const res = await fetch('/api/settings', { 
         method: 'POST', 
         headers: { 'Content-Type': 'application/json' }, 
-        body: JSON.stringify({ payments: globalPayments, siteContent: newSiteContent }) 
+        body: JSON.stringify({ payments: globalPayments, siteContent: newSiteContent, siteName: newSiteName }) 
       });
       if (res.ok) { 
-        globalSiteContent = newSiteContent; 
-        toast('Site content saved to database!', 'success'); 
+        globalSiteContent = newSiteContent;
+        globalSiteName = newSiteName;
+        updateSiteNameEverywhere();
+        toast('Site settings saved!', 'success'); 
       } else {
-        toast('Error saving site content', 'error');
+        toast('Error saving site settings', 'error');
       }
     } catch (err) { 
-      toast('Error saving site content', 'error'); 
+      toast('Error saving site settings', 'error'); 
     }
   });
 
@@ -520,9 +545,8 @@
   document.getElementById('refreshBtn').addEventListener('click', () => { renderAll(); toast('Dashboard refreshed', 'info'); });
   document.getElementById('exportUsersBtn').addEventListener('click', () => { if (allUsers.length === 0) { toast('No users to export', 'error'); return; } const csv = 'Name,Email,Phone,Age,Balance,Joined\n' + allUsers.map(u => `"${u.name}","${u.email}","${u.phone || ''}",${u.age || ''},${u.balance || 0},"${u.createdAt}"`).join('\n'); const blob = new Blob([csv], { type: 'text/csv' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `nexavault-users-${new Date().toISOString().slice(0,10)}.csv`; a.click(); URL.revokeObjectURL(url); toast('Users exported', 'success'); });
 
-  // --- UPDATED: renderAll loads from DB first ---
   async function renderAll() {
-    await loadGlobalSettings(); // Load payment/site settings from DB
+    await loadGlobalSettings();
     
     document.getElementById('statUsers').textContent = '...';
     try {
@@ -532,16 +556,19 @@
       renderOverview(); 
       renderUsers(); 
       renderTransactions(); 
-      renderPaymentMethods(); // Now uses DB data
+      renderPaymentMethods();
       renderEmails(); 
-      loadSiteContentEditor(); // Now uses DB data
+      loadSiteContentEditor();
     } catch (error) { 
       console.error('Error loading admin data:', error); 
       toast('Error loading data from database', 'error'); 
     }
   }
   
-  window.addEventListener('load', () => { gsap.from('.login-card', { opacity: 0, y: 30, scale: 0.97, duration: 0.7, ease: 'power3.out' }); });
+  window.addEventListener('load', () => { 
+    loadGlobalSettings();
+    gsap.from('.login-card', { opacity: 0, y: 30, scale: 0.97, duration: 0.7, ease: 'power3.out' }); 
+  });
 </script>
 </body>
-</html>
+</html> 

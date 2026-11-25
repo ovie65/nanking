@@ -205,6 +205,7 @@
   .subscribe-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(124,92,255,0.4); }
   .subscribe-btn.gold { background: var(--grad-gold); color: #05060a; }
   .subscribe-btn.gold:hover { box-shadow: 0 10px 30px rgba(245,196,81,0.4); }
+  .subscribe-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
   .market-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; }
   .asset-card { background: linear-gradient(180deg, rgba(20,23,35,0.7), rgba(11,13,20,0.5)); border: 1px solid var(--line); border-radius: 14px; padding: 20px; transition: all 0.25s; position: relative; overflow: hidden; }
   .asset-card:hover { border-color: var(--line-2); transform: translateY(-3px); box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
@@ -274,7 +275,7 @@
   .toast.error { border-color: rgba(239,68,68,0.4); color: var(--red); }
   .toast.info { border-color: rgba(0,212,255,0.4); color: var(--accent-2); }
 
-  /* NEW: Icon Image Styling */
+  /* Icon Image Styling */
   .asset-icon-lg img, .asset-icon img {
     width: 100%;
     height: 100%;
@@ -292,7 +293,7 @@
     .info-card ul li { font-size: 12px !important; }
   }
 
-  /* === LEFT SIDEBAR & TXN DRAWER === */
+  /* LEFT SIDEBAR & TXN DRAWER */
   .left-sidebar {
     position: fixed;
     top: 0;
@@ -367,7 +368,6 @@
     .mobile-sidebar-toggle { display: flex; }
   }
 
-  /* FIX: stops the sidebar logo from stretching on mobile */
   .left-sidebar .nav-logo { flex: none; }
 
   .txn-overlay {
@@ -425,7 +425,7 @@
     color: var(--muted);
   }
 
-  /* === NEW: AI PLAN TABS === */
+  /* AI PLAN TABS */
   .plan-tabs { display: flex; gap: 8px; background: rgba(255,255,255,0.03); border: 1px solid var(--line); border-radius: 12px; padding: 6px; width: fit-content; flex-wrap: wrap; margin-bottom: 24px; }
   .plan-tab { padding: 10px 22px; border-radius: 8px; font-size: 14px; font-weight: 600; color: var(--muted); cursor: pointer; transition: all 0.25s ease; border: 1px solid transparent; background: transparent; }
   .plan-tab:hover { color: var(--text); }
@@ -448,14 +448,50 @@
   .plan-perks { list-style: none; margin: 18px 0 22px; display: flex; flex-direction: column; gap: 10px; text-align: left; }
   .plan-perks li { font-size: 13px; color: var(--text); display: flex; gap: 8px; align-items: center; }
   .plan-perks li::before { content: '✓'; color: var(--green); font-weight: 700; }
+
+  /* ACTIVE PLAN BADGE */
+  .active-plan-banner {
+    background: linear-gradient(135deg, rgba(34,197,94,0.15), rgba(0,212,255,0.1));
+    border: 1px solid rgba(34,197,94,0.3);
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .active-plan-banner .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); box-shadow: 0 0 8px var(--green); animation: pulse 2s infinite; }
+  .active-plan-banner .text { font-size: 13px; color: var(--text); }
+  .active-plan-banner .text strong { color: var(--green); }
+
+  .recommendation-note {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(34,197,94,0.12);
+    border: 1px solid rgba(34,197,94,0.3);
+    color: var(--green);
+    padding: 4px 12px;
+    border-radius: 100px;
+    font-size: 11px;
+    font-weight: 700;
+    margin-bottom: 16px;
+  }
+  .recommendation-note::before { content: '⭐'; }
 </style>
 </head>
 <body>
 
 <nav class="top-nav">
-  <a href="index.html" class="nav-logo"><span class="nav-logo-mark">N</span><span>NexaVault</span></a>
+  <a href="index.html" class="nav-logo">
+    <span class="nav-logo-mark" id="navLogoMark">N</span>
+    <span id="navLogoText">NexaVault</span>
+  </a>
   <div class="nav-user">
-    <div class="nav-user-info"><div class="nav-user-name" id="userName">Loading...</div><div class="nav-user-email" id="userEmail">—</div></div>
+    <div class="nav-user-info">
+      <div class="nav-user-name" id="userName">Loading...</div>
+      <div class="nav-user-email" id="userEmail">—</div>
+    </div>
     <div class="nav-avatar" id="userAvatar">?</div>
     <button class="logout-btn" id="logoutBtn">Sign Out</button>
   </div>
@@ -562,11 +598,11 @@
     </div>
   </div>
 
-  <!-- === UPDATED: AI AGENT TAB (Qordex-style plan tabs) === -->
   <div id="viewAgent" class="view-section">
     <div class="ticker-section">
       <div class="section-title"><span class="dot"></span><span>AI Agent Subscription Plans</span></div>
       <p style="color: var(--muted); font-size: 15px; line-height: 1.7; max-width: 800px; margin-bottom: 24px;">Unlock the power of our AI Agent. Pay the subscription fee to activate your account, then allocate funds from your balance for the AI to trade with.</p>
+      <div id="activePlanBanner" style="display:none;"></div>
       <div class="plan-tabs" id="planTabs">
         <button class="plan-tab active" data-plan="3m">3 Months</button>
         <button class="plan-tab" data-plan="1y">1 Year</button>
@@ -651,10 +687,10 @@
   </div>
 </div>
 
-<!-- LEFT SIDEBAR & TXN DRAWER -->
 <aside class="left-sidebar" id="leftSidebar">
   <a href="index.html" class="nav-logo" style="margin-bottom: 40px;">
-    <span class="nav-logo-mark">N</span><span>NexaVault</span>
+    <span class="nav-logo-mark" id="sidebarLogoMark">N</span>
+    <span id="sidebarLogoText">NexaVault</span>
   </a>
   <button class="sidebar-btn" id="openTxnHistoryBtn">
     <span>📜</span> Transaction History
@@ -692,8 +728,34 @@
   let user = currentUser; 
   if(user) { document.getElementById('userName').textContent = user.name; document.getElementById('userEmail').textContent = user.email; document.getElementById('userAvatar').textContent = initials(user.name); }
 
+  // === DYNAMIC SITE NAME ===
+  let siteName = 'NexaVault';
+  async function loadSiteName() {
+    try {
+      const res = await fetch('/api/settings');
+      if (res.ok) {
+        const data = await res.json();
+        if (data.siteContent && data.siteContent.siteName) {
+          siteName = data.siteContent.siteName;
+        }
+      }
+    } catch (e) { console.warn('Using default site name'); }
+    
+    // Update all site name references
+    document.title = `Dashboard — ${siteName}`;
+    const navLogoText = document.getElementById('navLogoText');
+    const navLogoMark = document.getElementById('navLogoMark');
+    const sidebarLogoText = document.getElementById('sidebarLogoText');
+    const sidebarLogoMark = document.getElementById('sidebarLogoMark');
+    if (navLogoText) navLogoText.textContent = siteName;
+    if (navLogoMark) navLogoMark.textContent = siteName.charAt(0).toUpperCase();
+    if (sidebarLogoText) sidebarLogoText.textContent = siteName;
+    if (sidebarLogoMark) sidebarLogoMark.textContent = siteName.charAt(0).toUpperCase();
+  }
+  loadSiteName();
+
   async function fetchFreshUserData() {
-    try { const res = await fetch(`/api/users/me?userId=${user.id}`); if (res.ok) { const freshData = await res.json(); user = freshData; setStore(KEYS.CURRENT_USER, user); updateBalance(); } } catch (err) { console.error('Failed to fetch fresh user data', err); }
+    try { const res = await fetch(`/api/users/me?userId=${user.id}`); if (res.ok) { const freshData = await res.json(); user = freshData; setStore(KEYS.CURRENT_USER, user); updateBalance(); updateActivePlanBanner(); } } catch (err) { console.error('Failed to fetch fresh user data', err); }
   }
 
   const tabDash = document.getElementById('tabDashboard'); const tabAgent = document.getElementById('tabAgent'); const tabMarkets = document.getElementById('tabMarkets');
@@ -863,8 +925,7 @@
         const betaAssetsHtml = BETA_AI_ASSETS.map(asset => {
           const assetValue = aiPortfolioBalance * asset.allocation;
           const iconClass = asset.type === 'crypto' ? 'crypto' : 'stock';
-          const iconChar = asset.symbol.charAt(0);
-          const iconDisplay = asset.img ? `<img src="${asset.img}" alt="${asset.name}" />` : iconChar; 
+          const iconDisplay = asset.img ? `<img src="${asset.img}" alt="${asset.name}" />` : asset.symbol.charAt(0); 
           
           return `<div class="asset-item"><div class="asset-left"><div class="asset-icon ${iconClass}">${iconDisplay}</div><div><div class="asset-name">${asset.name}</div><div class="asset-meta">${asset.symbol} · ${(asset.allocation * 100).toFixed(0)}% Allocation</div></div></div><div class="asset-right"><div class="asset-value">$${formatMoney(assetValue)}</div></div></div>`;
         }).join('');
@@ -959,6 +1020,7 @@
   let pendingBuyAmount = 0, pendingBuyNote = '', pendingBuySymbol = '', pendingBuyName = '', pendingBuyPrice = 1;
   let pendingTeslaAmount = 0, pendingTeslaNote = '';
   let pendingTopUpAmount = 0;
+  let pendingAiPlanName = '3 Months';
 
   async function renderPaymentMethods(modalType) { 
     let payments = DEFAULT_PAYMENTS;
@@ -967,7 +1029,7 @@
       if (res.ok) { const data = await res.json(); if (data.payments) payments = data.payments; }
     } catch (e) { console.warn('Using default payments'); }
 
-    const container = modalType === 'fund' ? document.getElementById('paymentMethods') : modalType === 'buy' ? document.getElementById('buyPaymentMethods') : document.getElementById('teslaPaymentMethods'); 
+    const container = document.getElementById('paymentMethods');
     if(!container) return; 
     const enabledPayments = Object.values(payments).filter(p => p.enabled); 
     container.innerHTML = enabledPayments.map(p => `<div class="payment-method-option" data-method="${p.id}" data-account="${p.account.replace(/"/g, '&quot;')}"><div class="icon">${p.icon}</div><div class="name">${p.name}</div></div>`).join(''); 
@@ -981,7 +1043,12 @@
     }); 
   }
 
-  function showPaymentDetails(modalType, account) { const detailsEl = modalType === 'fund' ? document.getElementById('paymentDetails') : modalType === 'buy' ? document.getElementById('buyPaymentDetails') : document.getElementById('teslaPaymentDetails'); const addressEl = modalType === 'fund' ? document.getElementById('paymentAddress') : modalType === 'buy' ? document.getElementById('buyPaymentAddress') : document.getElementById('teslaPaymentAddress'); if(detailsEl) detailsEl.style.display = 'block'; if(addressEl) addressEl.textContent = account; }
+  function showPaymentDetails(modalType, account) { 
+    const detailsEl = document.getElementById('paymentDetails');
+    const addressEl = document.getElementById('paymentAddress');
+    if(detailsEl) detailsEl.style.display = 'block'; 
+    if(addressEl) addressEl.textContent = account; 
+  }
 
   const fundModal = document.getElementById('fundModal'); const fundBtn = document.getElementById('fundBtn');
   if(fundBtn) { fundBtn.addEventListener('click', () => { currentTransactionType = 'funding_request'; document.getElementById('fundModalTitle').textContent = '💰 Fund Your Account'; document.getElementById('fundModalSub').textContent = 'Choose a payment method and send funds to activate your account.'; document.getElementById('paymentMethods').style.display = 'grid'; renderPaymentMethods('fund'); fundModal.classList.add('show'); }); }
@@ -994,6 +1061,7 @@
     if (!amount || amount < 10) { toast('Please enter a valid amount', 'error'); return; } 
     if (currentTransactionType !== 'ai_subscription' && currentTransactionType !== 'ai_investment' && currentTransactionType !== 'asset_purchase' && currentTransactionType !== 'tesla_investment' && !selectedPaymentMethod) { toast('Please select a payment method', 'error'); return; } 
     let payload = { userId: user.id, userName: user.name, userEmail: user.email, amount: amount, method: selectedPaymentMethod ? selectedPaymentMethod.id : 'internal_balance', reason: note, type: currentTransactionType };
+    if (currentTransactionType === 'ai_subscription') payload.planName = window.__pendingAiPlan || pendingAiPlanName || '3 Months';
     if (currentTransactionType === 'asset_purchase') { payload.assetSymbol = pendingBuySymbol; payload.assetName = pendingBuyName; payload.assetPrice = pendingBuyPrice; }
     if (currentTransactionType === 'tesla_investment') { payload.bonus = pendingTeslaAmount * 2.1925; const lockUntil = new Date(); lockUntil.setFullYear(lockUntil.getFullYear() + 1); payload.lockUntil = lockUntil.toISOString(); }
     submitFund.textContent = 'Processing...'; submitFund.disabled = true; 
@@ -1025,25 +1093,123 @@
     finally { submitWithdraw.textContent = 'Submit Withdrawal'; submitWithdraw.disabled = false; } 
   }); }
 
-  function buyAiPlan(plan, amount) { 
-    if (Number(user.balance || 0) < amount) { toast(`You need at least $${amount} in your main balance to subscribe. Please fund your account first.`, 'error'); return; }
-    document.getElementById('choicePlanName').textContent = plan; document.getElementById('choiceAmount').textContent = amount; document.getElementById('aiPaymentChoiceModal').classList.add('show');
+  // === AI PLAN TABS LOGIC ===
+  const AI_PLANS = {
+    '3m': { name: '3 Months', price: 150, term: '3 Months', badge: 'RECOMMENDED — Most Flexible', bonus: 'Flexible, cancel anytime',
+      perks: ['Unlocks AI Portfolio access', '85% historical win rate', '65% share of trading profits', '10% share of venture profits', 'Most flexible — start small'] },
+    '1y': { name: '1 Year', price: 390, term: '1 Year', badge: '', bonus: 'Priority support',
+      perks: ['Everything in the 3-Month plan', 'Priority support', 'Advanced AI strategies', '12 months of uninterrupted management'] },
+    '3y': { name: '3 Years', price: 690, term: '3 Years', badge: '', bonus: 'Locked-in rate + top priority',
+      perks: ['Everything in the 1-Year plan', 'Locked-in discounted rate', 'Top-priority support', '36 months of uninterrupted management'] }
+  };
+
+  function updateActivePlanBanner() {
+    const banner = document.getElementById('activePlanBanner');
+    if (!banner) return;
+    if (user.aiAgentActive && user.aiAgentExpiry) {
+      const expiryDate = new Date(user.aiAgentExpiry);
+      const now = new Date();
+      if (expiryDate > now) {
+        const planName = user.aiAgentPlan || 'AI Agent';
+        const formattedDate = expiryDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+        banner.className = 'active-plan-banner';
+        banner.style.display = 'flex';
+        banner.innerHTML = `<div class="dot"></div><div class="text">Your <strong>${planName}</strong> plan is active until <strong>${formattedDate}</strong>. You can purchase a new plan when it expires.</div>`;
+        return;
+      }
+    }
+    banner.style.display = 'none';
   }
+
+  function renderPlanPanel(key) {
+    const p = AI_PLANS[key];
+    const specsEl = document.getElementById('planSpecs');
+    const cardEl = document.getElementById('planPriceCard');
+    if (!specsEl || !cardEl) return;
+
+    const isPlanActive = user.aiAgentActive && user.aiAgentExpiry && new Date(user.aiAgentExpiry) > new Date();
+    const buttonDisabled = isPlanActive ? 'disabled' : '';
+    const buttonText = isPlanActive ? 'Plan Active' : `Subscribe for ${p.term}`;
+
+    specsEl.innerHTML = `
+      <div class="plan-spec-row"><span class="label">AI Win Rate</span><span class="value green">85%</span></div>
+      <div class="plan-spec-row"><span class="label">Daily Growth Range</span><span class="value green">+0.2% to +1.5%</span></div>
+      <div class="plan-spec-row"><span class="label">Trading Profit Share</span><span class="value">65%</span></div>
+      <div class="plan-spec-row"><span class="label">Venture Profit Share</span><span class="value">10%</span></div>
+      <div class="plan-spec-row"><span class="label">Term Length</span><span class="value">${p.term}</span></div>
+      <div class="plan-spec-row"><span class="label">Minimum Allocation</span><span class="value">$100</span></div>
+      <div class="plan-spec-row"><span class="label">Management</span><span class="value">Fully Automated 24/7</span></div>
+      <div class="plan-spec-row"><span class="label">Plan Bonus</span><span class="value gold">${p.bonus}</span></div>
+    `;
+
+    cardEl.className = 'plan-price-card' + (p.badge ? ' featured' : '');
+    cardEl.innerHTML = `
+      ${p.badge ? `<div class="plan-best-badge">${p.badge}</div>` : ''}
+      <h3>${p.name} Plan</h3>
+      <div class="plan-price-big">$${p.price.toLocaleString()}<span> / ${p.term.toLowerCase()}</span></div>
+      <ul class="plan-perks">${p.perks.map(x => `<li>${x}</li>`).join('')}</ul>
+      <button class="subscribe-btn" ${buttonDisabled} onclick="buyAiPlan('${p.name}', ${p.price})">${buttonText}</button>
+    `;
+  }
+
+  document.querySelectorAll('.plan-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.plan-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      renderPlanPanel(tab.dataset.plan);
+    });
+  });
+
+  function buyAiPlan(plan, amount) { 
+    pendingAiPlanName = plan;
+    window.__pendingAiPlan = plan;
+    
+    // Double-buy check
+    if (user.aiAgentActive && user.aiAgentExpiry) {
+      const expiryDate = new Date(user.aiAgentExpiry);
+      if (expiryDate > new Date()) {
+        const formattedDate = expiryDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+        toast(`Your plan is active until ${formattedDate}. Please wait until it expires before purchasing a new plan.`, 'error');
+        return;
+      }
+    }
+    
+    if (Number(user.balance || 0) < amount) { 
+      toast(`You need at least $${amount} in your main balance to subscribe. Please fund your account first.`, 'error'); 
+      return; 
+    }
+    document.getElementById('choicePlanName').textContent = plan; 
+    document.getElementById('choiceAmount').textContent = amount; 
+    document.getElementById('aiPaymentChoiceModal').classList.add('show');
+  }
+
   function confirmAiBalancePayment() {
     const plan = document.getElementById('choicePlanName').textContent; const amount = parseFloat(document.getElementById('choiceAmount').textContent);
     currentTransactionType = 'ai_subscription';
-    document.getElementById('fundModalTitle').textContent = `Confirm AI Subscription (${plan})`; document.getElementById('fundModalSub').textContent = `Deduct $${amount} from your main balance to activate AI Agent. Admin will approve this internal transfer.`;
-    document.getElementById('fundAmount').value = amount; document.getElementById('fundNote').value = `AI Agent Subscription (Paid from Balance) - ${plan}`;
-    document.getElementById('paymentMethods').style.display = 'none'; document.getElementById('paymentDetails').style.display = 'none';
+    document.getElementById('fundModalTitle').textContent = `Confirm AI Subscription (${plan})`; 
+    document.getElementById('fundModalSub').textContent = `Deduct $${amount} from your main balance to activate AI Agent. Admin will approve this internal transfer.`;
+    document.getElementById('fundAmount').value = amount; 
+    document.getElementById('fundNote').value = `AI Agent Subscription (Paid from Balance) - ${plan}`;
+    document.getElementById('paymentMethods').style.display = 'none'; 
+    document.getElementById('paymentDetails').style.display = 'none';
     selectedPaymentMethod = { id: 'internal_balance', account: 'Internal Main Balance' };
-    document.getElementById('aiPaymentChoiceModal').classList.remove('show'); document.getElementById('fundModal').classList.add('show');
+    window.__pendingAiPlan = plan;
+    document.getElementById('aiPaymentChoiceModal').classList.remove('show'); 
+    document.getElementById('fundModal').classList.add('show');
   }
+  
   function chooseFundFirst() {
-    document.getElementById('aiPaymentChoiceModal').classList.remove('show'); currentTransactionType = 'funding_request';
-    document.getElementById('fundModalTitle').textContent = '💰 Fund Your Account'; document.getElementById('fundModalSub').textContent = 'Add funds to your main balance first. You can subscribe to AI Agent once funded.';
-    document.getElementById('fundAmount').value = 150; document.getElementById('fundNote').value = '';
-    document.getElementById('paymentMethods').style.display = 'grid'; document.getElementById('paymentDetails').style.display = 'none'; selectedPaymentMethod = null;
-    renderPaymentMethods('fund'); document.getElementById('fundModal').classList.add('show');
+    document.getElementById('aiPaymentChoiceModal').classList.remove('show'); 
+    currentTransactionType = 'funding_request';
+    document.getElementById('fundModalTitle').textContent = '💰 Fund Your Account'; 
+    document.getElementById('fundModalSub').textContent = 'Add funds to your main balance first. You can subscribe to AI Agent once funded.';
+    document.getElementById('fundAmount').value = 150; 
+    document.getElementById('fundNote').value = '';
+    document.getElementById('paymentMethods').style.display = 'grid'; 
+    document.getElementById('paymentDetails').style.display = 'none'; 
+    selectedPaymentMethod = null;
+    renderPaymentMethods('fund'); 
+    document.getElementById('fundModal').classList.add('show');
   }
 
   function openTopUpModal() { document.getElementById('topupAmount').value = ''; document.getElementById('topupModal').classList.add('show'); }
@@ -1055,10 +1221,15 @@
     if (Number(user.balance || 0) < amount) {
       toast(`Insufficient balance. You need $${formatMoney(amount)} but only have $${formatMoney(user.balance)}. Please fund your account first.`, 'error');
       currentTransactionType = 'funding_request';
-      document.getElementById('fundModalTitle').textContent = '💰 Fund Your Account'; document.getElementById('fundModalSub').textContent = `Add at least $${formatMoney(amount)} to your balance to complete the top up.`;
-      document.getElementById('fundAmount').value = amount; document.getElementById('fundNote').value = '';
-      document.getElementById('paymentMethods').style.display = 'grid'; document.getElementById('paymentDetails').style.display = 'none'; selectedPaymentMethod = null;
-      renderPaymentMethods('fund'); document.getElementById('fundModal').classList.add('show');
+      document.getElementById('fundModalTitle').textContent = '💰 Fund Your Account'; 
+      document.getElementById('fundModalSub').textContent = `Add at least $${formatMoney(amount)} to your balance to complete the top up.`;
+      document.getElementById('fundAmount').value = amount; 
+      document.getElementById('fundNote').value = '';
+      document.getElementById('paymentMethods').style.display = 'grid'; 
+      document.getElementById('paymentDetails').style.display = 'none'; 
+      selectedPaymentMethod = null;
+      renderPaymentMethods('fund'); 
+      document.getElementById('fundModal').classList.add('show');
     } else {
       pendingAction = 'topup';
       document.getElementById('topupChoiceSub').innerHTML = `Adding <span style="color: var(--text);">$${formatMoney(amount)}</span> to your AI Portfolio`;
@@ -1068,30 +1239,42 @@
   function confirmTopUpBalance() {
     document.getElementById('topupChoiceModal').classList.remove('show');
     currentTransactionType = 'ai_investment';
-    document.getElementById('fundModalTitle').textContent = '🤖 Confirm AI Top Up'; document.getElementById('fundModalSub').textContent = `Move $${formatMoney(pendingTopUpAmount)} from your Main Balance to your AI Portfolio.`;
-    document.getElementById('fundAmount').value = pendingTopUpAmount; document.getElementById('fundNote').value = `AI Portfolio Top Up - ${new Date().toLocaleDateString()}`;
-    document.getElementById('paymentMethods').style.display = 'none'; document.getElementById('paymentDetails').style.display = 'none';
+    document.getElementById('fundModalTitle').textContent = '🤖 Confirm AI Top Up'; 
+    document.getElementById('fundModalSub').textContent = `Move $${formatMoney(pendingTopUpAmount)} from your Main Balance to your AI Portfolio.`;
+    document.getElementById('fundAmount').value = pendingTopUpAmount; 
+    document.getElementById('fundNote').value = `AI Portfolio Top Up - ${new Date().toLocaleDateString()}`;
+    document.getElementById('paymentMethods').style.display = 'none'; 
+    document.getElementById('paymentDetails').style.display = 'none';
     selectedPaymentMethod = { id: 'internal_balance', account: 'Internal Main Balance' };
     document.getElementById('fundModal').classList.add('show');
   }
   function chooseFundForTopUp() {
     document.getElementById('topupChoiceModal').classList.remove('show');
     currentTransactionType = 'funding_request';
-    document.getElementById('fundModalTitle').textContent = '💰 Fund Your Account'; document.getElementById('fundModalSub').textContent = `Add funds to your main balance. Once approved, you can top up your AI portfolio.`;
-    document.getElementById('fundAmount').value = pendingTopUpAmount; document.getElementById('fundNote').value = '';
-    document.getElementById('paymentMethods').style.display = 'grid'; document.getElementById('paymentDetails').style.display = 'none'; selectedPaymentMethod = null;
-    renderPaymentMethods('fund'); document.getElementById('fundModal').classList.add('show');
+    document.getElementById('fundModalTitle').textContent = '💰 Fund Your Account'; 
+    document.getElementById('fundModalSub').textContent = `Add funds to your main balance. Once approved, you can top up your AI portfolio.`;
+    document.getElementById('fundAmount').value = pendingTopUpAmount; 
+    document.getElementById('fundNote').value = '';
+    document.getElementById('paymentMethods').style.display = 'grid'; 
+    document.getElementById('paymentDetails').style.display = 'none'; 
+    selectedPaymentMethod = null;
+    renderPaymentMethods('fund'); 
+    document.getElementById('fundModal').classList.add('show');
   }
   function submitAiTrade() {
     const amount = parseFloat(document.getElementById('aiTradeAmount').value);
     if (!amount || amount < 100) { toast('Please enter at least $100 to allocate.', 'error'); return; }
     if (Number(user.balance || 0) < amount) { toast('Insufficient funding balance.', 'error'); return; }
     currentTransactionType = 'ai_investment';
-    document.getElementById('fundModalTitle').textContent = '🤖 Confirm AI Allocation'; document.getElementById('fundModalSub').textContent = `Move $${formatMoney(amount)} from your Funding Balance to your AI Portfolio.`;
-    document.getElementById('fundAmount').value = amount; document.getElementById('fundNote').value = `AI Agent Capital Allocation - ${new Date().toLocaleDateString()}`;
-    document.getElementById('paymentMethods').style.display = 'none'; document.getElementById('paymentDetails').style.display = 'none';
+    document.getElementById('fundModalTitle').textContent = '🤖 Confirm AI Allocation'; 
+    document.getElementById('fundModalSub').textContent = `Move $${formatMoney(amount)} from your Funding Balance to your AI Portfolio.`;
+    document.getElementById('fundAmount').value = amount; 
+    document.getElementById('fundNote').value = `AI Agent Capital Allocation - ${new Date().toLocaleDateString()}`;
+    document.getElementById('paymentMethods').style.display = 'none'; 
+    document.getElementById('paymentDetails').style.display = 'none';
     selectedPaymentMethod = { id: 'internal_balance', account: 'Internal Main Balance' };
-    document.getElementById('fundModal').classList.add('show'); document.getElementById('aiTradeAmount').value = ''; 
+    document.getElementById('fundModal').classList.add('show'); 
+    document.getElementById('aiTradeAmount').value = ''; 
   }
 
   const buyModal = document.getElementById('buyModal');
@@ -1105,14 +1288,22 @@
     if (amount > currentBalance) { 
       toast(`Insufficient funds. You need $${formatMoney(amount)} but only have $${formatMoney(currentBalance)}. Please fund your account first.`, 'error');
       currentTransactionType = 'funding_request';
-      document.getElementById('fundModalTitle').textContent = '💰 Fund Your Account'; document.getElementById('fundModalSub').textContent = `Add at least $${formatMoney(Math.max(100, amount - currentBalance))} to your balance to complete this purchase.`;
-      document.getElementById('fundAmount').value = Math.max(100, amount - currentBalance); document.getElementById('fundNote').value = '';
-      document.getElementById('paymentMethods').style.display = 'grid'; document.getElementById('paymentDetails').style.display = 'none'; selectedPaymentMethod = null;
-      renderPaymentMethods('fund'); buyModal.classList.remove('show'); document.getElementById('fundModal').classList.add('show'); return;
+      document.getElementById('fundModalTitle').textContent = '💰 Fund Your Account'; 
+      document.getElementById('fundModalSub').textContent = `Add at least $${formatMoney(Math.max(100, amount - currentBalance))} to your balance to complete this purchase.`;
+      document.getElementById('fundAmount').value = Math.max(100, amount - currentBalance); 
+      document.getElementById('fundNote').value = '';
+      document.getElementById('paymentMethods').style.display = 'grid'; 
+      document.getElementById('paymentDetails').style.display = 'none'; 
+      selectedPaymentMethod = null;
+      renderPaymentMethods('fund'); 
+      buyModal.classList.remove('show'); 
+      document.getElementById('fundModal').classList.add('show'); 
+      return;
     }
     pendingAction = 'buy'; pendingBuyAmount = amount; pendingBuyNote = note; pendingBuySymbol = assetSymbol; pendingBuyName = assetName; pendingBuyPrice = assetPrice;
     document.getElementById('topupChoiceSub').innerHTML = `Purchasing <span style="color: var(--text);">${assetName}</span> for <span style="color: var(--text);">$${formatMoney(amount)}</span>`;
-    buyModal.classList.remove('show'); document.getElementById('topupChoiceModal').classList.add('show');
+    buyModal.classList.remove('show'); 
+    document.getElementById('topupChoiceModal').classList.add('show');
   }); }
 
   const teslaModal = document.getElementById('teslaModal');
@@ -1128,30 +1319,44 @@
     if (amount > currentBalance) { 
       toast(`Insufficient funds. You need $${formatMoney(amount)} but only have $${formatMoney(currentBalance)}. Please fund your account first.`, 'error');
       currentTransactionType = 'funding_request';
-      document.getElementById('fundModalTitle').textContent = '💰 Fund Your Account'; document.getElementById('fundModalSub').textContent = `Add at least $${formatMoney(Math.max(100, amount - currentBalance))} to your balance to complete this investment.`;
-      document.getElementById('fundAmount').value = Math.max(100, amount - currentBalance); document.getElementById('fundNote').value = '';
-      document.getElementById('paymentMethods').style.display = 'grid'; document.getElementById('paymentDetails').style.display = 'none'; selectedPaymentMethod = null;
-      renderPaymentMethods('fund'); teslaModal.classList.remove('show'); document.getElementById('fundModal').classList.add('show'); return;
+      document.getElementById('fundModalTitle').textContent = '💰 Fund Your Account'; 
+      document.getElementById('fundModalSub').textContent = `Add at least $${formatMoney(Math.max(100, amount - currentBalance))} to your balance to complete this investment.`;
+      document.getElementById('fundAmount').value = Math.max(100, amount - currentBalance); 
+      document.getElementById('fundNote').value = '';
+      document.getElementById('paymentMethods').style.display = 'grid'; 
+      document.getElementById('paymentDetails').style.display = 'none'; 
+      selectedPaymentMethod = null;
+      renderPaymentMethods('fund'); 
+      teslaModal.classList.remove('show'); 
+      document.getElementById('fundModal').classList.add('show'); 
+      return;
     }
     pendingAction = 'tesla'; pendingTeslaAmount = amount; pendingTeslaNote = note;
     document.getElementById('topupChoiceSub').innerHTML = `Joining <span style="color: var(--text);">Tesla Roadster Program</span> for <span style="color: var(--text);">$${formatMoney(amount)}</span>`;
-    teslaModal.classList.remove('show'); document.getElementById('topupChoiceModal').classList.add('show');
+    teslaModal.classList.remove('show'); 
+    document.getElementById('topupChoiceModal').classList.add('show');
   }); }
 
   function confirmMainBalancePayment() {
     document.getElementById('topupChoiceModal').classList.remove('show');
     if (pendingAction === 'buy') {
       currentTransactionType = 'asset_purchase';
-      document.getElementById('fundModalTitle').textContent = '📈 Confirm Asset Purchase'; document.getElementById('fundModalSub').textContent = `Deduct $${formatMoney(pendingBuyAmount)} from your main balance to buy ${pendingBuyName}.`;
-      document.getElementById('fundAmount').value = pendingBuyAmount; document.getElementById('fundNote').value = pendingBuyNote || `Purchase of ${pendingBuyName}`;
-      document.getElementById('paymentMethods').style.display = 'none'; document.getElementById('paymentDetails').style.display = 'none';
+      document.getElementById('fundModalTitle').textContent = '📈 Confirm Asset Purchase'; 
+      document.getElementById('fundModalSub').textContent = `Deduct $${formatMoney(pendingBuyAmount)} from your main balance to buy ${pendingBuyName}.`;
+      document.getElementById('fundAmount').value = pendingBuyAmount; 
+      document.getElementById('fundNote').value = pendingBuyNote || `Purchase of ${pendingBuyName}`;
+      document.getElementById('paymentMethods').style.display = 'none'; 
+      document.getElementById('paymentDetails').style.display = 'none';
       selectedPaymentMethod = { id: 'internal_balance', account: 'Internal Main Balance' };
       document.getElementById('fundModal').classList.add('show');
     } else if (pendingAction === 'tesla') {
       currentTransactionType = 'tesla_investment';
-      document.getElementById('fundModalTitle').textContent = '🚗 Confirm Tesla Investment'; document.getElementById('fundModalSub').textContent = `Deduct $${formatMoney(pendingTeslaAmount)} from your main balance for the Tesla Roadster Program.`;
-      document.getElementById('fundAmount').value = pendingTeslaAmount; document.getElementById('fundNote').value = pendingTeslaNote || 'Tesla Roadster Investment Program';
-      document.getElementById('paymentMethods').style.display = 'none'; document.getElementById('paymentDetails').style.display = 'none';
+      document.getElementById('fundModalTitle').textContent = '🚗 Confirm Tesla Investment'; 
+      document.getElementById('fundModalSub').textContent = `Deduct $${formatMoney(pendingTeslaAmount)} from your main balance for the Tesla Roadster Program.`;
+      document.getElementById('fundAmount').value = pendingTeslaAmount; 
+      document.getElementById('fundNote').value = pendingTeslaNote || 'Tesla Roadster Investment Program';
+      document.getElementById('paymentMethods').style.display = 'none'; 
+      document.getElementById('paymentDetails').style.display = 'none';
       selectedPaymentMethod = { id: 'internal_balance', account: 'Internal Main Balance' };
       document.getElementById('fundModal').classList.add('show');
     } else if (pendingAction === 'topup') { confirmTopUpBalance(); }
@@ -1160,19 +1365,31 @@
   function chooseFundForAction() {
     document.getElementById('topupChoiceModal').classList.remove('show');
     currentTransactionType = 'funding_request';
-    document.getElementById('fundModalTitle').textContent = '💰 Fund Your Account'; document.getElementById('fundModalSub').textContent = 'Add funds to your main balance first. Once funded, you can complete your purchase.';
+    document.getElementById('fundModalTitle').textContent = '💰 Fund Your Account'; 
+    document.getElementById('fundModalSub').textContent = 'Add funds to your main balance first. Once funded, you can complete your purchase.';
     let needed = pendingAction === 'buy' ? pendingBuyAmount : (pendingAction === 'tesla' ? pendingTeslaAmount : pendingTopUpAmount);
-    document.getElementById('fundAmount').value = Math.max(100, needed); document.getElementById('fundNote').value = '';
-    document.getElementById('paymentMethods').style.display = 'grid'; document.getElementById('paymentDetails').style.display = 'none'; selectedPaymentMethod = null;
-    renderPaymentMethods('fund'); document.getElementById('fundModal').classList.add('show');
+    document.getElementById('fundAmount').value = Math.max(100, needed); 
+    document.getElementById('fundNote').value = '';
+    document.getElementById('paymentMethods').style.display = 'grid'; 
+    document.getElementById('paymentDetails').style.display = 'none'; 
+    selectedPaymentMethod = null;
+    renderPaymentMethods('fund'); 
+    document.getElementById('fundModal').classList.add('show');
   }
 
   const logoutBtn = document.getElementById('logoutBtn');
   if(logoutBtn) { logoutBtn.addEventListener('click', () => { localStorage.removeItem(KEYS.LOGGED_IN); localStorage.removeItem(KEYS.CURRENT_USER); window.location.href = 'login.html'; }); }
 
-  window.addEventListener('load', () => { fetchFreshUserData(); gsap.from('.balance-card', { opacity: 0, y: 30, duration: 0.7, ease: 'power3.out' }); gsap.from('.ai-status', { opacity: 0, y: 20, duration: 0.6, delay: 0.1, ease: 'power2.out' }); gsap.from('.ticker-card', { opacity: 0, y: 20, duration: 0.5, stagger: 0.08, delay: 0.2, ease: 'power2.out' }); });
+  window.addEventListener('load', () => { 
+    fetchFreshUserData(); 
+    updateActivePlanBanner();
+    renderPlanPanel('3m');
+    gsap.from('.balance-card', { opacity: 0, y: 30, duration: 0.7, ease: 'power3.out' }); 
+    gsap.from('.ai-status', { opacity: 0, y: 20, duration: 0.6, delay: 0.1, ease: 'power2.out' }); 
+    gsap.from('.ticker-card', { opacity: 0, y: 20, duration: 0.5, stagger: 0.08, delay: 0.2, ease: 'power2.out' }); 
+  });
 
-  // === SIDEBAR & TRANSACTION HISTORY LOGIC ===
+  // SIDEBAR & TRANSACTION HISTORY LOGIC
   const leftSidebar = document.getElementById('leftSidebar');
   const mobileSidebarToggle = document.getElementById('mobileSidebarToggle');
   const sidebarOverlay = document.getElementById('sidebarOverlay');
@@ -1250,52 +1467,6 @@
       txnHistoryList.innerHTML = '<div class="empty-state" style="color:var(--red);">Error loading transactions.</div>';
     }
   }
-
-  // === NEW: AI PLAN TABS LOGIC ===
-  const AI_PLANS = {
-    '3m': { name: '3 Months', price: 50, term: '3 Months', badge: '', bonus: '—',
-      perks: ['Unlocks AI Portfolio access', '85% historical win rate', '65% share of trading profits', '10% share of venture profits'] },
-    '1y': { name: '1 Year', price: 150, term: '1 Year', badge: 'BEST VALUE', bonus: 'Priority support',
-      perks: ['Everything in the 3-Month plan', 'Priority support', 'Advanced AI strategies', '12 months of uninterrupted management'] },
-    '3y': { name: '3 Years', price: 390, term: '3 Years', badge: '', bonus: 'Locked-in rate + top priority',
-      perks: ['Everything in the 1-Year plan', 'Locked-in discounted rate', 'Top-priority support', '36 months of uninterrupted management'] }
-  };
-
-  function renderPlanPanel(key) {
-    const p = AI_PLANS[key];
-    const specsEl = document.getElementById('planSpecs');
-    const cardEl = document.getElementById('planPriceCard');
-    if (!specsEl || !cardEl) return;
-
-    specsEl.innerHTML = `
-      <div class="plan-spec-row"><span class="label">AI Win Rate</span><span class="value green">85%</span></div>
-      <div class="plan-spec-row"><span class="label">Daily Growth Range</span><span class="value green">+0.2% to +1.5%</span></div>
-      <div class="plan-spec-row"><span class="label">Trading Profit Share</span><span class="value">65%</span></div>
-      <div class="plan-spec-row"><span class="label">Venture Profit Share</span><span class="value">10%</span></div>
-      <div class="plan-spec-row"><span class="label">Term Length</span><span class="value">${p.term}</span></div>
-      <div class="plan-spec-row"><span class="label">Minimum Allocation</span><span class="value">$100</span></div>
-      <div class="plan-spec-row"><span class="label">Management</span><span class="value">Fully Automated 24/7</span></div>
-      <div class="plan-spec-row"><span class="label">Plan Bonus</span><span class="value gold">${p.bonus}</span></div>
-    `;
-
-    cardEl.className = 'plan-price-card' + (p.badge ? ' featured' : '');
-    cardEl.innerHTML = `
-      ${p.badge ? `<div class="plan-best-badge">${p.badge}</div>` : ''}
-      <h3>${p.name} Plan</h3>
-      <div class="plan-price-big">$${p.price.toLocaleString()}<span> / ${p.term.toLowerCase()}</span></div>
-      <ul class="plan-perks">${p.perks.map(x => `<li>${x}</li>`).join('')}</ul>
-      <button class="subscribe-btn ${p.badge ? 'gold' : ''}" onclick="buyAiPlan('${p.name}', ${p.price})">Subscribe for ${p.term}</button>
-    `;
-  }
-
-  document.querySelectorAll('.plan-tab').forEach(tab => {
-    tab.addEventListener('click', () => {
-      document.querySelectorAll('.plan-tab').forEach(t => t.classList.remove('active'));
-      tab.classList.add('active');
-      renderPlanPanel(tab.dataset.plan);
-    });
-  });
-  renderPlanPanel('3m');
 </script>
 </body>
 </html>
