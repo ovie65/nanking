@@ -1,4 +1,4 @@
-import clientPromise from '../utils/db.js';
+import clientPromise from './utils/db.js';   // <-- FIXED: was '../utils/db.js'
 
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
@@ -7,21 +7,17 @@ export default async function handler(req, res) {
 
   try {
     const { userId } = req.query;
-    console.log('🔍 API: Fetching transactions for userId:', userId);
-    
-    if (!userId) {
-      return res.status(400).json({ error: 'Missing userId in query' });
-    }
+    if (!userId) return res.status(400).json({ error: 'Missing userId' });
 
     const client = await clientPromise;
     const db = client.db('nexavault');
     const txnsCollection = db.collection('transactions');
 
-    // Query by userId (stored as string from frontend)
-    const query = { userId: String(userId) };
-    
-    const txns = await txnsCollection.find(query).sort({ createdAt: -1 }).limit(100).toArray();
-    console.log('✅ API: Found', txns.length, 'transactions');
+    const txns = await txnsCollection
+      .find({ userId: String(userId) })
+      .sort({ createdAt: -1 })
+      .limit(100)
+      .toArray();
 
     const safeTxns = txns.map(t => ({
       id: t._id.toString(),
@@ -36,7 +32,7 @@ export default async function handler(req, res) {
 
     return res.status(200).json(safeTxns);
   } catch (error) {
-    console.error('❌ CRITICAL ERROR in user-transactions API:', error);
+    console.error('Error fetching user transactions:', error);
     return res.status(500).json({ error: error.message });
   }
 }
