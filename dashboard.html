@@ -291,6 +291,136 @@
     .info-card p { font-size: 13px !important; }
     .info-card ul li { font-size: 12px !important; }
   }
+
+  /* === NEW: LEFT SIDEBAR & TXN DRAWER === */
+  .left-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 240px;
+    height: 100vh;
+    background: linear-gradient(180deg, #0a0c14, #05060a);
+    border-right: 1px solid var(--line);
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    z-index: 90;
+    transition: transform 0.3s ease;
+  }
+  .sidebar-btn {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    color: var(--text);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: left;
+  }
+  .sidebar-btn:hover {
+    background: rgba(124,92,255,0.1);
+    border-color: var(--accent);
+    color: var(--accent-2);
+  }
+  .mobile-sidebar-toggle {
+    display: none;
+    position: fixed;
+    bottom: 24px;
+    left: 24px;
+    z-index: 180;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: var(--grad-2);
+    color: #fff;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    box-shadow: 0 8px 24px rgba(124,92,255,0.4);
+    border: none;
+    cursor: pointer;
+  }
+  .sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 89;
+  }
+  .sidebar-overlay.show { display: block; }
+
+  @media (min-width: 1024px) {
+    .left-sidebar { transform: translateX(0); }
+    .top-nav { margin-left: 240px; width: calc(100% - 240px); }
+    .tab-switcher-container { margin-left: 240px; }
+    .dashboard-container { margin-left: 240px; }
+  }
+
+  @media (max-width: 1023px) {
+    .left-sidebar { transform: translateX(-100%); z-index: 200; }
+    .left-sidebar.open { transform: translateX(0); }
+    .mobile-sidebar-toggle { display: flex; }
+  }
+
+  .txn-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(4px);
+    z-index: 250;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+  }
+  .txn-overlay.open { opacity: 1; pointer-events: auto; }
+  .txn-drawer {
+    position: fixed;
+    top: 0;
+    left: -100%;
+    width: 450px;
+    max-width: 95vw;
+    height: 100vh;
+    background: linear-gradient(180deg, #0b0d14, #05060a);
+    border-right: 1px solid var(--line);
+    z-index: 300;
+    padding: 32px 24px;
+    overflow-y: auto;
+    transition: left 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .txn-drawer.open { left: 0; }
+  .txn-item {
+    background: rgba(255,255,255,0.02);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 12px;
+  }
+  .txn-item-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  .txn-item-type {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    text-transform: capitalize;
+  }
+  .txn-item-amount {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+  }
+  .txn-item-date {
+    font-size: 11px;
+    color: var(--muted);
+  }
 </style>
 </head>
 <body>
@@ -497,6 +627,31 @@
     <div class="modal-actions" style="justify-content: center; margin-top: 20px;"><button class="btn btn-ghost" onclick="document.getElementById('topupChoiceModal').classList.remove('show')">Cancel</button></div>
   </div>
 </div>
+
+<!-- === NEW: LEFT SIDEBAR & TXN DRAWER HTML === -->
+<aside class="left-sidebar" id="leftSidebar">
+  <a href="index.html" class="nav-logo" style="margin-bottom: 40px;">
+    <span class="nav-logo-mark">N</span><span>NexaVault</span>
+  </a>
+  <button class="sidebar-btn" id="openTxnHistoryBtn">
+    <span>📜</span> Transaction History
+  </button>
+</aside>
+
+<button class="mobile-sidebar-toggle" id="mobileSidebarToggle">☰</button>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<div class="txn-overlay" id="txnOverlay"></div>
+<div class="txn-drawer" id="txnDrawer">
+  <div class="drawer-header">
+    <h2>📜 Transaction History</h2>
+    <button class="drawer-close" id="txnDrawerClose">✕</button>
+  </div>
+  <div id="txnHistoryList">
+    <div class="empty-state">Loading transactions...</div>
+  </div>
+</div>
+<!-- ================================ -->
 
 <div class="toast" id="toast"></div>
 
@@ -995,6 +1150,86 @@
   if(logoutBtn) { logoutBtn.addEventListener('click', () => { localStorage.removeItem(KEYS.LOGGED_IN); localStorage.removeItem(KEYS.CURRENT_USER); window.location.href = 'login.html'; }); }
 
   window.addEventListener('load', () => { fetchFreshUserData(); gsap.from('.balance-card', { opacity: 0, y: 30, duration: 0.7, ease: 'power3.out' }); gsap.from('.ai-status', { opacity: 0, y: 20, duration: 0.6, delay: 0.1, ease: 'power2.out' }); gsap.from('.ticker-card', { opacity: 0, y: 20, duration: 0.5, stagger: 0.08, delay: 0.2, ease: 'power2.out' }); });
+
+  // === NEW: SIDEBAR & TRANSACTION HISTORY LOGIC ===
+  const leftSidebar = document.getElementById('leftSidebar');
+  const mobileSidebarToggle = document.getElementById('mobileSidebarToggle');
+  const sidebarOverlay = document.getElementById('sidebarOverlay');
+  const openTxnHistoryBtn = document.getElementById('openTxnHistoryBtn');
+  const txnDrawer = document.getElementById('txnDrawer');
+  const txnOverlay = document.getElementById('txnOverlay');
+  const txnDrawerClose = document.getElementById('txnDrawerClose');
+  const txnHistoryList = document.getElementById('txnHistoryList');
+
+  function toggleMobileSidebar() {
+    leftSidebar.classList.toggle('open');
+    sidebarOverlay.classList.toggle('show');
+  }
+
+  if(mobileSidebarToggle) mobileSidebarToggle.addEventListener('click', toggleMobileSidebar);
+  if(sidebarOverlay) sidebarOverlay.addEventListener('click', toggleMobileSidebar);
+
+  function openTxnDrawer() {
+    txnDrawer.classList.add('open');
+    txnOverlay.classList.add('open');
+    fetchUserTransactions();
+    if (leftSidebar.classList.contains('open')) toggleMobileSidebar();
+  }
+
+  function closeTxnDrawer() {
+    txnDrawer.classList.remove('open');
+    txnOverlay.classList.remove('open');
+  }
+
+  if(openTxnHistoryBtn) openTxnHistoryBtn.addEventListener('click', openTxnDrawer);
+  if(txnDrawerClose) txnDrawerClose.addEventListener('click', closeTxnDrawer);
+  if(txnOverlay) txnOverlay.addEventListener('click', closeTxnDrawer);
+
+  async function fetchUserTransactions() {
+    txnHistoryList.innerHTML = '<div class="empty-state">Loading your transactions...</div>';
+    try {
+      const res = await fetch(`/api/user-transactions?userId=${user.id}`);
+      if (!res.ok) throw new Error('Failed to fetch');
+      const txns = await res.json();
+      
+      if (txns.length === 0) {
+        txnHistoryList.innerHTML = '<div class="empty-state">No transactions yet.<br>Fund your account to get started!</div>';
+        return;
+      }
+
+      txnHistoryList.innerHTML = txns.map(t => {
+        const statusClass = t.status === 'approved' ? 'approved' : t.status === 'rejected' ? 'rejected' : 'pending';
+        let typeLabel = 'Funding';
+        if (t.type === 'tesla_investment') typeLabel = '🚗 Tesla Investment';
+        else if (t.type === 'ai_subscription') typeLabel = '🤖 AI Subscription';
+        else if (t.type === 'ai_investment') typeLabel = '🤖 AI Top Up';
+        else if (t.type === 'asset_purchase') typeLabel = '📈 Asset Purchase';
+        else if (t.type === 'withdrawal_request') typeLabel = '💸 Withdrawal';
+        
+        const date = new Date(t.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+        
+        return `
+          <div class="txn-item">
+            <div class="txn-item-head">
+              <div class="txn-item-type">${typeLabel}</div>
+              <div class="txn-item-amount" style="color: ${t.type === 'withdrawal_request' ? 'var(--red)' : 'var(--green)'};">
+                ${t.type === 'withdrawal_request' ? '-' : '+'}$${formatMoney(t.amount)}
+              </div>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <div class="txn-item-date">${date}</div>
+              <span style="display: inline-block; padding: 3px 10px; border-radius: 100px; font-size: 11px; font-weight: 600; background: ${t.status === 'approved' ? 'rgba(34,197,94,0.12)' : t.status === 'rejected' ? 'rgba(239,68,68,0.12)' : 'rgba(245,196,81,0.12)'}; color: ${t.status === 'approved' ? 'var(--green)' : t.status === 'rejected' ? 'var(--red)' : 'var(--gold)'};">${t.status}</span>
+            </div>
+            ${t.reason ? `<div style="font-size: 11px; color: var(--muted); margin-top: 8px; border-top: 1px solid var(--line); padding-top: 8px;">${t.reason}</div>` : ''}
+          </div>
+        `;
+      }).join('');
+
+    } catch (err) {
+      console.error('Error fetching transactions:', err);
+      txnHistoryList.innerHTML = '<div class="empty-state" style="color:var(--red);">Error loading transactions.</div>';
+    }
+  }
 </script>
 </body>
 </html>
