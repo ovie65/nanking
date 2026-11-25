@@ -399,6 +399,53 @@
       if (errEl) errEl.classList.remove('show');
     });
   });
+
+    // === UNIVERSAL DYNAMIC SITE NAME FIX ===
+  (async function() {
+    try {
+      const res = await fetch('/api/settings');
+      if (!res.ok) return;
+      const data = await res.json();
+      const newName = data.siteName || 'NexaVault';
+      const oldName = 'NexaVault'; 
+
+      // 1. Update Browser Tab Title
+      if (document.title.includes(oldName)) {
+        document.title = document.title.replace(new RegExp(oldName, 'g'), newName);
+      }
+
+      // 2. Update Logo Letters (The square icon with 'N')
+      const firstLetter = newName.charAt(0).toUpperCase();
+      document.querySelectorAll('.logo-mark, .nav-logo-mark, .brand-logo-mark, .sidebar-logo-mark').forEach(el => { 
+        if(el.textContent.trim().length <= 2) el.textContent = firstLetter; 
+      });
+
+      // 3. Update Specific Logo Text Elements
+      if (document.getElementById('navLogoText')) document.getElementById('navLogoText').textContent = newName;
+      if (document.getElementById('sidebarSiteName')) document.getElementById('sidebarSiteName').textContent = newName;
+      if (document.getElementById('introWordmark')) document.getElementById('introWordmark').innerHTML = '<span class="grad">' + newName + '</span>';
+
+      // 4. GLOBAL TEXT REPLACEMENT (Scans the whole page safely)
+      const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
+      let node;
+      const textNodes = [];
+      while(node = walker.nextNode()) {
+        // Skip scripts, styles, and inputs to prevent breaking code
+        if (['SCRIPT', 'STYLE', 'TEXTAREA', 'INPUT'].includes(node.parentElement.tagName)) continue;
+        if (node.nodeValue.includes(oldName)) {
+          textNodes.push(node);
+        }
+      }
+      
+      // Replace the text safely
+      textNodes.forEach(node => {
+        node.nodeValue = node.nodeValue.replace(new RegExp(oldName, 'g'), newName);
+      });
+
+    } catch (e) {
+      console.log('Site name fetch failed, using default.');
+    }
+  })();
 </script>
 
 </body>
