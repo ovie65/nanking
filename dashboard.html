@@ -1399,24 +1399,12 @@
   if(txnDrawerClose) txnDrawerClose.addEventListener('click', closeTxnDrawer);
   if(txnOverlay) txnOverlay.addEventListener('click', closeTxnDrawer);
 
-  
-    async function fetchUserTransactions() {
+  async function fetchUserTransactions() {
     txnHistoryList.innerHTML = '<div class="empty-state">Loading your transactions...</div>';
-    
-    console.log('🔍 Frontend: Attempting to fetch transactions for user.id =', user.id);
-    
     try {
       const res = await fetch(`/api/user-transactions?userId=${user.id}`);
-      console.log('🔍 Frontend: API Response Status =', res.status);
-      
-      if (!res.ok) {
-        const errData = await res.json().catch(() => ({}));
-        console.error('❌ Frontend: API Error Details =', errData);
-        throw new Error('Failed to fetch');
-      }
-      
+      if (!res.ok) throw new Error('Failed to fetch');
       const txns = await res.json();
-      console.log('✅ Frontend: Received', txns.length, 'transactions');
       
       if (txns.length === 0) {
         txnHistoryList.innerHTML = '<div class="empty-state">No transactions yet.<br>Fund your account to get started!</div>';
@@ -1452,8 +1440,8 @@
       }).join('');
 
     } catch (err) {
-      console.error('❌ Frontend: Fetch User Transactions Failed:', err);
-      txnHistoryList.innerHTML = '<div class="empty-state" style="color:var(--red);">Error loading transactions. Check console.</div>';
+      console.error('Error fetching transactions:', err);
+      txnHistoryList.innerHTML = '<div class="empty-state" style="color:var(--red);">Error loading transactions.</div>';
     }
   }
   // === SINGLE SOURCE OF TRUTH FOR SITE NAME ===
